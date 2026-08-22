@@ -1,13 +1,39 @@
 import appLogo from '@/assets/xbooksync.svg'
+import { FaDatabase } from 'react-icons/fa6'
+import { FaRotate } from 'react-icons/fa6'
+import { FaGear } from 'react-icons/fa6'
+import { FaCircleQuestion } from 'react-icons/fa6'
 import './App.css'
 
-import Storage from './components/storage'
-import Sync from './components/sync'
-import Sort from './components/sort'
+import StoragePage from './pages/storage'
+import SettingsPage from './pages/settings'
+import HelpPage from './pages/help'
 
+enum PanelType {
+    Storage, // 0
+    Settings, // 2
+    Help, // 3
+}
 function App() {
+    const [panel, setPanel] = useState<PanelType>(PanelType.Storage)
+
+    const getPanel = (panel: PanelType) => {
+        switch (panel) {
+            case PanelType.Storage:
+                return StoragePage()
+            case PanelType.Settings:
+                return SettingsPage()
+            case PanelType.Help:
+                return HelpPage()
+        }
+    }
+
+    const syncNow = () => {
+        console.log('I should do the sync now!')
+    }
+
     return (
-        <>
+        <div className='container'>
             <div className='header'>
                 <div>
                     <a href='https://github.com/jepomeroy/xbooksync' target='_blank'>
@@ -17,22 +43,25 @@ function App() {
                 <div>
                     <h1>XBookSync</h1>
                 </div>
-            </div>
-            <div className='settings'>
-                <div className='card'>
-                    <h3>Storage</h3>
-                    <Storage />
-                </div>
-                <div className='card'>
-                    <h3>Settings</h3>
-                    <Sort />
-                    <Sync />
-                </div>
-                <div className='card'>
-                    <h3>Help</h3>
+                <div>
+                    <button onClick={() => syncNow()}>
+                        <FaRotate />
+                    </button>
                 </div>
             </div>
-        </>
+            <div className='panel'>{getPanel(panel)}</div>
+            <div className='selector'>
+                <button onClick={() => setPanel(PanelType.Storage)}>
+                    <FaDatabase />
+                </button>
+                <button onClick={() => setPanel(PanelType.Settings)}>
+                    <FaGear />
+                </button>
+                <button onClick={() => setPanel(PanelType.Help)}>
+                    <FaCircleQuestion />
+                </button>
+            </div>
+        </div>
     )
 }
 

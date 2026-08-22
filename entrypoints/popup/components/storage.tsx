@@ -77,11 +77,11 @@ export default function Storage() {
                     onChange={handleStorageChange}
                     style={{ width: '100%', padding: '6px', borderRadius: '4px' }}
                 >
-                    <option value={StorageType.File}>File</option>
+                    <option value={StorageType.File}>Local File</option>
                     <option value={StorageType.GitHubRepo}>GitHub Repo</option>
                     <option value={StorageType.GitHubGist}>GitHub Gist</option>
                     <option value={StorageType.GitlabRepo}>Gitlab Repo</option>
-                    <option value={StorageType.S3}>S3</option>
+                    <option value={StorageType.S3}>S3 Bucket</option>
                 </select>
             </div>
             <div className='setting'>{renderLocationSettings()}</div>

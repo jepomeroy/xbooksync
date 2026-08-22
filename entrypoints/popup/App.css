@@ -1,19 +1,36 @@
 #root {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
     padding: 1rem;
     text-align: center;
+}
 
-    /* default colors */
-    --main-color: #5b7f95ff;
-    --shadow-color: #61dafbaa;
-    --gray-color: #d1d5dbff;
-    --toogle-green-color: #22c55eff;
-    --white-color: #fff;
+.container {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: 100%;
 }
 
 .header {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
     align-items: center;
+    justify-items: right;
+    column-gap: 0.5em;
+}
+
+/* Panels differ in height; absorb that here so the popup itself never resizes. */
+.panel {
+    overflow-y: auto;
+    text-align: left;
+}
+
+.selector {
+    display: flex;
+    justify-content: center;
+    column-gap: 0.5em;
+    padding-top: 0.5em;
 }
 
 .logo {
@@ -32,7 +49,7 @@
 }
 
 .card > h3 {
-    border-bottom: 1px solid var(--gray-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .setting-group {
@@ -66,7 +83,16 @@
     border-radius: 4px;
 }
 
+.help-setting {
+    font-size: 1.5em;
+}
+
+.help-setting svg {
+    color: var(--main-color);
+    padding-right: 0.7em;
+}
+
 /* TODO: this will go away soon */
 .unimplemented {
-    color: red;
+    color: var(--error-color);
 }

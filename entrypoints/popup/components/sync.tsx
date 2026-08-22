@@ -49,10 +49,6 @@ export default function Sync() {
         await syncRateType.setValue(val)
     }
 
-    const handleSyncButton = () => {
-        console.log('Sync button clicked')
-    }
-
     return (
         <div className='setting-group'>
             <Toggle label='Enable Syncing' initial={syncEnabled} onToggle={handleSyncChange} />
@@ -68,11 +64,6 @@ export default function Sync() {
             </div>
             <div className='last-synced'>
                 <p>Last synced: {getLastSynced()}</p>
-            </div>
-            <div className='sync-button'>
-                <button type='button' disabled={syncEnabled} onClick={handleSyncButton}>
-                    Sync Now
-                </button>
             </div>
         </div>
     )
