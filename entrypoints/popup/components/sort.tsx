@@ -1,6 +1,6 @@
 import { useState, useEffect } from '#imports'
-import { getSortOrderType, SortOrderType } from '@/entrypoints/utils/constants'
-import { sortedType, sortOrderType } from '@/entrypoints/utils/types'
+import { getSortOrderType, SortOrderType } from '@/entrypoints/shared/types'
+import { sortedSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from './toogle'
 
 export default function Sort() {
@@ -8,20 +8,20 @@ export default function Sort() {
     const [sortOrder, setSortOrder] = useState(SortOrderType.Ascending)
 
     useEffect(() => {
-        sortedType.getValue().then(data => setSort(data))
-        sortOrderType.getValue().then(data => setSortOrder(getSortOrderType(data)))
+        sortedSetting.getValue().then(data => setSort(data))
+        sortOrderSetting.getValue().then(data => setSortOrder(getSortOrderType(data)))
     }, [])
 
     const handleSortChange = async () => {
         const next = !sort
         setSort(next)
-        await sortedType.setValue(next)
+        await sortedSetting.setValue(next)
     }
 
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const sot = getSortOrderType(e.target.value)
         setSortOrder(sot)
-        await sortOrderType.setValue(sot)
+        await sortOrderSetting.setValue(sot)
         console.log(sortOrder)
     }
 

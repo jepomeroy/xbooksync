@@ -8,6 +8,8 @@ import './App.css'
 import StoragePage from './pages/storage'
 import SettingsPage from './pages/settings'
 import HelpPage from './pages/help'
+import { StatusType, SyncNowMessage, type MessageResponse } from '../shared/types'
+import { syncEnableSetting } from '../shared/localsettings'
 
 enum PanelType {
     Storage, // 0
@@ -28,8 +30,18 @@ function App() {
         }
     }
 
-    const syncNow = () => {
-        console.log('I should do the sync now!')
+    const syncNow = async () => {
+        if ((await syncEnableSetting.getValue()) == true) {
+            const result = await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)
+
+            if (result.status === StatusType.Success) {
+                console.log('I would sync')
+            } else {
+                console.log('No sync necessary')
+            }
+        } else {
+            console.log('Sync is disabled')
+        }
     }
 
     return (

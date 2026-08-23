@@ -1,5 +1,5 @@
 import { useState, useEffect } from '#imports'
-import { syncEnableType, syncLastSyncType, syncRateType } from '@/entrypoints/utils/types'
+import { syncEnableSetting, syncLastSyncSetting, syncRateSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from './toogle'
 
 // type SyncRateProps = {
@@ -13,9 +13,9 @@ export default function Sync() {
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
 
     useEffect(() => {
-        syncEnableType.getValue().then(data => setSyncEnabled(data))
-        syncRateType.getValue().then(data => setSyncRate(data))
-        syncLastSyncType.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
+        syncEnableSetting.getValue().then(data => setSyncEnabled(data))
+        syncRateSetting.getValue().then(data => setSyncRate(data))
+        syncLastSyncSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
     }, [])
 
     const getLastSynced = (): string => {
@@ -39,14 +39,14 @@ export default function Sync() {
 
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
-        await syncEnableType.setValue(state)
+        await syncEnableSetting.setValue(state)
     }
 
     const handleSyncRateChange = async (rate: string) => {
         const val = +rate
 
         setSyncRate(val)
-        await syncRateType.setValue(val)
+        await syncRateSetting.setValue(val)
     }
 
     return (

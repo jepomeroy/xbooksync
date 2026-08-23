@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from '#imports'
 
 import FileSettings from './file'
 import Unimplemented from './unimplemented'
-import { storageType, storageFilePathType } from '../../utils/types'
-import { getStorageType, StorageType } from '@/entrypoints/utils/constants'
+import { storageSetting, storageFilePathSetting } from '../../shared/localsettings'
+import { getStorageType, StorageType } from '@/entrypoints/shared/types'
 
 const FILE_PATH_SAVE_DELAY = 400
 
@@ -26,12 +26,12 @@ export default function Storage() {
         }
         const file = pendingFilePathRef.current
         pendingFilePathRef.current = null
-        storageFilePathType.setValue(file)
+        storageFilePathSetting.setValue(file)
     }
 
     useEffect(() => {
-        storageType.getValue().then(data => setSelectedOption(data))
-        storageFilePathType.getValue().then(data => setFilePath(data))
+        storageSetting.getValue().then(data => setSelectedOption(data))
+        storageFilePathSetting.getValue().then(data => setFilePath(data))
     }, [])
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export default function Storage() {
         console.log(e.target.value)
         const st = getStorageType(e.target.value)
         setSelectedOption(st)
-        await storageType.setValue(st)
+        await storageSetting.setValue(st)
     }
 
     const handleFileChange = (file: string) => {
