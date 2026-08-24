@@ -7,6 +7,6 @@ export default defineConfig({
         baseIconPath: 'icon.svg',
     },
     manifest: {
-        permissions: ['storage', 'bookmarks'],
+        permissions: ['storage', 'bookmarks', 'alarms'],
     },
 })

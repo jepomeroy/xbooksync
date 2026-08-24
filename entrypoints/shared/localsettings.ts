@@ -1,12 +1,14 @@
+import type { Unwatch, WatchCallback } from 'wxt/utils/storage'
 import { SortOrderType, StorageType } from './types'
 
+const watchers = new Map<string, Unwatch>()
 /**
  * Typed accessors for every persisted setting.
  *
  * `storage` is auto-imported by WXT. Defining each key once here keeps the popup
  * and the background worker reading the same key under the same type — the
  * string literals are otherwise easy to drift apart. Each item carries a
- * fallback so a read before {@link setStorageDefault} has run still yields a
+ * fallback so a read before {@link setDefaultSettings} has run still yields a
  * usable value.
  */
 
@@ -53,14 +55,27 @@ export const syncLastSyncSetting = storage.defineItem<string>('local:lastSyncDat
  * Written as one `setItems` batch rather than per-item `setValue` calls so a
  * half-initialized settings state can't be observed.
  */
-export const setStorageDefault = async () => {
+export const setDefaultSettings = async () => {
     await storage.setItems([
         { key: 'local:storage', value: StorageType.File },
         { key: 'local:storageFilePath', value: '~/tmp' }, // FIXME: Hardcoded for testing, should be an empty string
         { key: 'local:sortOrder', value: SortOrderType.Ascending },
         { key: 'local:sortBookmarks', value: false },
         { key: 'local:syncEnabled', value: true },
-        { key: 'local:syncrate', value: 900 },
+        { key: 'local:syncrate', value: 30 }, // FIXME: Hardcoded for testing, should be an empty string
         { key: 'local:lastSyncDateTime', value: new Date(0).toISOString() },
     ])
+}
+
+export const registerSyncRateWatcher = (name: string, callback: WatchCallback<number | null>) => {
+    const unwatch = storage.watch<number>('local:syncrate', callback)
+    watchers.set(name, unwatch)
+}
+
+export const unregisterSyncRateWatcher = (name: string) => {
+    const unwatch = watchers.get(name)
+
+    if (unwatch) {
+        unwatch()
+    }
 }
