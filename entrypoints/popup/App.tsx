@@ -11,14 +11,24 @@ import HelpPage from './pages/help'
 import { StatusType, SyncNowMessage, type MessageResponse } from '../shared/types'
 import { syncEnableSetting } from '../shared/localsettings'
 
+/** Panels reachable from the bottom nav. */
 enum PanelType {
     Storage, // 0
     Settings, // 2
     Help, // 3
 }
+
+/**
+ * Popup shell: header, the active panel, and the bottom nav that switches
+ * between panels.
+ */
 function App() {
     const [panel, setPanel] = useState<PanelType>(PanelType.Storage)
 
+    // NOTE: the pages are invoked as plain functions, not rendered as
+    // `<StoragePage />`, so their output is inlined into App rather than
+    // mounted as its own component. That holds only while the pages stay
+    // hookless and stateless; anything else needs the JSX form.
     const getPanel = (panel: PanelType) => {
         switch (panel) {
             case PanelType.Storage:
@@ -30,6 +40,7 @@ function App() {
         }
     }
 
+    /** Asks the background worker to sync immediately, unless syncing is off. */
     const syncNow = async () => {
         if ((await syncEnableSetting.getValue()) == true) {
             const result = await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)

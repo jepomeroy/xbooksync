@@ -3,28 +3,32 @@ import { getSortOrderType, SortOrderType } from '@/entrypoints/shared/types'
 import { sortedSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from './toogle'
 
+/**
+ * Sorting preferences: an on/off toggle, plus the direction select that only
+ * appears while sorting is on.
+ */
 export default function Sort() {
     const [sort, setSort] = useState(false)
     const [sortOrder, setSortOrder] = useState(SortOrderType.Ascending)
 
+    // Hydrate from extension storage on mount.
     useEffect(() => {
         sortedSetting.getValue().then(data => setSort(data))
         sortOrderSetting.getValue().then(data => setSortOrder(getSortOrderType(data)))
     }, [])
 
-    const handleSortChange = async () => {
-        const next = !sort
-        setSort(next)
-        await sortedSetting.setValue(next)
+    const handleSortChange = async (state: boolean) => {
+        setSort(state)
+        await sortedSetting.setValue(state)
     }
 
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const sot = getSortOrderType(e.target.value)
         setSortOrder(sot)
         await sortOrderSetting.setValue(sot)
-        console.log(sortOrder)
     }
 
+    /** Renders nothing when sorting is off, hiding a control that would have no effect. */
     const showSortOrder = (showSort: boolean) => {
         if (showSort) {
             return (
@@ -41,7 +45,7 @@ export default function Sort() {
 
     return (
         <div className='setting-group'>
-            <Toggle label='Sort Bookmarks' initial={sort} onToggle={handleSortChange} />
+            <Toggle label='Sort Bookmarks' checked={sort} onToggle={handleSortChange} />
             {showSortOrder(sort)}
         </div>
     )

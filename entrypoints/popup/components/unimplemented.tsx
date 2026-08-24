@@ -1,3 +1,4 @@
+/** Placeholder for storage targets that have no adapter yet. */
 export default function Unimplemented() {
     return (
         <>

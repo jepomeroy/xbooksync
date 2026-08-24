@@ -2,22 +2,28 @@ import { useState, useEffect } from '#imports'
 import { syncEnableSetting, syncLastSyncSetting, syncRateSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from './toogle'
 
-// type SyncRateProps = {
-//     syncRate: string
-//     onChange: (value: number) => void
-// }
-
+/**
+ * Sync preferences: the master enable toggle, the interval between automatic
+ * syncs, and a read-only view of when the last sync happened.
+ */
 export default function Sync() {
     const [syncEnabled, setSyncEnabled] = useState(true)
     const [syncRate, setSyncRate] = useState(900)
+    // null until the stored timestamp resolves, which keeps the label blank
+    // rather than briefly showing the epoch.
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
 
+    // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
         syncRateSetting.getValue().then(data => setSyncRate(data))
         syncLastSyncSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
     }, [])
 
+    /**
+     * Formats the last sync time for display, or returns an empty string while
+     * the stored value is still loading.
+     */
     const getLastSynced = (): string => {
         if (lastSynced) {
             // Friday, Aug 22, 2026 @ 03:45:30 PM
@@ -43,6 +49,7 @@ export default function Sync() {
     }
 
     const handleSyncRateChange = async (rate: string) => {
+        // `<input type="number">` still hands back a string; the setting is a number.
         const val = +rate
 
         setSyncRate(val)
@@ -51,7 +58,7 @@ export default function Sync() {
 
     return (
         <div className='setting-group'>
-            <Toggle label='Enable Syncing' initial={syncEnabled} onToggle={handleSyncChange} />
+            <Toggle label='Enable Syncing' checked={syncEnabled} onToggle={handleSyncChange} />
             <div className='setting'>
                 <label htmlFor='sync-rate'>Sync Rate:</label>
                 <input

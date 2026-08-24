@@ -1,6 +1,7 @@
 import { FaCircleQuestion } from 'react-icons/fa6'
 import { FaBug } from 'react-icons/fa6'
 
+/** Help panel: outbound links to the docs and the issue tracker. */
 export default function HelpPage() {
     return (
         <div className='card'>

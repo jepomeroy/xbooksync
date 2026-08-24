@@ -1,27 +1,32 @@
-import { useState } from 'react'
 import './toogle.css'
 
 type ToggleProps = {
+    /** Text shown beside the switch; omitted for an unlabelled toggle. */
     label?: string
-    initial?: boolean
-    onToggle?: (state: boolean) => void
+    /**
+     * Current position.
+     *
+     * Controlled: the parent owns this value and the switch renders whatever it
+     * is told. Settings hydrate asynchronously from extension storage, so a
+     * toggle that latched its position at mount time would be stuck showing the
+     * pre-hydration default.
+     */
+    checked: boolean
+    /** Fired with the requested new position; the parent applies it to {@link ToggleProps.checked}. */
+    onToggle: (state: boolean) => void
 }
 
-export default function Toggle({ label, initial = false, onToggle }: ToggleProps) {
-    const [enabled, setEnabled] = useState(initial)
-
-    const handleToggle = () => {
-        const newState = !enabled
-        setEnabled(newState)
-        onToggle?.(newState)
-    }
-
+/** Switch-style boolean control. */
+export default function Toggle({ label, checked, onToggle }: ToggleProps) {
     return (
         <div className='toggle'>
             {label && <span className='toggle-label'>{label}</span>}
             <button
-                onClick={handleToggle}
-                className={`toggle-switch${enabled ? ' is-on' : ''}`}
+                onClick={() => onToggle(!checked)}
+                role='switch'
+                aria-checked={checked}
+                aria-label={label}
+                className={`toggle-switch${checked ? ' is-on' : ''}`}
             >
                 <span className='toggle-knob' />
             </button>
