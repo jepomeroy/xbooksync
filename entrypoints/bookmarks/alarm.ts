@@ -1,9 +1,32 @@
 // Scheduling
 
 import { syncRateSetting } from '../shared/localsettings'
+import { BookmarkParser } from './bookmarks'
 
 /** Name of the alarm driving the periodic task. */
 export const TickAlarmName = 'sync-tick'
+
+/**
+ * Runs the periodic task.
+ *
+ * Delivery of the alarm is what wakes a suspended worker, so this is the only
+ * place scheduled work can assume it is running. Alarms are best effort — the
+ * browser may delay one past its period — so nothing here should depend on
+ * having fired an exact number of times.
+ */
+export async function handleTickAlarm(alarm: Browser.alarms.Alarm) {
+    if (alarm.name !== TickAlarmName) {
+        return
+    }
+
+    const tree = await browser.bookmarks.getTree()
+
+    const parser: BookmarkParser = new BookmarkParser(tree)
+    console.log(parser)
+
+    // TODO: run the scheduled sync here, gated on syncEnableSetting/syncRateSetting.
+    console.log(`[xbooksync] tick at ${new Date().toISOString()}`)
+}
 
 /**
  * Tick period, in minutes.

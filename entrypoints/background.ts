@@ -1,6 +1,6 @@
 import { StatusType, SyncNowMessage, type MessageResponse } from './shared/types'
 import { registerSyncRateWatcher, setDefaultSettings, unregisterSyncRateWatcher } from './shared/localsettings'
-import { ensureTickAlarm, resetTickAlarm, TickAlarmName } from './bookmarks/alarm'
+import { ensureTickAlarm, handleTickAlarm, resetTickAlarm, TickAlarmName } from './bookmarks/alarm'
 
 /**
  * Background service worker.
@@ -18,7 +18,10 @@ export default defineBackground(() => {
     browser.runtime.onMessage.addListener(handleMessages)
     // On every scheduled tick
     browser.alarms.onAlarm.addListener(handleTickAlarm)
-
+    // Cleanup any settings watcher
+    browser.runtime.onSuspend.addListener(() => {
+        unregisterSyncRateWatcher(TickAlarmName)
+    })
     // Not just on install: a worker revived by any event re-runs this, which is
     // what repairs the alarm if it was ever lost (browser update, profile move).
     void ensureTickAlarm()
@@ -27,29 +30,7 @@ export default defineBackground(() => {
     void registerSyncRateWatcher(TickAlarmName, (_newVal, _oldVal) => {
         resetTickAlarm()
     })
-
-    // Cleanup any settings watcher
-    browser.runtime.onSuspend.addListener(() => {
-        unregisterSyncRateWatcher(TickAlarmName)
-    })
 })
-
-/**
- * Runs the periodic task.
- *
- * Delivery of the alarm is what wakes a suspended worker, so this is the only
- * place scheduled work can assume it is running. Alarms are best effort — the
- * browser may delay one past its period — so nothing here should depend on
- * having fired an exact number of times.
- */
-function handleTickAlarm(alarm: Browser.alarms.Alarm) {
-    if (alarm.name !== TickAlarmName) {
-        return
-    }
-
-    // TODO: run the scheduled sync here, gated on syncEnableSetting/syncRateSetting.
-    console.log(`[xbooksync] tick at ${new Date().toISOString()}`)
-}
 
 /**
  * Routes messages from the popup.

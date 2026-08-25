@@ -1,3 +1,52 @@
+// Bookmarks
+
+export enum BookmarkType {
+    folder = 'folder',
+    bookmark = 'bookmark',
+    root = 'root',
+}
+
+export const getBookmarkType = (bookmarkTypeStr: string | undefined): BookmarkType => {
+    if (bookmarkTypeStr == undefined) {
+        return BookmarkType.folder
+    }
+
+    return BookmarkType.bookmark
+}
+
+/**
+ * Object representing a bookmark. This is used for create, update, and storage
+ * representations of all bookmarks.
+ */
+export type BookmarkEntryType = {
+    id?: string
+    index?: number
+    parentId?: string
+    title?: string
+    url?: string
+    type: BookmarkType
+    mappingId?: number
+    children?: BookmarkEntryType[]
+}
+
+export enum BrowserType {
+    Chrome = 'chrome',
+    Firefox = 'firefox',
+}
+
+export type BrowserRootType = {
+    title: string
+    id: number
+}
+
+/**
+ * Enumeration of supported bookmark folders
+ */
+export enum BookmarkFolderTypes {
+    BookmarkBar = 'bookmarks-bar',
+    Other = 'other',
+}
+
 // Sorting Types
 
 /** Direction bookmarks are sorted in when sorting is enabled. */
