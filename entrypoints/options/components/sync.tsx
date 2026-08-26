@@ -1,11 +1,21 @@
 import { useState, useEffect } from '#imports'
-import { syncEnableSetting, syncLastSyncSetting, syncRateSetting } from '@/entrypoints/shared/localsettings'
-import Toggle from './toogle'
+import {
+    registerSettingsWatcher,
+    SettingsKeys,
+    syncEnableSetting,
+    syncLastSyncSetting,
+    syncRateSetting,
+    unregisterSettingsWatcher,
+} from '@/entrypoints/shared/localsettings'
+import Toggle from '@/entrypoints/shared/components/toogle'
+import { getLastSynced } from '@/entrypoints/shared/syncutils'
 
 /**
  * Sync preferences: the master enable toggle, the interval between automatic
  * syncs, and a read-only view of when the last sync happened.
  */
+
+const SyncComponent = 'sync-component'
 export default function Sync() {
     const [syncEnabled, setSyncEnabled] = useState(true)
     const [syncRate, setSyncRate] = useState(900)
@@ -20,28 +30,16 @@ export default function Sync() {
         syncLastSyncSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
     }, [])
 
-    /**
-     * Formats the last sync time for display, or returns an empty string while
-     * the stored value is still loading.
-     */
-    const getLastSynced = (): string => {
-        if (lastSynced) {
-            // Friday, Aug 22, 2026 @ 03:45:30 PM
-            return `${lastSynced.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-            })} @ ${lastSynced.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-            })}`
-        } else {
-            return ''
-        }
-    }
+    // Registered once so the watcher handle stored under SyncComponent isn't overwritten on
+    // re-render, which would leak the previous subscription.
+    useEffect(() => {
+        registerSettingsWatcher<boolean>(SyncComponent, SettingsKeys.syncEnabled, newVal => {
+            // `newVal` is null if the key is cleared; fall back to the setting's default.
+            setSyncEnabled(newVal ?? true)
+        })
+
+        return () => unregisterSettingsWatcher(SyncComponent)
+    }, [])
 
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
@@ -60,17 +58,21 @@ export default function Sync() {
         <div className='setting-group'>
             <Toggle label='Enable Syncing' checked={syncEnabled} onToggle={handleSyncChange} />
             <div className='setting'>
-                <label htmlFor='sync-rate'>Sync Rate:</label>
-                <input
-                    id='sync-rate'
-                    type='number'
-                    value={syncRate}
-                    onChange={e => handleSyncRateChange(e.target.value)}
-                    placeholder='File path'
-                />
+                <div>
+                    <label htmlFor='sync-rate'>Sync Rate</label>
+                </div>
+                <div>
+                    <input
+                        id='sync-rate'
+                        type='number'
+                        value={syncRate}
+                        onChange={e => handleSyncRateChange(e.target.value)}
+                        placeholder='File path'
+                    />
+                </div>
             </div>
             <div className='last-synced'>
-                <p>Last synced: {getLastSynced()}</p>
+                <p>Last synced: {getLastSynced(lastSynced)}</p>
             </div>
         </div>
     )

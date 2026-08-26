@@ -1,5 +1,10 @@
 import { StatusType, SyncNowMessage, type MessageResponse } from './shared/types'
-import { registerSyncRateWatcher, setDefaultSettings, unregisterSyncRateWatcher } from './shared/localsettings'
+import {
+    registerSettingsWatcher,
+    setDefaultSettings,
+    SettingsKeys,
+    unregisterSettingsWatcher,
+} from './shared/localsettings'
 import { ensureTickAlarm, handleTickAlarm, resetTickAlarm, TickAlarmName } from './bookmarks/alarm'
 
 /**
@@ -20,14 +25,14 @@ export default defineBackground(() => {
     browser.alarms.onAlarm.addListener(handleTickAlarm)
     // Cleanup any settings watcher
     browser.runtime.onSuspend.addListener(() => {
-        unregisterSyncRateWatcher(TickAlarmName)
+        unregisterSettingsWatcher(TickAlarmName)
     })
     // Not just on install: a worker revived by any event re-runs this, which is
     // what repairs the alarm if it was ever lost (browser update, profile move).
     void ensureTickAlarm()
 
     // listen for changes to the sync rate
-    void registerSyncRateWatcher(TickAlarmName, (_newVal, _oldVal) => {
+    void registerSettingsWatcher<number>(TickAlarmName, SettingsKeys.syncRate, (_newVal, _oldVal) => {
         resetTickAlarm()
     })
 })

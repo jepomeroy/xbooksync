@@ -1,7 +1,7 @@
 import { useState, useEffect } from '#imports'
 import { getSortOrderType, SortOrderType } from '@/entrypoints/shared/types'
 import { sortedSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
-import Toggle from './toogle'
+import Toggle from '../../shared/components/toogle'
 
 /**
  * Sorting preferences: an on/off toggle, plus the direction select that only

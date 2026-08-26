@@ -12,7 +12,7 @@ type FileSettingsProps = {
 export default function FileSettings({ value, onChange }: FileSettingsProps) {
     return (
         <>
-            <label htmlFor='file-path'>file path:</label>
+            <label htmlFor='file-path'>File Location</label>
             <input
                 id='file-path'
                 type='text'

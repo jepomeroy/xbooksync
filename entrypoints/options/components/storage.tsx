@@ -85,7 +85,7 @@ export default function Storage() {
     return (
         <div className='setting-group'>
             <div className='setting'>
-                <label htmlFor='location'>Location:</label>
+                <label htmlFor='location'>Storage Type</label>
                 <select
                     id='location'
                     value={selectedOption}
