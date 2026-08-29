@@ -23,7 +23,6 @@ const watchers = new Map<string, Unwatch>()
  */
 export const SettingsKeys = {
     storage: 'local:storage',
-    storageFilePath: 'local:storageFilePath',
     sortOrder: 'local:sortOrder',
     sorted: 'local:sortBookmarks',
     syncEnabled: 'local:syncEnabled',
@@ -36,12 +35,7 @@ export type SettingsKey = (typeof SettingsKeys)[keyof typeof SettingsKeys]
 
 /** Which sync target the bookmark tree is written to. */
 export const storageSetting = storage.defineItem<StorageType>(SettingsKeys.storage, {
-    fallback: StorageType.File,
-})
-
-/** Destination path, only meaningful when {@link storageSetting} is `File`. */
-export const storageFilePathSetting = storage.defineItem<string>(SettingsKeys.storageFilePath, {
-    fallback: '',
+    fallback: StorageType.GitHubRepo,
 })
 
 /** Sort direction; ignored unless {@link sortedSetting} is on. */
@@ -71,14 +65,47 @@ export const syncLastSyncSetting = storage.defineItem<string>(SettingsKeys.lastS
 })
 
 /**
+ * GitHub Storage Settings
+ *
+ * This works for both GH Repos and Gist settting
+ */
+
+export const GitHubSettingKeys = {
+    ghAuthToken: 'local:ghAuthToken',
+    ghGist: 'local:ghGist',
+    ghRepo: 'local:ghRepo',
+    ghUsername: 'local:ghUsername',
+} as const satisfies Record<string, StorageItemKey>
+
+/** GitHub App Auth token for access to GH Repos and Gists. */
+export const ghAuthToken = storage.defineItem<string>(GitHubSettingKeys.ghAuthToken, {
+    fallback: '',
+})
+
+/** GitHub Gist. */
+export const ghGist = storage.defineItem<string>(GitHubSettingKeys.ghGist, {
+    // default to Unix Epoch if we've never synced before
+    fallback: '',
+})
+
+/** GitHub Repo to use for storage. */
+export const ghRepo = storage.defineItem<string>(GitHubSettingKeys.ghRepo, {
+    fallback: '',
+})
+
+/** GitHub Username required in GH API calls. */
+export const ghUsername = storage.defineItem<string>(GitHubSettingKeys.ghUsername, {
+    fallback: '',
+})
+
+/**
  * Install-time value for each setting.
  *
  * Typed as a total `Record` over {@link SettingsKey}, so adding a key to
  * {@link SettingsKeys} without seeding it here fails to compile.
  */
 const defaultSettings: Record<SettingsKey, unknown> = {
-    [SettingsKeys.storage]: StorageType.File,
-    [SettingsKeys.storageFilePath]: '~/tmp', // FIXME: Hardcoded for testing, should be an empty string
+    [SettingsKeys.storage]: StorageType.GitHubRepo,
     [SettingsKeys.sortOrder]: SortOrderType.Ascending,
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
@@ -94,16 +121,10 @@ const defaultSettings: Record<SettingsKey, unknown> = {
  * half-initialized settings state can't be observed.
  */
 export const setDefaultSettings = async () => {
-    await storage.setItems(
-        Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })),
-    )
+    await storage.setItems(Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })))
 }
 
-export const registerSettingsWatcher = <T>(
-    name: string,
-    setting: SettingsKey,
-    callback: WatchCallback<T | null>,
-) => {
+export const registerSettingsWatcher = <T>(name: string, setting: SettingsKey, callback: WatchCallback<T | null>) => {
     const unwatch = storage.watch<T>(setting, callback)
     watchers.set(name, unwatch)
 }

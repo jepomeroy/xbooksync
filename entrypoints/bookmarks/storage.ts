@@ -5,7 +5,10 @@
  * repo or Gist, GitLab repo, S3 — and hides them behind the shared interface in
  * `entrypoints/shared/types.ts`, so the sync loop never branches on target type.
  *
- * TODO: Only the local-file adapter is in scope for now.
+ * TODO: Only the local-file adapter is not in scope. This might not be doable since
+ * Firefox does not support FileSystemDirectoryHandle and the necessary showOpenFilePicker
+ * or showOpenDirectoryPicker. Support would work for work for Chrome since that already
+ * syncs through google services. This will probably be removed from the repo.
  */
 
 import type { StorageAdapter, SyncData, StorageMetadata } from '../shared/types'
@@ -33,7 +36,7 @@ export class LocalFileSystemAdapter implements StorageAdapter {
     }
 
     async hasChanged(knownVersion: string): Promise<{ changed: boolean; currentVersion: string }> {
-        const file = await this.fileHandle.getFile()
+        const file = await this.dirHandle.getFile()
         // Fast path: Check last modified timestamp or hash
         const content = await file.text()
         const currentVersion = await this.computeHash(content)

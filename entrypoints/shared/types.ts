@@ -84,7 +84,6 @@ export const getSortOrderType = (sortOrderStr: string): SortOrderType => {
  * under the old value.
  */
 export enum StorageType {
-    File = 'File',
     GitHubRepo = 'GitHub Repo',
     GitHubGist = 'GitHub Gist',
     GitlabRepo = 'Gitlab Repo',
@@ -97,8 +96,6 @@ export enum StorageType {
  */
 export const getStorageType = (storageTypeStr: string): StorageType => {
     switch (storageTypeStr) {
-        case 'File':
-            return StorageType.File
         case 'GitHub Repo':
             return StorageType.GitHubRepo
         case 'GitHub Gist':
@@ -108,7 +105,7 @@ export const getStorageType = (storageTypeStr: string): StorageType => {
         case 'S3':
             return StorageType.S3
         default:
-            return StorageType.File
+            return StorageType.GitHubRepo
     }
 }
 

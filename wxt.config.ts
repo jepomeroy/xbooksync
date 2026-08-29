@@ -7,6 +7,12 @@ export default defineConfig({
         baseIconPath: 'icon.svg',
     },
     manifest: {
-        permissions: ['storage', 'bookmarks', 'alarms'],
+        permissions: ['storage', 'bookmarks', 'alarms', 'identity'],
+        browser_specific_settings: {
+            gecko: {
+                id: 'my-extension-dev@example.com',
+            },
+        },
+        host_permissions: ['https://gitlab.com/*', 'https://github.com/*', 'https://api.github.com/*'],
     },
 })

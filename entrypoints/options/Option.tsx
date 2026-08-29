@@ -21,7 +21,7 @@ function Option() {
                     </a>
                 </div>
                 <div>
-                    <h1>XBookSync</h1>
+                    <h1>XBookSync Options</h1>
                 </div>
             </div>
             <div className='card'>
