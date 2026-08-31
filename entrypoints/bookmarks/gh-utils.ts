@@ -1,4 +1,4 @@
-const API_ROOT = 'https://api.github.com'
+export const API_ROOT = 'https://api.github.com'
 
 /**
  * The token is valid but reaches no repos, because the app isn't installed on
@@ -30,8 +30,23 @@ interface RepositoriesPage {
  * GitHub's header looks like `<url>; rel="next", <url>; rel="last"`; only the
  * `next` link matters, and its absence is what ends the walk.
  */
-const nextPageUrl = (linkHeader: string | null) =>
-    linkHeader?.match(/<([^>]+)>;\s*rel="next"/)?.[1] ?? null
+const nextPageUrl = (linkHeader: string | null) => linkHeader?.match(/<([^>]+)>;\s*rel="next"/)?.[1] ?? null
+
+// GitHub's base64 content is chunked with newlines and may contain non-ASCII
+// bookmark titles, so this has to go through TextDecoder rather than atob() alone.
+export const decodeBase64 = (base64: string) => {
+    const binary = atob(base64.replace(/\n/g, ''))
+    return new TextDecoder().decode(Uint8Array.from(binary, c => c.charCodeAt(0)))
+}
+
+// GitHub's content field must be a base64 string, and bookmark titles may
+// contain non-ASCII characters, so this has to go through TextEncoder rather
+// than btoa() alone.
+export const encodeBase64 = (content: string) => {
+    const bytes = new TextEncoder().encode(content)
+    const binary = Array.from(bytes, byte => String.fromCharCode(byte)).join('')
+    return btoa(binary)
+}
 
 /**
  * Every page of a paginated endpoint, concatenated.
@@ -39,11 +54,7 @@ const nextPageUrl = (linkHeader: string | null) =>
  * @param unwrap  Pulls the array out of one page's body; its parameter type
  *                doubles as the assertion made about that body.
  */
-const paginate = async <Body, Item>(
-    url: string,
-    token: string,
-    unwrap: (body: Body) => Item[],
-): Promise<Item[]> => {
+const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: Body) => Item[]): Promise<Item[]> => {
     const items: Item[] = []
     let next: string | null = `${url}?per_page=100`
 
@@ -91,8 +102,6 @@ export const fetchGitHubRepos = async (token: string) => {
         (body: InstallationsPage) => body.installations,
     )
 
-    console.log('installations', installations)
-
     if (installations.length === 0) {
         throw new AppNotInstalledError()
     }
@@ -109,8 +118,6 @@ export const fetchGitHubRepos = async (token: string) => {
     )
 
     const repos = repoLists.flat()
-
-    console.log('repos', repos)
 
     return repos.map(repo => repo.full_name).sort((a, b) => a.localeCompare(b))
 }

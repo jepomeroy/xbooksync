@@ -3,7 +3,7 @@ import { FaGithub } from 'react-icons/fa6'
 
 import './gh-storage.css'
 import { ghAuthToken, ghRepo, ghUsername } from '@/entrypoints/shared/localsettings'
-import { AppNotInstalledError, fetchGitHubRepos } from './gh-utils'
+import { AppNotInstalledError, fetchGitHubRepos } from '@/entrypoints/bookmarks/gh-utils'
 
 /**
  * Settings for the local-file sync target. Fully controlled — it holds no state

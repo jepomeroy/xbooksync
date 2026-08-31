@@ -3,7 +3,7 @@ import {
     registerSettingsWatcher,
     SettingsKeys,
     syncEnableSetting,
-    syncLastSyncSetting,
+    syncLastSyncDateSetting,
     syncRateSetting,
     unregisterSettingsWatcher,
 } from '@/entrypoints/shared/localsettings'
@@ -27,7 +27,7 @@ export default function Sync() {
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
         syncRateSetting.getValue().then(data => setSyncRate(data))
-        syncLastSyncSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
+        syncLastSyncDateSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
     }, [])
 
     // Registered once so the watcher handle stored under SyncComponent isn't overwritten on

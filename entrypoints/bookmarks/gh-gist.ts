@@ -8,18 +8,24 @@
  * This is the GitHub Gist implementation
  */
 
-import type { StorageAdapter, StorageMetadata, SyncData } from '../shared/types'
+import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
 
 export class GitHubGistAdapter implements StorageAdapter {
     readonly providerId: string = 'github-gist'
 
-    hasChanged(knownVersion: string): Promise<{ changed: boolean; currentVersion: string }> {
+    read(knownVersion: string): Promise<ReadData> {
         throw new Error('Method not implemented.')
     }
-    read(): Promise<SyncData> {
+
+    write(content: string, previousBlobVersion?: string): Promise<string> {
         throw new Error('Method not implemented.')
     }
-    write(content: string, previousVersion?: string): Promise<StorageMetadata> {
+
+    registerWatchers(callback: SyncCallback): void {
+        throw new Error('Method not implemented.')
+    }
+
+    unregisterWatchers(): void {
         throw new Error('Method not implemented.')
     }
 }

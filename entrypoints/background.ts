@@ -3,9 +3,13 @@ import {
     registerSettingsWatcher,
     setDefaultSettings,
     SettingsKeys,
+    syncLastSyncDateSetting,
+    syncLastSyncValueSetting,
     unregisterSettingsWatcher,
 } from './shared/localsettings'
-import { ensureTickAlarm, handleTickAlarm, resetTickAlarm, TickAlarmName } from './bookmarks/alarm'
+import { Alarm, TickAlarmName } from './bookmarks/alarm'
+import { BookmarkParser } from './bookmarks/bookmarks'
+import { Storage } from './bookmarks/storage'
 
 /**
  * Background service worker.
@@ -14,26 +18,62 @@ import { ensureTickAlarm, handleTickAlarm, resetTickAlarm, TickAlarmName } from 
  * down when idle and replays events into a fresh one, so anything registered
  * inside an async callback would miss events after the first suspend.
  */
+const storage = Storage.instance
+
+const syncFunc = async () => {
+    const adapter = storage.getStorageAdapter()
+    const tree = await browser.bookmarks.getTree()
+
+    const parser: BookmarkParser = new BookmarkParser(tree)
+    console.log(parser)
+
+    const now = new Date().toISOString()
+
+    console.log(`[xbooksync] tick at ${now}`)
+
+    const lastChange = await syncLastSyncValueSetting.getValue()
+    const readData = await adapter.read(lastChange)
+
+    if (readData.changed) {
+        // TODO: do comparison here
+        // console.log(parser.getContent())
+
+        const currVersion = await adapter.write(parser.getContent(), readData.blobVersion)
+
+        // Update the Sync Value and Date
+        await syncLastSyncValueSetting.setValue(currVersion)
+        await syncLastSyncDateSetting.setValue(now)
+    }
+}
+
+const alarm = new Alarm(syncFunc)
+
 export default defineBackground(() => {
     // On first install
     browser.runtime.onInstalled.addListener(handleSetup)
+
     // On browser start
     browser.runtime.onStartup.addListener(handleStartup)
+
     // On message from popup
     browser.runtime.onMessage.addListener(handleMessages)
+
     // On every scheduled tick
-    browser.alarms.onAlarm.addListener(handleTickAlarm)
+    browser.alarms.onAlarm.addListener(alarm.handleTickAlarm)
+
     // Cleanup any settings watcher
     browser.runtime.onSuspend.addListener(() => {
         unregisterSettingsWatcher(TickAlarmName)
+        storage.cleanup()
     })
+
     // Not just on install: a worker revived by any event re-runs this, which is
     // what repairs the alarm if it was ever lost (browser update, profile move).
-    void ensureTickAlarm()
+    void alarm.ensureTickAlarm()
 
     // listen for changes to the sync rate
     void registerSettingsWatcher<number>(TickAlarmName, SettingsKeys.syncRate, (_newVal, _oldVal) => {
-        resetTickAlarm()
+        alarm.resetTickAlarm()
     })
 })
 
@@ -45,11 +85,11 @@ export default defineBackground(() => {
  * so the channel has to stay open even though the current path answers
  * synchronously.
  */
-function handleMessages(
+const handleMessages = (
     message: string,
     _: Browser.runtime.MessageSender,
     sendResponse: (response?: MessageResponse) => void,
-) {
+) => {
     // Default to Error so an unrecognized message reports failure rather than a
     // silent success.
     const response: MessageResponse = {
@@ -57,8 +97,8 @@ function handleMessages(
     }
 
     if (message === SyncNowMessage) {
-        // TODO: kick off the sync here; success currently only means the
-        // message was understood.
+        // call the bookmark sync function
+        syncFunc()
         response.status = StatusType.Success
     }
 
@@ -79,11 +119,11 @@ function handleMessages(
  * without it nothing would start the worker to re-create the alarm and ticks
  * would stay dead until the popup happened to send a message.
  */
-async function handleStartup() {
-    await ensureTickAlarm()
+const handleStartup = async () => {
+    await alarm.ensureTickAlarm()
 }
 
 /** Seeds default settings on install so the popup never renders against empty storage. */
-async function handleSetup(_: Browser.runtime.InstalledDetails) {
+const handleSetup = async (_: Browser.runtime.InstalledDetails) => {
     await setDefaultSettings()
 }

@@ -21,6 +21,10 @@ export class BookmarkParser {
         this.rootBookmark = this.parseBookmarks(rawBookmarks)
     }
 
+    public getContent(): string {
+        return JSON.stringify(this.rootBookmark)
+    }
+
     private getBrowserRoots(): BrowserRootType[] {
         if (import.meta.env.BROWSER === 'chrome') {
             return [
@@ -114,22 +118,5 @@ export class BookmarkParser {
                 return
             }
         })
-    }
-}
-
-export class Bookmarks {
-    parser: BookmarkParser
-
-    constructor(parser: BookmarkParser) {
-        this.parser = parser
-    }
-
-    private parseBookmarks(browserBookmarks: Browser.bookmarks.BookmarkTreeNode[]): BookmarkType[] {
-        const bookmarks: BookmarkType[] = []
-        browserBookmarks.forEach(b => {
-            console.log(b)
-        })
-
-        return bookmarks
     }
 }

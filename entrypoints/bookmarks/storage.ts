@@ -1,67 +1,66 @@
-/**
- * {@link StorageAdapter} implementations, one per {@link StorageType}.
- *
- * Each adapter owns the details of talking to its target — local file, GitHub
- * repo or Gist, GitLab repo, S3 — and hides them behind the shared interface in
- * `entrypoints/shared/types.ts`, so the sync loop never branches on target type.
- *
- * TODO: Only the local-file adapter is not in scope. This might not be doable since
- * Firefox does not support FileSystemDirectoryHandle and the necessary showOpenFilePicker
- * or showOpenDirectoryPicker. Support would work for work for Chrome since that already
- * syncs through google services. This will probably be removed from the repo.
- */
+import {
+    ghAuthToken,
+    ghRepo,
+    registerSettingsWatcher,
+    SettingsKeys,
+    storageSetting,
+    unregisterSettingsWatcher,
+} from '../shared/localsettings'
+import { StorageType, type StorageAdapter } from '@/entrypoints/shared/types'
+import { GitHubRepoAdapter } from './gh-repo'
+import { NilStorageAdapter } from './nil-adapter'
 
-import type { StorageAdapter, SyncData, StorageMetadata } from '../shared/types'
+const storageMgr = 'storage-mgr'
 
-export class LocalFileSystemAdapter implements StorageAdapter {
-    readonly providerId = 'local-fs'
-    readonly bookmarksFilename = 'bookmarks.json'
+export class Storage {
+    static #instance: Storage
+    private storageAdapter: StorageAdapter
 
-    /**
-     * @param dirHandle Handle to the root directory selected by the user
-     * @param filePath Relative path inside the directory (e.g., 'bookmarks/sync.json' or 'bookmarks.json')
-     */
-    constructor(
-        private dirHandle: FileSystemDirectoryHandle,
-        private filePath: string = 'bookmarks.json',
-    ) {}
-
-    private async computeHash(text: string): Promise<string> {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(text)
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-        return Array.from(new Uint8Array(hashBuffer))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('')
+    private constructor(storageAdapter: StorageAdapter) {
+        this.storageAdapter = storageAdapter
+        // Watch for storage type change e.g. GH Repo -> GH Gist
+        registerSettingsWatcher(storageMgr, SettingsKeys.storage, this.handleStorageChange)
     }
 
-    async hasChanged(knownVersion: string): Promise<{ changed: boolean; currentVersion: string }> {
-        const file = await this.dirHandle.getFile()
-        // Fast path: Check last modified timestamp or hash
-        const content = await file.text()
-        const currentVersion = await this.computeHash(content)
-        return {
-            changed: currentVersion !== knownVersion,
-            currentVersion,
+    public static get instance(): Storage {
+        if (!Storage.#instance) {
+            const adapter = new NilStorageAdapter()
+            Storage.#instance = new Storage(adapter)
+            Storage.#instance.handleStorageChange()
+        }
+
+        return Storage.#instance
+    }
+
+    public getStorageAdapter = (): StorageAdapter => {
+        return this.storageAdapter
+    }
+
+    public cleanup = () => {
+        unregisterSettingsWatcher(storageMgr)
+        this.storageAdapter.unregisterWatchers()
+    }
+
+    private handleStorageChange = async () => {
+        // cleanup potentially old storage adapter
+        this.storageAdapter.unregisterWatchers()
+
+        switch (await storageSetting.getValue()) {
+            // case StorageType.GitHubGist:
+            case StorageType.GitHubRepo:
+                this.storageAdapter = await this.makeGHRepo()
+            //     case StorageType.GitlabRepo:
+            //     case StorageType.S3:
         }
     }
 
-    async read(): Promise<SyncData> {
-        const file = await this.fileHandle.getFile()
-        const content = await file.text()
-        const version = await this.computeHash(content)
-        return {
-            content,
-            metadata: { version, lastModified: file.lastModified },
-        }
-    }
+    private makeGHRepo = async (): Promise<StorageAdapter> => {
+        const token = await ghAuthToken.getValue()
+        const repo = await ghRepo.getValue()
 
-    async write(content: string): Promise<StorageMetadata> {
-        const writable = await this.fileHandle.createWritable()
-        await writable.write(content)
-        await writable.close()
+        const ghAdapter = new GitHubRepoAdapter(token, repo)
+        ghAdapter.registerWatchers(this.handleStorageChange)
 
-        const version = await this.computeHash(content)
-        return { version, lastModified: Date.now() }
+        return ghAdapter
     }
 }

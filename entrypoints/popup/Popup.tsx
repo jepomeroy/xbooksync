@@ -8,7 +8,7 @@ import {
     registerSettingsWatcher,
     SettingsKeys,
     syncEnableSetting,
-    syncLastSyncSetting,
+    syncLastSyncDateSetting,
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { getLastSynced } from '../shared/syncutils'
@@ -26,7 +26,7 @@ function Popup() {
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
-        syncLastSyncSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
+        syncLastSyncDateSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
     }, [])
 
     // Registered once so the watcher handle stored under PopupComponent isn't

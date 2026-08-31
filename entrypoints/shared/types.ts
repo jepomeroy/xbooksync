@@ -109,19 +109,17 @@ export const getStorageType = (storageTypeStr: string): StorageType => {
     }
 }
 
-/** Revision information a target reports back about the copy it holds. */
-export interface StorageMetadata {
-    /** Target-specific version token: ETag, commit SHA, MD5, or content hash */
-    version: string
-    /** ISO timestamp or Epoch ms of last remote modification */
-    lastModified?: number | string
-}
+/** Callback sync function */
+export type SyncCallback = () => void
 
 /** A payload read from a target, paired with the revision it was read at. */
-export interface SyncData {
+export interface ReadData {
+    /** Change flag */
+    changed: boolean
     /** Serialized bookmark tree */
     content: string
-    metadata: StorageMetadata
+    /** Target-specific version token: ETag, commit SHA, MD5, or content hash */
+    blobVersion: string
 }
 
 /**
@@ -136,23 +134,21 @@ export interface StorageAdapter {
     /** Identifier for logging and persistent storage keys (e.g., 'github-gist', 's3') */
     readonly providerId: string
 
-    /**
-     * Lightweight change detection.
-     * Compares remote version state against a known version token without downloading full payload.
-     */
-    hasChanged(knownVersion: string): Promise<{ changed: boolean; currentVersion: string }>
-
-    /** Reads content along with its current version metadata */
-    read(): Promise<SyncData>
+    /** Reads content along with its current version blob SHA */
+    read(knownVersion: string): Promise<ReadData>
 
     /**
      * Writes content to storage and returns updated version metadata.
      *
-     * @param previousVersion - Version the write is based on. Targets that
+     * @param previousBlobVersion - Previou BLOB version the write is based on. Targets that
      * support it should use this for a conditional write so a concurrent update
      * from another browser is rejected rather than silently overwritten.
      */
-    write(content: string, previousVersion?: string): Promise<StorageMetadata>
+    write(content: string, previousBlobVersion?: string): Promise<string>
+
+    registerWatchers(callback: SyncCallback): void
+
+    unregisterWatchers(): void
 }
 
 // Messaging types

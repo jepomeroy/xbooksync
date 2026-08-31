@@ -27,7 +27,8 @@ export const SettingsKeys = {
     sorted: 'local:sortBookmarks',
     syncEnabled: 'local:syncEnabled',
     syncRate: 'local:syncrate',
-    lastSync: 'local:lastSyncDateTime',
+    lastSyncDate: 'local:lastSyncDateTime',
+    lastSyncValue: 'local:lastSyncValue',
 } as const satisfies Record<string, StorageItemKey>
 
 /** Union of the keys in {@link SettingsKeys}. */
@@ -59,9 +60,14 @@ export const syncRateSetting = storage.defineItem<number>(SettingsKeys.syncRate,
 })
 
 /** ISO timestamp of the last successful sync. */
-export const syncLastSyncSetting = storage.defineItem<string>(SettingsKeys.lastSync, {
+export const syncLastSyncDateSetting = storage.defineItem<string>(SettingsKeys.lastSyncDate, {
     // default to Unix Epoch if we've never synced before
     fallback: new Date(0).toISOString(),
+})
+
+/** Last sync value from the configured adapter. */
+export const syncLastSyncValueSetting = storage.defineItem<string>(SettingsKeys.lastSyncValue, {
+    fallback: '',
 })
 
 /**
@@ -70,31 +76,28 @@ export const syncLastSyncSetting = storage.defineItem<string>(SettingsKeys.lastS
  * This works for both GH Repos and Gist settting
  */
 
-export const GitHubSettingKeys = {
+export const GitHubSettingsKeys = {
     ghAuthToken: 'local:ghAuthToken',
     ghGist: 'local:ghGist',
     ghRepo: 'local:ghRepo',
-    ghUsername: 'local:ghUsername',
 } as const satisfies Record<string, StorageItemKey>
 
+/** Union of the keys in {@link SettingsKeys}. */
+export type GitHubSettingsKey = (typeof GitHubSettingsKeys)[keyof typeof GitHubSettingsKeys]
+
 /** GitHub App Auth token for access to GH Repos and Gists. */
-export const ghAuthToken = storage.defineItem<string>(GitHubSettingKeys.ghAuthToken, {
+export const ghAuthToken = storage.defineItem<string>(GitHubSettingsKeys.ghAuthToken, {
     fallback: '',
 })
 
 /** GitHub Gist. */
-export const ghGist = storage.defineItem<string>(GitHubSettingKeys.ghGist, {
+export const ghGist = storage.defineItem<string>(GitHubSettingsKeys.ghGist, {
     // default to Unix Epoch if we've never synced before
     fallback: '',
 })
 
 /** GitHub Repo to use for storage. */
-export const ghRepo = storage.defineItem<string>(GitHubSettingKeys.ghRepo, {
-    fallback: '',
-})
-
-/** GitHub Username required in GH API calls. */
-export const ghUsername = storage.defineItem<string>(GitHubSettingKeys.ghUsername, {
+export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
     fallback: '',
 })
 
@@ -110,7 +113,17 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
     [SettingsKeys.syncRate]: 30, // FIXME: Hardcoded for testing, should be 900
-    [SettingsKeys.lastSync]: new Date(0).toISOString(),
+    [SettingsKeys.lastSyncDate]: new Date(0).toISOString(),
+    [SettingsKeys.lastSyncValue]: '',
+}
+
+const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
+    // FIXME Everything below here is for debugging and developement remove before release
+    // DO NOT COMMIT this with the ghAuthToken set!!!
+    // Change it to a blank and paste it in from a locally stored location
+    [GitHubSettingsKeys.ghAuthToken]: '',
+    [GitHubSettingsKeys.ghGist]: '',
+    [GitHubSettingsKeys.ghRepo]: 'jepomeroy/bookmarks',
 }
 
 /**
@@ -122,9 +135,16 @@ const defaultSettings: Record<SettingsKey, unknown> = {
  */
 export const setDefaultSettings = async () => {
     await storage.setItems(Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })))
+    await storage.setItems(
+        Object.entries(debugGitHubSettings).map(([key, value]) => ({ key: key as GitHubSettingsKey, value })),
+    )
 }
 
-export const registerSettingsWatcher = <T>(name: string, setting: SettingsKey, callback: WatchCallback<T | null>) => {
+export const registerSettingsWatcher = <T>(
+    name: string,
+    setting: StorageItemKey,
+    callback: WatchCallback<T | null>,
+) => {
     const unwatch = storage.watch<T>(setting, callback)
     watchers.set(name, unwatch)
 }
