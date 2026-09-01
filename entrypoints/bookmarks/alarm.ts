@@ -1,4 +1,6 @@
-// Scheduling
+/**
+ * Periodic sync scheduling via the browser `alarms` API.
+ */
 
 import { syncEnableSetting, syncRateSetting } from '../shared/localsettings'
 import type { SyncCallback } from '../shared/types'
@@ -6,7 +8,9 @@ import type { SyncCallback } from '../shared/types'
 /** Name of the alarm driving the periodic task. */
 export const TickAlarmName = 'sync-tick'
 
+/** Owns the tick alarm's lifecycle and invokes the sync callback when it fires. */
 export class Alarm {
+    /** @param syncFunc Callback invoked on each tick while syncing is enabled. */
     constructor(private syncFunc: SyncCallback) {}
 
     /**

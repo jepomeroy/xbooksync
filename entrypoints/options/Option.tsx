@@ -7,10 +7,7 @@ import Sort from './components/sort'
 import Sync from './components/sync'
 import Storage from './components/storage'
 
-/**
- * Options shell: header, the active panel, and the bottom nav that switches
- * between panels.
- */
+/** Options page: header, followed by cards for sync/sort settings, storage settings, and help links. */
 function Option() {
     return (
         <div className='container'>

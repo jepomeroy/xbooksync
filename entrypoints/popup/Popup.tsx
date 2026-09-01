@@ -14,11 +14,10 @@ import {
 import { getLastSynced } from '../shared/syncutils'
 import { type MessageResponse, SyncNowMessage, StatusType } from '../shared/types'
 
-/**
- * Popup shell: header, the active panel, and the bottom nav that switches
- * between panels.
- */
+/** Watcher key used to identify this component's settings subscription. */
 const PopupComponent = 'popup-component'
+
+/** Popup shell: header, the sync toggle with last-synced time, and buttons to sync now or open the options page. */
 function Popup() {
     const [syncEnabled, setSyncEnabled] = useState(true)
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
@@ -26,7 +25,7 @@ function Popup() {
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
-        syncLastSyncDateSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
+        syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
     }, [])
 
     // Registered once so the watcher handle stored under PopupComponent isn't
@@ -40,11 +39,13 @@ function Popup() {
         return () => unregisterSettingsWatcher(PopupComponent)
     }, [])
 
+    /** Persists the toggle's new position. */
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
         await syncEnableSetting.setValue(state)
     }
 
+    /** Opens the extension's options page. */
     const openOptions = () => {
         browser.runtime.openOptionsPage()
     }

@@ -17,11 +17,13 @@ export default function Sort() {
         sortOrderSetting.getValue().then(data => setSortOrder(getSortOrderType(data)))
     }, [])
 
+    /** Persists the toggle's new position. */
     const handleSortChange = async (state: boolean) => {
         setSort(state)
         await sortedSetting.setValue(state)
     }
 
+    /** Persists the newly selected sort direction. */
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const sot = getSortOrderType(e.target.value)
         setSortOrder(sot)

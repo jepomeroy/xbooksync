@@ -27,7 +27,7 @@ export default function Sync() {
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
         syncRateSetting.getValue().then(data => setSyncRate(data))
-        syncLastSyncDateSetting.getValue().then(data => setLastSynced(new Date(Date.parse(data))))
+        syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
     }, [])
 
     // Registered once so the watcher handle stored under SyncComponent isn't overwritten on
@@ -41,6 +41,7 @@ export default function Sync() {
         return () => unregisterSettingsWatcher(SyncComponent)
     }, [])
 
+    /** Persists the toggle's new position. */
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
         await syncEnableSetting.setValue(state)

@@ -1,17 +1,12 @@
 // Bookmarks
 
+/** Kind of node a bookmark tree entry represents. */
 export enum BookmarkType {
     folder = 'folder',
     bookmark = 'bookmark',
+    bookmarkbar = 'bookmarks bar',
+    other = 'other bookmarks',
     root = 'root',
-}
-
-export const getBookmarkType = (bookmarkTypeStr: string | undefined): BookmarkType => {
-    if (bookmarkTypeStr == undefined) {
-        return BookmarkType.folder
-    }
-
-    return BookmarkType.bookmark
 }
 
 /**
@@ -19,24 +14,22 @@ export const getBookmarkType = (bookmarkTypeStr: string | undefined): BookmarkTy
  * representations of all bookmarks.
  */
 export type BookmarkEntryType = {
-    id?: string
-    index?: number
-    parentId?: string
     title?: string
     url?: string
     type: BookmarkType
-    mappingId?: number
     children?: BookmarkEntryType[]
 }
 
+/** Browsers this extension supports. */
 export enum BrowserType {
     Chrome = 'chrome',
     Firefox = 'firefox',
 }
 
+/** Titles of a browser's top-level bookmark folders, used to locate them in the raw tree. */
 export type BrowserRootType = {
-    title: string
-    id: number
+    bookmarkTitle: string
+    otherTitle: string
 }
 
 /**
@@ -92,7 +85,7 @@ export enum StorageType {
 
 /**
  * Narrows an arbitrary string to a {@link StorageType}, defaulting to
- * {@link StorageType.File}. See {@link getSortOrderType} for why this is needed.
+ * {@link StorageType.GitHubRepo}. See {@link getSortOrderType} for why this is needed.
  */
 export const getStorageType = (storageTypeStr: string): StorageType => {
     switch (storageTypeStr) {

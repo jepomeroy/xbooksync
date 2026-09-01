@@ -5,15 +5,17 @@
  * GitLab repo, S3 — and hides them behind the shared interface in
  * `entrypoints/shared/types.ts`, so the sync loop never branches on target type.
  *
- * This is the GitHub Gist implementation
+ * This is the GitHub repository implementation, backed by the Contents API.
  */
 
 import { registerSettingsWatcher, GitHubSettingsKeys, unregisterSettingsWatcher } from '../shared/localsettings'
 import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
 import { API_ROOT, decodeBase64, encodeBase64 } from './gh-utils'
 
+/** {@link StorageAdapter} that reads and writes the bookmark file in a GitHub repository via the Contents API. */
 export class GitHubRepoAdapter implements StorageAdapter {
     readonly providerId: string = 'github-repo'
+    /** Path, within the repo, of the file the bookmark tree is stored in. */
     private bookmarkFilename: string = 'bookmarks.json'
 
     constructor(
@@ -21,6 +23,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         private repo: string,
     ) {}
 
+    /** Builds fetch options carrying the auth and API-version headers, plus a conditional-request ETag. */
     private getRequestInit = (knownVersion?: string): RequestInit => {
         return {
             headers: {
@@ -42,6 +45,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         }
     }
 
+    /** Builds the JSON body for a Contents API write, including the prior `sha` when updating an existing file. */
     private getPayload = (content: string, sha?: string): BodyInit => {
         return JSON.stringify({
             message: 'XBookSync updated bookmarks',
@@ -50,6 +54,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         })
     }
 
+    /** Reads the bookmark file's content and current blob SHA, using a conditional request when a known version is given. */
     async read(knownVersion: string): Promise<ReadData> {
         const url = `${API_ROOT}/repos/${this.repo}/contents/${this.bookmarkFilename}`
         const response: Response = await fetch(url, this.getRequestInit(knownVersion))
@@ -73,6 +78,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         return { changed: knownVersion !== body.sha, content: decodeBase64(body.content), blobVersion: body.sha }
     }
 
+    /** Writes content to the bookmark file, creating it or updating it based on the given blob SHA. */
     async write(content: string, previousBlobVersion?: string): Promise<string> {
         const url = `${API_ROOT}/repos/${this.repo}/contents/${this.bookmarkFilename}`
         const reqInit = this.getRequestInit()
@@ -90,11 +96,13 @@ export class GitHubRepoAdapter implements StorageAdapter {
         return commit.content.sha
     }
 
+    /** Invokes `callback` whenever the auth token or target repo setting changes. */
     registerWatchers(callback: SyncCallback): void {
         registerSettingsWatcher(`${this.providerId}-token`, GitHubSettingsKeys.ghAuthToken, callback)
         registerSettingsWatcher(`${this.providerId}-repo`, GitHubSettingsKeys.ghRepo, callback)
     }
 
+    /** Removes the watchers registered by {@link registerWatchers}. */
     unregisterWatchers(): void {
         unregisterSettingsWatcher(`${this.providerId}-token`)
         unregisterSettingsWatcher(`${this.providerId}-repo`)

@@ -8,53 +8,57 @@
  *
  */
 
-import { BookmarkType, getBookmarkType, type BookmarkEntryType, type BrowserRootType } from '../shared/types'
+import { BookmarkType, type BookmarkEntryType, type BrowserRootType } from '../shared/types'
 
-export class BookmarkParser {
-    rootBookmark: BookmarkEntryType
-    rootTypes: BrowserRootType[]
+export class Bookmarks {
+    private rootBookmark: BookmarkEntryType | null
+    private rootTypes: BrowserRootType | null
 
-    constructor(rawBookmarks: Browser.bookmarks.BookmarkTreeNode[]) {
+    constructor() {
+        this.rootBookmark = null
         // Get the valid bookmarks for this browser
-        this.rootTypes = this.getBrowserRoots()
+        this.rootTypes = Bookmarks.getBrowserRoots()
+    }
+
+    /** Parses a raw browser bookmark tree into the internal representation. */
+    public fromBrowswer(rawBookmarks: Browser.bookmarks.BookmarkTreeNode[]) {
         // Convert the browser bookmarks to extension types
         this.rootBookmark = this.parseBookmarks(rawBookmarks)
     }
 
-    public getContent(): string {
-        return JSON.stringify(this.rootBookmark)
+    /** Sets the internal representation directly from already-parsed bookmark data (e.g. read from storage). */
+    public fromXbsBookmarks(bookmarks: BookmarkEntryType) {
+        this.rootBookmark = bookmarks
     }
 
-    private getBrowserRoots(): BrowserRootType[] {
+    /** Returns the current bookmark tree, or null if nothing has been loaded yet. */
+    public getBookmarks(): BookmarkEntryType | null {
+        return this.rootBookmark
+    }
+
+    /** Serializes the current bookmark tree to the JSON string a {@link StorageAdapter} round-trips. */
+    public getContent(): string {
+        return JSON.stringify(this.rootBookmark ? this.rootBookmark : {})
+    }
+
+    /** Returns the current browser's top-level bookmark folder titles, or null if the browser is unrecognized. */
+    static getBrowserRoots(): BrowserRootType | null {
         if (import.meta.env.BROWSER === 'chrome') {
-            return [
-                {
-                    title: 'Bookmarks bar',
-                    id: 0,
-                },
-
-                {
-                    title: 'Other bookmarks',
-                    id: 1,
-                },
-            ]
+            return {
+                bookmarkTitle: 'Bookmarks bar',
+                otherTitle: 'Other bookmarks',
+            }
         } else if (import.meta.env.BROWSER === 'firefox') {
-            return [
-                {
-                    title: 'Bookmarks Toolbar',
-                    id: 0,
-                },
-
-                {
-                    title: 'Other Bookmarks',
-                    id: 1,
-                },
-            ]
+            return {
+                bookmarkTitle: 'Bookmarks Toolbar',
+                otherTitle: 'Other Bookmarks',
+            }
         } else {
-            return []
+            return null
         }
     }
 
+    /** Locates the browser's top-level bookmark folders within the raw tree and converts their contents. */
     private parseBookmarks(rawBookmarks: Browser.bookmarks.BookmarkTreeNode[]): BookmarkEntryType {
         const rootBookmark: BookmarkEntryType = {
             type: BookmarkType.root,
@@ -62,7 +66,9 @@ export class BookmarkParser {
         }
 
         const matchingChildren: Browser.bookmarks.BookmarkTreeNode[] = []
-        const validBookmarkCollectionTitles = new Set(this.rootTypes.map(root => root.title))
+        const validBookmarkCollectionTitles = new Set(
+            this.rootTypes ? [this.rootTypes.bookmarkTitle, this.rootTypes.otherTitle] : [],
+        )
 
         const locateRootNodes = (nodes: Browser.bookmarks.BookmarkTreeNode[]) => {
             for (const node of nodes) {
@@ -80,24 +86,18 @@ export class BookmarkParser {
 
         rootBookmark.children = this.parseNodes(matchingChildren)
 
-        if (rootBookmark.children) {
-            rootBookmark.children.forEach((child: BookmarkEntryType) => this.setMappingId(child))
-        }
-
         return rootBookmark
     }
 
+    /** Recursively converts raw bookmark tree nodes into {@link BookmarkEntryType} entries. */
     private parseNodes(nodes: Browser.bookmarks.BookmarkTreeNode[]): BookmarkEntryType[] {
         const children: BookmarkEntryType[] = []
 
         for (const node of nodes) {
             const child: BookmarkEntryType = {
-                id: node.id,
-                index: node.index,
-                parentId: node.parentId,
                 title: node.title,
                 url: node.url,
-                type: getBookmarkType(node.url),
+                type: this.getBookmarkType(node.title, node.url),
             }
 
             if (node.children) {
@@ -110,13 +110,18 @@ export class BookmarkParser {
         return children
     }
 
-    private setMappingId(bookmark: BookmarkEntryType) {
-        this.getBrowserRoots().forEach((root: BrowserRootType) => {
-            if (root.title === bookmark.title) {
-                bookmark.mappingId = root.id
-
-                return
+    /** Classifies a node as a bookmark, plain folder, or one of the special root folders. */
+    private getBookmarkType = (title: string, url: string | undefined): BookmarkType => {
+        if (url == undefined) {
+            if (this.rootTypes && title === this.rootTypes.bookmarkTitle) {
+                return BookmarkType.bookmarkbar
             }
-        })
+            if (this.rootTypes && title === this.rootTypes.otherTitle) {
+                return BookmarkType.other
+            }
+            return BookmarkType.folder
+        }
+
+        return BookmarkType.bookmark
     }
 }

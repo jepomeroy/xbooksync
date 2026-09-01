@@ -32,6 +32,7 @@ export interface DeviceCodePrompt {
     expiresAt: Date
 }
 
+/** Raw response body from GitHub's device code endpoint. */
 interface DeviceCodeResponse {
     device_code: string
     user_code: string
@@ -40,6 +41,7 @@ interface DeviceCodeResponse {
     interval: number
 }
 
+/** Resolves after the given number of seconds. */
 const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000))
 
 /**

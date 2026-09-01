@@ -1,7 +1,6 @@
 import type { Unwatch, WatchCallback } from 'wxt/utils/storage'
-import { SortOrderType, StorageType } from './types'
+import { SortOrderType, StorageType, type BookmarkEntryType } from './types'
 
-const watchers = new Map<string, Unwatch>()
 /**
  * Typed accessors for every persisted setting.
  *
@@ -11,6 +10,9 @@ const watchers = new Map<string, Unwatch>()
  * fallback so a read before {@link setDefaultSettings} has run still yields a
  * usable value.
  */
+
+/** Active settings watchers, keyed by the caller-chosen name passed to {@link registerSettingsWatcher}. */
+const watchers = new Map<string, Unwatch>()
 
 /**
  * Every storage key this extension owns, declared once.
@@ -29,6 +31,7 @@ export const SettingsKeys = {
     syncRate: 'local:syncrate',
     lastSyncDate: 'local:lastSyncDateTime',
     lastSyncValue: 'local:lastSyncValue',
+    baseBookmarks: 'local:baseBookmarks',
 } as const satisfies Record<string, StorageItemKey>
 
 /** Union of the keys in {@link SettingsKeys}. */
@@ -70,10 +73,15 @@ export const syncLastSyncValueSetting = storage.defineItem<string>(SettingsKeys.
     fallback: '',
 })
 
+/** Base Bookmarks for three-way comparisons */
+export const syncBaseBookmarks = storage.defineItem<BookmarkEntryType | null>(SettingsKeys.baseBookmarks, {
+    fallback: null,
+})
+
 /**
- * GitHub Storage Settings
+ * GitHub storage settings.
  *
- * This works for both GH Repos and Gist settting
+ * Shared by both the GH Repo and GH Gist storage types.
  */
 
 export const GitHubSettingsKeys = {
@@ -82,7 +90,7 @@ export const GitHubSettingsKeys = {
     ghRepo: 'local:ghRepo',
 } as const satisfies Record<string, StorageItemKey>
 
-/** Union of the keys in {@link SettingsKeys}. */
+/** Union of the keys in {@link GitHubSettingsKeys}. */
 export type GitHubSettingsKey = (typeof GitHubSettingsKeys)[keyof typeof GitHubSettingsKeys]
 
 /** GitHub App Auth token for access to GH Repos and Gists. */
@@ -90,9 +98,8 @@ export const ghAuthToken = storage.defineItem<string>(GitHubSettingsKeys.ghAuthT
     fallback: '',
 })
 
-/** GitHub Gist. */
+/** GitHub Gist ID used as the sync target, when the Gist storage type is selected. */
 export const ghGist = storage.defineItem<string>(GitHubSettingsKeys.ghGist, {
-    // default to Unix Epoch if we've never synced before
     fallback: '',
 })
 
@@ -115,6 +122,7 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.syncRate]: 30, // FIXME: Hardcoded for testing, should be 900
     [SettingsKeys.lastSyncDate]: new Date(0).toISOString(),
     [SettingsKeys.lastSyncValue]: '',
+    [SettingsKeys.baseBookmarks]: null,
 }
 
 const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
@@ -140,6 +148,7 @@ export const setDefaultSettings = async () => {
     )
 }
 
+/** Subscribes to changes on a stored setting, keyed by a caller-chosen name so it can later be unregistered. */
 export const registerSettingsWatcher = <T>(
     name: string,
     setting: StorageItemKey,
@@ -149,6 +158,7 @@ export const registerSettingsWatcher = <T>(
     watchers.set(name, unwatch)
 }
 
+/** Removes a settings watcher previously registered under `name` via {@link registerSettingsWatcher}. */
 export const unregisterSettingsWatcher = (name: string) => {
     const unwatch = watchers.get(name)
 

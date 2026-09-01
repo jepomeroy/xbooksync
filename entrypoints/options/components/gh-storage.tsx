@@ -2,12 +2,13 @@ import { loginWithGitHubApp, INSTALL_URL, type DeviceCodePrompt } from '@/entryp
 import { FaGithub } from 'react-icons/fa6'
 
 import './gh-storage.css'
-import { ghAuthToken, ghRepo, ghUsername } from '@/entrypoints/shared/localsettings'
+import { ghAuthToken, ghRepo } from '@/entrypoints/shared/localsettings'
 import { AppNotInstalledError, fetchGitHubRepos } from '@/entrypoints/bookmarks/gh-utils'
 
 /**
- * Settings for the local-file sync target. Fully controlled — it holds no state
- * of its own, so the parent owns both the value and the debounced write.
+ * Settings for the GitHub Repo / GitHub Gist sync targets: GitHub App login via
+ * the device flow, prompting the user to install the app when needed, and
+ * picking which repo to sync to once a token is connected.
  */
 export default function GitHubSettings() {
     const [prompt, setPrompt] = useState<DeviceCodePrompt | null>(null)
@@ -82,6 +83,7 @@ export default function GitHubSettings() {
         return () => document.removeEventListener('visibilitychange', recheck)
     }, [needsInstall])
 
+    /** Starts the login flow if signed out, or revokes the current token if signed in. */
     const handleButtonClick = () => {
         if (token === '') {
             loginWithGitHub()
@@ -90,6 +92,7 @@ export default function GitHubSettings() {
         }
     }
 
+    /** Opens the GitHub App installation page in a new tab. */
     const handleInstallClick = () => {
         browser.tabs.create({ url: INSTALL_URL })
     }
@@ -101,18 +104,15 @@ export default function GitHubSettings() {
         setRefresh(count => count + 1)
     }
 
+    /** Persists the newly selected repo. */
     const handleRepoChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const repo = e.target.value
-        const username = repo.split('/')[0]
-
-        if (username) {
-            await ghUsername.setValue(username)
-        }
 
         setRepo(repo)
         await ghRepo.setValue(repo)
     }
 
+    /** Runs the GitHub App device-flow login and stores the resulting token. */
     const loginWithGitHub = async () => {
         setStatus('')
         setPrompt(null)
@@ -133,6 +133,7 @@ export default function GitHubSettings() {
         }
     }
 
+    /** Clears the stored token, repo, and any derived UI state. */
     const revokeToken = () => {
         ghAuthToken.removeValue()
         ghRepo.removeValue()

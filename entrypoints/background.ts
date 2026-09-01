@@ -3,12 +3,13 @@ import {
     registerSettingsWatcher,
     setDefaultSettings,
     SettingsKeys,
+    syncBaseBookmarks,
     syncLastSyncDateSetting,
     syncLastSyncValueSetting,
     unregisterSettingsWatcher,
 } from './shared/localsettings'
 import { Alarm, TickAlarmName } from './bookmarks/alarm'
-import { BookmarkParser } from './bookmarks/bookmarks'
+import { Bookmarks } from './bookmarks/bookmarks'
 import { Storage } from './bookmarks/storage'
 
 /**
@@ -20,12 +21,18 @@ import { Storage } from './bookmarks/storage'
  */
 const storage = Storage.instance
 
+/**
+ * Reads the current browser bookmark tree and, if the configured target has
+ * changed since the last sync, writes the local tree back and records the
+ * resulting version and timestamp.
+ */
 const syncFunc = async () => {
     const adapter = storage.getStorageAdapter()
-    const tree = await browser.bookmarks.getTree()
 
-    const parser: BookmarkParser = new BookmarkParser(tree)
-    console.log(parser)
+    // Snapshot the browser's current bookmark tree.
+    const local: Bookmarks = new Bookmarks()
+    local.fromBrowswer(await browser.bookmarks.getTree())
+    // console.log(local)
 
     const now = new Date().toISOString()
 
@@ -36,13 +43,16 @@ const syncFunc = async () => {
 
     if (readData.changed) {
         // TODO: do comparison here
-        // console.log(parser.getContent())
+        console.log(local.getContent())
 
-        const currVersion = await adapter.write(parser.getContent(), readData.blobVersion)
+        const currVersion = await adapter.write(local.getContent(), readData.blobVersion)
 
         // Update the Sync Value and Date
         await syncLastSyncValueSetting.setValue(currVersion)
         await syncLastSyncDateSetting.setValue(now)
+
+        // Set the new base bookmarks for the next three-way comparison
+        await syncBaseBookmarks.setValue(local.getBookmarks())
     }
 }
 

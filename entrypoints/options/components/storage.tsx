@@ -8,8 +8,8 @@ import GitHubSettings from './gh-storage'
 /**
  * Storage-target picker plus the settings for whichever target is selected.
  *
- * Every target other than {@link StorageType.File} renders {@link Unimplemented}
- * until its adapter exists.
+ * Only {@link StorageType.GitHubRepo} and {@link StorageType.GitHubGist} have an
+ * adapter today; every other target renders {@link Unimplemented}.
  */
 export default function Storage() {
     const [selectedOption, setSelectedOption] = useState(StorageType.GitHubRepo)
@@ -20,6 +20,7 @@ export default function Storage() {
         storageSetting.getValue().then(data => setSelectedOption(data))
     }, [])
 
+    /** Persists the newly selected storage type. */
     const handleStorageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const st = getStorageType(e.target.value)
         setSelectedOption(st)
