@@ -6,7 +6,7 @@ import {
     storageSetting,
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
-import { StorageType, type StorageAdapter } from '@/entrypoints/shared/types'
+import { StorageBackend, type StorageAdapter } from '@/entrypoints/shared/types'
 import { GitHubRepoAdapter } from './gh-repo'
 import { NilStorageAdapter } from './nil-adapter'
 
@@ -53,7 +53,7 @@ export class Storage {
 
         switch (await storageSetting.getValue()) {
             // case StorageType.GitHubGist:
-            case StorageType.GitHubRepo:
+            case StorageBackend.GitHubRepo:
                 this.storageAdapter = await this.makeGHRepo()
             //     case StorageType.GitlabRepo:
             //     case StorageType.S3:

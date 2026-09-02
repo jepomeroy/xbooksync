@@ -6,18 +6,24 @@ export enum BookmarkType {
     bookmark = 'bookmark',
     bookmarkbar = 'bookmarks bar',
     other = 'other bookmarks',
-    root = 'root',
 }
 
 /**
  * Object representing a bookmark. This is used for create, update, and storage
  * representations of all bookmarks.
  */
-export type BookmarkEntryType = {
+export type BookmarkEntry = {
     title?: string
     url?: string
     type: BookmarkType
-    children?: BookmarkEntryType[]
+    children?: BookmarkEntry[]
+}
+
+export type LocalBookmarkEntry = BookmarkEntry & {
+    id?: string
+    index?: number
+    parentId?: string
+    children?: LocalBookmarkEntry[]
 }
 
 /** Browsers this extension supports. */
@@ -26,44 +32,39 @@ export enum BrowserType {
     Firefox = 'firefox',
 }
 
-/** Titles of a browser's top-level bookmark folders, used to locate them in the raw tree. */
-export type BrowserRootType = {
-    bookmarkTitle: string
-    otherTitle: string
-}
+export type FlatBookmarks = Map<string, BookmarkEntry>
 
-/**
- * Enumeration of supported bookmark folders
- */
-export enum BookmarkFolderTypes {
-    BookmarkBar = 'bookmarks-bar',
-    Other = 'other',
+/** Result of a diff and used to resolve bookmark changes. */
+export type DiffResultType = {
+    added: Map<string, BookmarkEntry>
+    removed: Map<string, BookmarkEntry>
+    changed: Map<string, { before: BookmarkEntry; after: BookmarkEntry }>
 }
 
 // Sorting Types
 
 /** Direction bookmarks are sorted in when sorting is enabled. */
-export enum SortOrderType {
+export enum SortOrder {
     Ascending = 'Ascending',
     Descending = 'Descending',
 }
 
 /**
- * Narrows an arbitrary string to a {@link SortOrderType}.
+ * Narrows an arbitrary string to a {@link SortOrder}.
  *
  * Needed at every boundary where the value arrives untyped — `<select>` change
  * events and previously persisted settings — since neither can be trusted to
  * hold a current enum member. Unrecognized input falls back to
- * {@link SortOrderType.Ascending} rather than throwing.
+ * {@link SortOrder.Ascending} rather than throwing.
  */
-export const getSortOrderType = (sortOrderStr: string): SortOrderType => {
+export const getSortOrder = (sortOrderStr: string): SortOrder => {
     switch (sortOrderStr) {
         case 'Ascending':
-            return SortOrderType.Ascending
+            return SortOrder.Ascending
         case 'Descending':
-            return SortOrderType.Descending
+            return SortOrder.Descending
         default:
-            return SortOrderType.Ascending
+            return SortOrder.Ascending
     }
 }
 
@@ -76,7 +77,7 @@ export const getSortOrderType = (sortOrderStr: string): SortOrderType => {
  * changes what the user sees — and invalidates any setting already persisted
  * under the old value.
  */
-export enum StorageType {
+export enum StorageBackend {
     GitHubRepo = 'GitHub Repo',
     GitHubGist = 'GitHub Gist',
     GitlabRepo = 'Gitlab Repo',
@@ -84,21 +85,21 @@ export enum StorageType {
 }
 
 /**
- * Narrows an arbitrary string to a {@link StorageType}, defaulting to
- * {@link StorageType.GitHubRepo}. See {@link getSortOrderType} for why this is needed.
+ * Narrows an arbitrary string to a {@link StorageBackend}, defaulting to
+ * {@link StorageBackend.GitHubRepo}. See {@link getSortOrder} for why this is needed.
  */
-export const getStorageType = (storageTypeStr: string): StorageType => {
+export const getStorageBackend = (storageTypeStr: string): StorageBackend => {
     switch (storageTypeStr) {
         case 'GitHub Repo':
-            return StorageType.GitHubRepo
+            return StorageBackend.GitHubRepo
         case 'GitHub Gist':
-            return StorageType.GitHubGist
+            return StorageBackend.GitHubGist
         case 'Gitlab Repo':
-            return StorageType.GitlabRepo
+            return StorageBackend.GitlabRepo
         case 'S3':
-            return StorageType.S3
+            return StorageBackend.S3
         default:
-            return StorageType.GitHubRepo
+            return StorageBackend.GitHubRepo
     }
 }
 
@@ -106,7 +107,7 @@ export const getStorageType = (storageTypeStr: string): StorageType => {
 export type SyncCallback = () => void
 
 /** A payload read from a target, paired with the revision it was read at. */
-export interface ReadData {
+export type ReadData = {
     /** Change flag */
     changed: boolean
     /** Serialized bookmark tree */
@@ -118,12 +119,12 @@ export interface ReadData {
 /**
  * Contract every sync target implements. Implementations live in
  * `entrypoints/bookmarks/storage.ts`; the popup picks between them via
- * {@link StorageType}.
+ * {@link StorageBackend}.
  *
  * Version tokens are deliberately opaque strings — each target uses whatever it
  * has (ETag, commit SHA, hash) and only ever compares tokens it issued itself.
  */
-export interface StorageAdapter {
+export type StorageAdapter = {
     /** Identifier for logging and persistent storage keys (e.g., 'github-gist', 's3') */
     readonly providerId: string
 
@@ -147,14 +148,14 @@ export interface StorageAdapter {
 // Messaging types
 
 /** Outcome of a background operation reported back to the popup. */
-export enum StatusType {
-    Success, // 0
-    Error, // 1
+export enum Status {
+    Success = 0,
+    Error = 1,
 }
 
 /** Reply shape for every `browser.runtime` message the background handles. */
 export type MessageResponse = {
-    status: StatusType
+    status: Status
     /** Detail for the user: an error reason, or a summary of what synced */
     result?: string
 }

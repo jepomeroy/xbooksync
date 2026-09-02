@@ -12,7 +12,7 @@ import {
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { getLastSynced } from '../shared/syncutils'
-import { type MessageResponse, SyncNowMessage, StatusType } from '../shared/types'
+import { type MessageResponse, SyncNowMessage, Status } from '../shared/types'
 
 /** Watcher key used to identify this component's settings subscription. */
 const PopupComponent = 'popup-component'
@@ -55,7 +55,7 @@ function Popup() {
         if ((await syncEnableSetting.getValue()) == true) {
             const result = await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)
 
-            if (result.status === StatusType.Success) {
+            if (result.status === Status.Success) {
                 console.log('I would sync')
             } else {
                 console.log('No sync necessary')

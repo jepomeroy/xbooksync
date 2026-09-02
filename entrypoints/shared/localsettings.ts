@@ -1,5 +1,5 @@
 import type { Unwatch, WatchCallback } from 'wxt/utils/storage'
-import { SortOrderType, StorageType, type BookmarkEntryType } from './types'
+import { SortOrder, StorageBackend, type BookmarkEntry } from './types'
 
 /**
  * Typed accessors for every persisted setting.
@@ -38,13 +38,13 @@ export const SettingsKeys = {
 export type SettingsKey = (typeof SettingsKeys)[keyof typeof SettingsKeys]
 
 /** Which sync target the bookmark tree is written to. */
-export const storageSetting = storage.defineItem<StorageType>(SettingsKeys.storage, {
-    fallback: StorageType.GitHubRepo,
+export const storageSetting = storage.defineItem<StorageBackend>(SettingsKeys.storage, {
+    fallback: StorageBackend.GitHubRepo,
 })
 
 /** Sort direction; ignored unless {@link sortedSetting} is on. */
-export const sortOrderSetting = storage.defineItem<SortOrderType>(SettingsKeys.sortOrder, {
-    fallback: SortOrderType.Ascending,
+export const sortOrderSetting = storage.defineItem<SortOrder>(SettingsKeys.sortOrder, {
+    fallback: SortOrder.Ascending,
 })
 
 /** Whether bookmarks are sorted before being written out. */
@@ -74,7 +74,7 @@ export const syncLastSyncValueSetting = storage.defineItem<string>(SettingsKeys.
 })
 
 /** Base Bookmarks for three-way comparisons */
-export const syncBaseBookmarks = storage.defineItem<BookmarkEntryType | null>(SettingsKeys.baseBookmarks, {
+export const syncBaseBookmarks = storage.defineItem<BookmarkEntry | null>(SettingsKeys.baseBookmarks, {
     fallback: null,
 })
 
@@ -115,8 +115,8 @@ export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
  * {@link SettingsKeys} without seeding it here fails to compile.
  */
 const defaultSettings: Record<SettingsKey, unknown> = {
-    [SettingsKeys.storage]: StorageType.GitHubRepo,
-    [SettingsKeys.sortOrder]: SortOrderType.Ascending,
+    [SettingsKeys.storage]: StorageBackend.GitHubRepo,
+    [SettingsKeys.sortOrder]: SortOrder.Ascending,
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
     [SettingsKeys.syncRate]: 30, // FIXME: Hardcoded for testing, should be 900

@@ -1,5 +1,5 @@
 import { useState, useEffect } from '#imports'
-import { getSortOrderType, SortOrderType } from '@/entrypoints/shared/types'
+import { getSortOrder, SortOrder } from '@/entrypoints/shared/types'
 import { sortedSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from '../../shared/components/toogle'
 
@@ -9,12 +9,12 @@ import Toggle from '../../shared/components/toogle'
  */
 export default function Sort() {
     const [sort, setSort] = useState(false)
-    const [sortOrder, setSortOrder] = useState(SortOrderType.Ascending)
+    const [sortOrder, setSortOrder] = useState(SortOrder.Ascending)
 
     // Hydrate from extension storage on mount.
     useEffect(() => {
         sortedSetting.getValue().then(data => setSort(data))
-        sortOrderSetting.getValue().then(data => setSortOrder(getSortOrderType(data)))
+        sortOrderSetting.getValue().then(data => setSortOrder(getSortOrder(data)))
     }, [])
 
     /** Persists the toggle's new position. */
@@ -25,7 +25,7 @@ export default function Sort() {
 
     /** Persists the newly selected sort direction. */
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const sot = getSortOrderType(e.target.value)
+        const sot = getSortOrder(e.target.value)
         setSortOrder(sot)
         await sortOrderSetting.setValue(sot)
     }
@@ -37,8 +37,8 @@ export default function Sort() {
                 <div className='setting'>
                     <label htmlFor='Sort Order'>Sort Order</label>
                     <select id='Sort Order' value={sortOrder} onChange={handleSortOrderChange}>
-                        <option value={SortOrderType.Ascending}>Ascending (A-Z)</option>
-                        <option value={SortOrderType.Descending}>Descending (Z-A)</option>
+                        <option value={SortOrder.Ascending}>Ascending (A-Z)</option>
+                        <option value={SortOrder.Descending}>Descending (Z-A)</option>
                     </select>
                 </div>
             )
