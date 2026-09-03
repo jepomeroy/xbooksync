@@ -9,7 +9,7 @@
  */
 
 import { BookmarkType, type BookmarkEntry, type FlatBookmarks, type LocalBookmarkEntry } from '../shared/types'
-import { flatten } from './diff'
+import { flatten } from './sync'
 
 export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
     private rootBookmark: T | null

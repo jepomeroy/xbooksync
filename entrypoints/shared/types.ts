@@ -37,9 +37,12 @@ export enum BrowserType {
     Firefox = 'firefox',
 }
 
-/** Identity-key -> node index. Defaults to the storage shape; pass
- *  `LocalBookmarkEntry` to keep browser node ids for the apply pass. */
-export type FlatBookmarks<T extends BookmarkEntry = BookmarkEntry> = Map<string, T>
+export type FlatEntry<T extends BookmarkEntry = BookmarkEntry> = {
+    node: T
+    parentKey: string
+}
+
+export type FlatBookmarks<T extends BookmarkEntry = BookmarkEntry> = Map<string, FlatEntry<T>>
 
 /** Result of a diff and used to resolve bookmark changes. */
 export type DiffResultType = {

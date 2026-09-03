@@ -1,6 +1,7 @@
 import {
     Status,
     SyncNowMessage,
+    type BookmarkEntry,
     type DiffResultType,
     type FlatBookmarks,
     type LocalBookmarkEntry,
@@ -20,7 +21,7 @@ import {
 import { Alarm, TickAlarmName } from './bookmarks/alarm'
 import { Bookmarks } from './bookmarks/bookmarks'
 import { Storage } from './bookmarks/storage'
-import { diffBase, diffSummary, emptyDiffResult, hasModifications } from './bookmarks/diff'
+import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './bookmarks/sync'
 
 /**
  * Background service worker.
@@ -32,17 +33,23 @@ import { diffBase, diffSummary, emptyDiffResult, hasModifications } from './book
 
 const storage = Storage.instance
 
-export type SyncSide = { tree: Bookmarks; diff: DiffResultType; version?: string }
+export type SyncSide<T extends BookmarkEntry = BookmarkEntry> = {
+    tree: Bookmarks<T>
+    flat: FlatBookmarks<T>
+    diff: DiffResultType
+    version?: string
+}
 
-const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide> => {
+const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide<LocalBookmarkEntry>> => {
     // browser's current bookmark tree.
     const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
     const [root] = await browser.bookmarks.getTree()
     if (root) {
-        console.log(root)
         local.fromBrowswer(root)
     }
-    return { tree: local, diff: diffBase(baseMap, local.flatten()) }
+    const flat = local.flatten()
+
+    return { tree: local, flat, diff: diffBase(baseMap, flat) }
 }
 
 const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Promise<SyncSide> => {
@@ -50,13 +57,14 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     const readData = await adapter.read(lastChange)
 
     if (!readData.changed) {
-        return { tree: new Bookmarks(), diff: emptyDiffResult() }
+        return { tree: new Bookmarks(), flat: new Map(), diff: emptyDiffResult() }
     }
 
     const remote: Bookmarks = new Bookmarks()
     console.log(readData)
     remote.fromXbsBookmarks(JSON.parse(readData.content !== '' ? readData.content : '{}'))
-    return { tree: remote, diff: diffBase(baseMap, remote.flatten()), version: readData.blobVersion }
+    const flat = remote.flatten()
+    return { tree: remote, flat, diff: diffBase(baseMap, flat), version: readData.blobVersion }
 }
 
 /**
@@ -96,9 +104,21 @@ const syncFunc = async () => {
         await syncBaseBookmarks.setValue(localSync.tree.getBookmarks())
     } else if (!hasModifications(localSync.diff) && hasModifications(remoteSync.diff)) {
         console.log('Remote Sync Needed')
-        // console.log('remote diff', diffSummary(remoteSync.diff))
-        console.log(remoteSync.diff)
-        // TODO: Do remote sync only
+
+        await applyRemote({
+            diff: remoteSync.diff,
+            remoteFlat: remoteSync.flat,
+            localFlat: localSync.flat,
+            baseFlat: baseMap,
+            localRoot: localSync.tree.getBookmarks(),
+        })
+
+        // Always set here: this branch is only reached on a changed read.
+        if (remoteSync.version) await syncLastSyncValueSetting.setValue(remoteSync.version)
+        await syncLastSyncDateSetting.setValue(now)
+
+        // The remote tree is what the browser now holds, so it becomes the next base.
+        await syncBaseBookmarks.setValue(remoteSync.tree.getBookmarks())
     } else {
         console.log('Merge Sync Needed')
         console.log(localSync.diff)
