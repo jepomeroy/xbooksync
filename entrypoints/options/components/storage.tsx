@@ -1,9 +1,9 @@
 import { useState, useEffect } from '#imports'
 
-import Unimplemented from './unimplemented'
-import { storageSetting } from '../../shared/localsettings'
+import { storageSetting } from '@/entrypoints/shared/localsettings'
 import { getStorageBackend, StorageBackend } from '@/entrypoints/shared/types'
 import GitHubSettings from './gh-storage'
+import Unimplemented from './unimplemented'
 
 /**
  * Storage-target picker plus the settings for whichever target is selected.
@@ -30,7 +30,6 @@ export default function Storage() {
     /** Target-specific settings for the current selection. */
     const renderLocationSettings = () => {
         switch (selectedOption) {
-            case StorageBackend.GitHubGist:
             case StorageBackend.GitHubRepo:
                 return <GitHubSettings />
             default:

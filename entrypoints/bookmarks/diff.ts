@@ -53,8 +53,8 @@ export const diffBase = (baseMap: FlatBookmarks, otherMap: FlatBookmarks): DiffR
 export const flatten = <T extends BookmarkEntry>(
     node: T,
     parentPath = '',
-    out: FlatBookmarks = new Map(),
-): FlatBookmarks => {
+    out: FlatBookmarks<T> = new Map(),
+): FlatBookmarks<T> => {
     const key = identityKey(node, parentPath)
 
     // The two anchor folders always exist in every tree — they're never

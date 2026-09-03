@@ -19,8 +19,13 @@ export type BookmarkEntry = {
     children?: BookmarkEntry[]
 }
 
+/**
+ * A {@link BookmarkEntry} that came from `browser.bookmarks` and still carries
+ * its node id. `id` is required: the browser always supplies one, and the apply
+ * pass addresses every create/update/remove by it.
+ */
 export type LocalBookmarkEntry = BookmarkEntry & {
-    id?: string
+    id: string
     index?: number
     parentId?: string
     children?: LocalBookmarkEntry[]
@@ -32,7 +37,9 @@ export enum BrowserType {
     Firefox = 'firefox',
 }
 
-export type FlatBookmarks = Map<string, BookmarkEntry>
+/** Identity-key -> node index. Defaults to the storage shape; pass
+ *  `LocalBookmarkEntry` to keep browser node ids for the apply pass. */
+export type FlatBookmarks<T extends BookmarkEntry = BookmarkEntry> = Map<string, T>
 
 /** Result of a diff and used to resolve bookmark changes. */
 export type DiffResultType = {

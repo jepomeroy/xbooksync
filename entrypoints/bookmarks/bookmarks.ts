@@ -28,8 +28,8 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
     static CanonicalRootTitle = { bookmarkbar: 'Bookmarks Bar', other: 'Other Bookmarks' } as const
 
     /** flatten bookmarks to a map for diff */
-    public flatten(): FlatBookmarks {
-        const flat: FlatBookmarks = new Map<string, BookmarkEntry>()
+    public flatten(): FlatBookmarks<T> {
+        const flat: FlatBookmarks<T> = new Map()
 
         // Only do bookmark bar and other, root is not a real bookmark
         this.rootBookmark?.children?.map(b => {
@@ -51,7 +51,7 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
     }
 
     /** Returns the current bookmark tree, or null if nothing has been loaded yet. */
-    public getBookmarks(): BookmarkEntry | null {
+    public getBookmarks(): T | null {
         return this.rootBookmark
     }
 
