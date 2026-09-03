@@ -67,6 +67,16 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     return { tree: remote, flat, diff: diffBase(baseMap, flat), version: readData.blobVersion }
 }
 
+const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
+    const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
+    const [root] = await browser.bookmarks.getTree()
+    if (root) {
+        local.fromBrowswer(root)
+    }
+
+    return local
+}
+
 /**
  * Reads the current browser bookmark tree and, if the configured target has
  * changed since the last sync, writes the local tree back and records the
@@ -88,10 +98,8 @@ const syncFunc = async () => {
     if (!hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
         // No changes locally or remotely
         // Move on
-        console.log('No Sync Needed')
         return
     } else if (hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
-        console.log('Local Sync Needed')
         // Do local sync only
         const lastChange = await syncLastSyncValueSetting.getValue()
         const currVersion = await adapter.write(localSync.tree.getContent(), lastChange)
@@ -103,8 +111,7 @@ const syncFunc = async () => {
         // Set the new base bookmarks for the next three-way comparison
         await syncBaseBookmarks.setValue(localSync.tree.getBookmarks())
     } else if (!hasModifications(localSync.diff) && hasModifications(remoteSync.diff)) {
-        console.log('Remote Sync Needed')
-
+        // Do a remote sync
         await applyRemote({
             diff: remoteSync.diff,
             remoteFlat: remoteSync.flat,
@@ -116,16 +123,29 @@ const syncFunc = async () => {
         // Always set here: this branch is only reached on a changed read.
         if (remoteSync.version) await syncLastSyncValueSetting.setValue(remoteSync.version)
         await syncLastSyncDateSetting.setValue(now)
-
         // The remote tree is what the browser now holds, so it becomes the next base.
         await syncBaseBookmarks.setValue(remoteSync.tree.getBookmarks())
     } else {
-        console.log('Merge Sync Needed')
-        console.log(localSync.diff)
-        console.log(remoteSync.diff)
-        // console.log('local diff', diffSummary(localSync.diff))
-        // console.log('remote diff', diffSummary(remoteSync.diff))
-        // TODO: Merge results
+        // Do a remote sync
+        await applyRemote({
+            diff: remoteSync.diff,
+            remoteFlat: remoteSync.flat,
+            localFlat: localSync.flat,
+            baseFlat: baseMap,
+            localRoot: localSync.tree.getBookmarks(),
+        })
+
+        // re-read bookmarks
+        const merged = await readLocal()
+
+        // Write the newly merged content to storage
+        const currVersion = await adapter.write(merged.getContent(), remoteSync.version)
+
+        // Track the new version
+        await syncLastSyncValueSetting.setValue(currVersion)
+        await syncLastSyncDateSetting.setValue(now)
+        // The new merge becomes the base
+        await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
     }
 
     console.log(`[xbooksync] tick at ${now}`)
@@ -199,7 +219,7 @@ const handleMessages = (
  * only, and Chrome clears them on restart unless `persistAcrossSessions` was
  * set — so last session's alarm is already gone by the time this runs.
  *
- * Registering the listener is the load-bearing part, more than the body:
+ * Registering the listener is key to running the extension:
  * profile startup fires `onStartup` but invokes no other worker events, so
  * without it nothing would start the worker to re-create the alarm and ticks
  * would stay dead until the popup happened to send a message.
