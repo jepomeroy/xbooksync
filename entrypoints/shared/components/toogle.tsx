@@ -16,7 +16,14 @@ type ToggleProps = {
     onToggle: (state: boolean) => void
 }
 
-/** Switch-style boolean control. */
+/**
+ * Switch-style boolean control.
+ *
+ * A `<button role="switch">` rather than a checkbox, so the knob can be styled
+ * freely while `aria-checked` keeps it announced as a switch.
+ *
+ * @param props - See {@link ToggleProps}.
+ */
 export default function Toggle({ label, checked, onToggle }: ToggleProps) {
     return (
         <div className='toggle'>

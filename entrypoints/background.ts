@@ -33,13 +33,35 @@ import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './book
 
 const storage = Storage.instance
 
+/**
+ * One side of a three-way comparison — the local browser, or the sync target —
+ * in the three forms the merge needs it.
+ *
+ * @typeParam T - Node type of this side's tree. The local side is
+ * `LocalBookmarkEntry`, since it carries the browser node ids the apply pass
+ * addresses; the remote side is plain `BookmarkEntry`.
+ */
 export type SyncSide<T extends BookmarkEntry = BookmarkEntry> = {
+    /** The tree itself. */
     tree: Bookmarks<T>
+    /** {@link tree} flattened, for keyed lookups during apply. */
     flat: FlatBookmarks<T>
+    /** What this side changed relative to the base snapshot. */
     diff: DiffResultType
+    /**
+     * Version token this side was read at. Remote side only, and only when the
+     * read actually returned content — an unchanged read leaves it undefined.
+     */
     version?: string
 }
 
+/**
+ * Reads the browser's current bookmark tree and diffs it against the base.
+ *
+ * @param baseMap - Flattened base snapshot from the last successful sync.
+ * @returns The local side of the comparison. `version` is never set: the local
+ * tree has no version token, only the sync target does.
+ */
 const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide<LocalBookmarkEntry>> => {
     // browser's current bookmark tree.
     const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
@@ -52,6 +74,16 @@ const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide<LocalBookmar
     return { tree: local, flat, diff: diffBase(baseMap, flat) }
 }
 
+/**
+ * Reads the sync target and diffs it against the base.
+ *
+ * @param adapter - Adapter for the configured target.
+ * @param baseMap - Flattened base snapshot from the last successful sync.
+ * @returns The remote side of the comparison. When the target is still at the
+ * version last seen, this is an empty tree with an empty diff and no `version` —
+ * indistinguishable from "remote has no changes", which is exactly how the
+ * caller treats it.
+ */
 const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Promise<SyncSide> => {
     const lastChange = await syncLastSyncValueSetting.getValue()
     const readData = await adapter.read(lastChange)
@@ -67,6 +99,13 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     return { tree: remote, flat, diff: diffBase(baseMap, flat), version: readData.blobVersion }
 }
 
+/**
+ * Re-reads the browser's bookmark tree, with no diff.
+ *
+ * Used after {@link applyRemote} has mutated the tree, to capture the merged
+ * result — the pre-apply tree from {@link checkLocal} is stale by then, and the
+ * new nodes' ids exist only in the browser.
+ */
 const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
     const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
     const [root] = await browser.bookmarks.getTree()
@@ -78,9 +117,23 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
 }
 
 /**
- * Reads the current browser bookmark tree and, if the configured target has
- * changed since the last sync, writes the local tree back and records the
- * resulting version and timestamp.
+ * One sync pass: three-way merge between the browser, the sync target, and the
+ * base snapshot recorded at the end of the last successful pass.
+ *
+ * Diffing both sides against that common ancestor is what distinguishes a real
+ * edit from a stale copy, and gives four cases:
+ *
+ * - neither side changed — nothing to do;
+ * - local only — push the browser's tree to the target;
+ * - remote only — apply the target's tree to the browser;
+ * - both — apply remote onto local, then push the merged result back.
+ *
+ * Every branch that changes something ends by recording the new version token,
+ * the timestamp, and a fresh base snapshot; getting that base wrong is what
+ * would make the next pass misread an old edit as a new one.
+ *
+ * Failures propagate: an adapter that throws aborts the pass with the stored
+ * version and base untouched, so the next tick retries from the same state.
  */
 const syncFunc = async () => {
     const now = new Date().toISOString()
@@ -96,11 +149,13 @@ const syncFunc = async () => {
     const remoteSync = await checkRemote(adapter, baseMap)
 
     if (!hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
-        // No changes locally or remotely
-        // Move on
+        // Both sides still match the base. Nothing to write, and crucially
+        // nothing to record either — leaving the stored version and base alone
+        // keeps the next pass comparing against the same ancestor.
         return
     } else if (hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
-        // Do local sync only
+        // Local-only: the browser is ahead, so push it and let the conditional
+        // write reject if the target moved between the read above and here.
         const lastChange = await syncLastSyncValueSetting.getValue()
         const currVersion = await adapter.write(localSync.tree.getContent(), lastChange)
 
@@ -108,10 +163,13 @@ const syncFunc = async () => {
         await syncLastSyncValueSetting.setValue(currVersion)
         await syncLastSyncDateSetting.setValue(now)
 
-        // Set the new base bookmarks for the next three-way comparison
+        // What was just written is what both sides now hold, so it becomes the
+        // next base.
         await syncBaseBookmarks.setValue(localSync.tree.getBookmarks())
     } else if (!hasModifications(localSync.diff) && hasModifications(remoteSync.diff)) {
-        // Do a remote sync
+        // Remote-only: the browser still matches the base, so the target's tree
+        // can be applied wholesale. This is the case applyRemote's preconditions
+        // are written for.
         await applyRemote({
             diff: remoteSync.diff,
             remoteFlat: remoteSync.flat,
@@ -126,7 +184,14 @@ const syncFunc = async () => {
         // The remote tree is what the browser now holds, so it becomes the next base.
         await syncBaseBookmarks.setValue(remoteSync.tree.getBookmarks())
     } else {
-        // Do a remote sync
+        // Both sides changed. Fold the remote diff into the local tree, then
+        // push the result — so the write carries local edits the target hasn't
+        // seen as well as the remote ones just applied.
+        //
+        // Note this resolves conflicts in the remote's favour without saying so:
+        // applyRemote's preconditions don't hold here (see its doc comment), so
+        // a node edited locally and removed remotely is removed, and a node
+        // edited on both sides takes the remote title.
         await applyRemote({
             diff: remoteSync.diff,
             remoteFlat: remoteSync.flat,
@@ -135,16 +200,21 @@ const syncFunc = async () => {
             localRoot: localSync.tree.getBookmarks(),
         })
 
-        // re-read bookmarks
+        // applyRemote mutated the browser directly, so the tree read before it
+        // is stale — only a re-read has the merged result and the created ids.
         const merged = await readLocal()
 
-        // Write the newly merged content to storage
+        // Based on the version just read, not the one last written: the target
+        // moved, and passing the stale token would make the write fail.
         const currVersion = await adapter.write(merged.getContent(), remoteSync.version)
 
         // Track the new version
         await syncLastSyncValueSetting.setValue(currVersion)
         await syncLastSyncDateSetting.setValue(now)
-        // The new merge becomes the base
+        // The base is stored in the same canonical form that was just written,
+        // rather than the raw local tree the branches above store. Both diff
+        // identically — keys ignore ids and anchor titles — but only this form
+        // is byte-comparable with what the target holds.
         await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
     }
 
@@ -185,10 +255,19 @@ export default defineBackground(() => {
 /**
  * Routes messages from the popup.
  *
- * @returns `true` to keep the message channel open for an asynchronous
- * `sendResponse`. Once syncing lands here the reply will come from a promise,
- * so the channel has to stay open even though the current path answers
- * synchronously.
+ * {@link SyncNowMessage} is fired and forgotten — the reply says the sync was
+ * *started*, not that it succeeded, since `syncFunc` is deliberately not awaited
+ * here. Reporting the real outcome would mean awaiting it and replying from the
+ * promise, which is what the open channel below already allows for.
+ *
+ * @param message - The message name; anything unrecognized is answered with
+ * {@link Status.Error}.
+ * @param _ - Sender, unused: the popup is the only thing that messages the
+ * worker, so there is nothing to distinguish.
+ * @param sendResponse - Reply callback, invoked exactly once on every path.
+ * @returns `true`, keeping the message channel open for an asynchronous
+ * `sendResponse`. Not needed by the current synchronous path, but returning
+ * false would close the channel and break the awaited variant above.
  */
 const handleMessages = (
     message: string,
@@ -228,7 +307,16 @@ const handleStartup = async () => {
     await alarm.ensureTickAlarm()
 }
 
-/** Seeds default settings on install so the popup never renders against empty storage. */
+/**
+ * Seeds default settings on install so the popup never renders against empty
+ * storage.
+ *
+ * Runs on update and browser-update too, not just first install — the reason
+ * details are ignored — so an existing profile's settings are overwritten with
+ * defaults on every extension update.
+ *
+ * @param _ - Install reason and previous version, unused.
+ */
 const handleSetup = async (_: Browser.runtime.InstalledDetails) => {
     await setDefaultSettings()
 }

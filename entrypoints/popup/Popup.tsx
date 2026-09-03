@@ -39,7 +39,15 @@ function Popup() {
         return () => unregisterSettingsWatcher(PopupComponent)
     }, [])
 
-    /** Persists the toggle's new position. */
+    /**
+     * Persists the toggle's new position.
+     *
+     * Sets local state as well as writing the setting: the watcher above would
+     * eventually deliver the same value, but not soon enough to avoid a visible
+     * lag on the switch.
+     *
+     * @param state - Requested position.
+     */
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
         await syncEnableSetting.setValue(state)
@@ -50,7 +58,17 @@ function Popup() {
         browser.runtime.openOptionsPage()
     }
 
-    /** Asks the background worker to sync immediately, unless syncing is off. */
+    /**
+     * Asks the background worker to sync immediately, unless syncing is off.
+     *
+     * Re-reads the setting rather than trusting `syncEnabled` state, so a toggle
+     * flipped in another window is honored. The worker checks it again anyway.
+     *
+     * The status only reports whether the worker accepted the message — it does
+     * not await the sync, so neither branch says anything about the outcome.
+     * TODO: surface the real result in the popup instead of the console; that
+     * needs `handleMessages` to reply from the sync promise.
+     */
     const syncNow = async () => {
         if ((await syncEnableSetting.getValue()) == true) {
             const result = await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)

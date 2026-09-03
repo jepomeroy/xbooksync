@@ -42,38 +42,65 @@ export const storageSetting = storage.defineItem<StorageBackend>(SettingsKeys.st
     fallback: StorageBackend.GitHubRepo,
 })
 
-/** Sort direction; ignored unless {@link sortedSetting} is on. */
+/**
+ * Sort direction; would be ignored unless {@link sortedSetting} is on.
+ *
+ * Stored and surfaced in the options page, but not yet read by the sync path —
+ * see the TODO in `entrypoints/bookmarks/bookmarks.ts`.
+ */
 export const sortOrderSetting = storage.defineItem<SortOrder>(SettingsKeys.sortOrder, {
     fallback: SortOrder.Ascending,
 })
 
-/** Whether bookmarks are sorted before being written out. */
+/** Whether bookmarks are sorted before being written out. Not yet applied — see {@link sortOrderSetting}. */
 export const sortedSetting = storage.defineItem<boolean>(SettingsKeys.sorted, {
     fallback: false,
 })
 
-/** Master switch; when off, neither scheduled nor manual syncs run. */
+/**
+ * Master switch. Checked on each alarm tick and by the popup's sync button, so
+ * turning it off stops both — but it does not cancel the alarm, which keeps
+ * firing and returning early.
+ */
 export const syncEnableSetting = storage.defineItem<boolean>(SettingsKeys.syncEnabled, {
     fallback: true,
 })
 
-/** Seconds between automatic syncs. */
+/**
+ * Seconds between automatic syncs.
+ *
+ * Converted to the alarm's `periodInMinutes` and floored at 30s, the shortest
+ * period the browsers honor — see `getTickPeriodInMinutes` in
+ * `entrypoints/bookmarks/alarm.ts`.
+ */
 export const syncRateSetting = storage.defineItem<number>(SettingsKeys.syncRate, {
     fallback: 900,
 })
 
-/** ISO timestamp of the last successful sync. */
+/** ISO timestamp of the last sync that changed something; a pass with nothing to do leaves it alone. */
 export const syncLastSyncDateSetting = storage.defineItem<string>(SettingsKeys.lastSyncDate, {
     // default to Unix Epoch if we've never synced before
     fallback: new Date(0).toISOString(),
 })
 
-/** Last sync value from the configured adapter. */
+/**
+ * Version token the sync target was last seen at — a GitHub blob SHA today,
+ * an ETag or hash for other targets.
+ *
+ * Opaque here: only the adapter that issued it interprets it. Empty means the
+ * target has never been read, which every adapter treats as "fetch everything".
+ */
 export const syncLastSyncValueSetting = storage.defineItem<string>(SettingsKeys.lastSyncValue, {
     fallback: '',
 })
 
-/** Base Bookmarks for three-way comparisons */
+/**
+ * Tree as of the last successful sync — the common ancestor both sides are
+ * diffed against.
+ *
+ * Null before the first sync, which makes both diffs pure additions and so
+ * merges the two trees rather than deleting either.
+ */
 export const syncBaseBookmarks = storage.defineItem<BookmarkEntry | null>(SettingsKeys.baseBookmarks, {
     fallback: null,
 })
@@ -81,7 +108,9 @@ export const syncBaseBookmarks = storage.defineItem<BookmarkEntry | null>(Settin
 /**
  * GitHub storage settings.
  *
- * Shared by both the GH Repo and GH Gist storage types.
+ * Kept separate from {@link SettingsKeys} because they are target-specific
+ * rather than app-wide, and shared by both the GH Repo and GH Gist storage
+ * types — the token buys access to both.
  */
 
 export const GitHubSettingsKeys = {
@@ -93,7 +122,13 @@ export const GitHubSettingsKeys = {
 /** Union of the keys in {@link GitHubSettingsKeys}. */
 export type GitHubSettingsKey = (typeof GitHubSettingsKeys)[keyof typeof GitHubSettingsKeys]
 
-/** GitHub App Auth token for access to GH Repos and Gists. */
+/**
+ * GitHub App user-to-server token, from the device flow in `gh-app-auth.ts`.
+ *
+ * Empty means signed out, which is what the options page keys its Login /
+ * Revoke button off. A non-empty token still reaches no repos until the app is
+ * installed on an account — see `fetchGitHubRepos`.
+ */
 export const ghAuthToken = storage.defineItem<string>(GitHubSettingsKeys.ghAuthToken, {
     fallback: '',
 })
@@ -103,7 +138,7 @@ export const ghGist = storage.defineItem<string>(GitHubSettingsKeys.ghGist, {
     fallback: '',
 })
 
-/** GitHub Repo to use for storage. */
+/** Repo to sync to, as `owner/name`. Empty until the user picks one from the options page. */
 export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
     fallback: '',
 })
@@ -125,30 +160,85 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.baseBookmarks]: null,
 }
 
+/**
+ * Development-only seed values for the GitHub settings, so a freshly installed
+ * unpacked build syncs without going through the device flow first.
+ *
+ * Written by {@link setDefaultSettings} on the same footing as the real
+ * defaults, so on release this must be emptied or dropped — otherwise a fresh
+ * install silently starts out pointed at whatever is baked in here. The
+ * {@link initialized} guard limits that to the first seed rather than every
+ * update.
+ */
 const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
     // FIXME Everything below here is for debugging and developement remove before release
     // DO NOT COMMIT this with the ghAuthToken set!!!
     // Change it to a blank and paste it in from a locally stored location
     [GitHubSettingsKeys.ghAuthToken]: '',
     [GitHubSettingsKeys.ghGist]: '',
-    [GitHubSettingsKeys.ghRepo]: 'jepomeroy/bookmarks',
+    [GitHubSettingsKeys.ghRepo]: 'jepomeroy/bookmarks-testing',
 }
+
+/**
+ * Marks that {@link setDefaultSettings} has already seeded this profile, so
+ * defaults are applied once rather than overwritten on each update.
+ *
+ * Deliberately outside {@link SettingsKeys}: it is bookkeeping rather than a
+ * user setting, and listing it there would oblige {@link defaultSettings} to
+ * seed it — which would mean writing the flag as part of the batch it guards.
+ */
+const initialized: StorageItemKey = 'local:initialized'
 
 /**
  * Seeds every setting with its default. Called from the background worker's
  * `onInstalled` handler.
  *
+ * Seeds once per profile, not once per install: `onInstalled` also fires on
+ * extension update, so the {@link initialized} flag is what keeps an update from
+ * resetting settings the user has since configured. Clearing that flag — or
+ * clearing extension storage — makes the next call seed again.
+ *
  * Written as one `setItems` batch rather than per-item `setValue` calls so a
- * half-initialized settings state can't be observed.
+ * half-initialized settings state can't be observed. The GitHub block is a
+ * second batch and the flag a third write, so the three are not atomic with
+ * respect to each other: a failure partway through leaves the flag unset, and
+ * the next call re-seeds from the top.
  */
 export const setDefaultSettings = async () => {
-    await storage.setItems(Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })))
-    await storage.setItems(
-        Object.entries(debugGitHubSettings).map(([key, value]) => ({ key: key as GitHubSettingsKey, value })),
-    )
+    // get init state
+    const init = await storage.getItem<boolean>(initialized)
+
+    // Check if default should be applied, do so only if they've never been set
+    // Otherwise, this would overwrite existing setting
+    if (init == null || init == false) {
+        await storage.setItems(
+            Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })),
+        )
+        await storage.setItems(
+            Object.entries(debugGitHubSettings).map(([key, value]) => ({ key: key as GitHubSettingsKey, value })),
+        )
+
+        await storage.setItem<boolean>(initialized, true)
+    }
 }
 
-/** Subscribes to changes on a stored setting, keyed by a caller-chosen name so it can later be unregistered. */
+/**
+ * Subscribes to changes on a stored setting, keyed by a caller-chosen name so it
+ * can later be unregistered.
+ *
+ * One watcher per name: registering a second under a name already in use
+ * silently drops the first handle, leaking that subscription — it keeps firing
+ * with no way to stop it. Callers that re-register (React components, the
+ * storage singleton) either register once or unregister first.
+ *
+ * @typeParam T - Type stored under `setting`; the callback receives `T | null`,
+ * null being what a cleared key reports.
+ * @param name - Unique name for this subscription, passed back to
+ * {@link unregisterSettingsWatcher}.
+ * @param setting - Key to watch, from {@link SettingsKeys} or
+ * {@link GitHubSettingsKeys}.
+ * @param callback - Invoked with the new and old values on every change.
+ */
 export const registerSettingsWatcher = <T>(
     name: string,
     setting: StorageItemKey,
@@ -158,7 +248,13 @@ export const registerSettingsWatcher = <T>(
     watchers.set(name, unwatch)
 }
 
-/** Removes a settings watcher previously registered under `name` via {@link registerSettingsWatcher}. */
+/**
+ * Removes a settings watcher previously registered under `name` via
+ * {@link registerSettingsWatcher}.
+ *
+ * @param name - Name the watcher was registered under. An unknown name is a
+ * no-op, so this is safe to call unconditionally from cleanup paths.
+ */
 export const unregisterSettingsWatcher = (name: string) => {
     const unwatch = watchers.get(name)
 

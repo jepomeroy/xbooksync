@@ -8,6 +8,12 @@ type FileSettingsProps = {
 /**
  * Settings for the local-file sync target. Fully controlled — it holds no state
  * of its own, so the parent owns both the value and the debounced write.
+ *
+ * Currently unreferenced: there is no local-file member of `StorageBackend` and
+ * no adapter behind it, so nothing renders this. Kept as the shape that target
+ * would take.
+ *
+ * @param props - See {@link FileSettingsProps}.
  */
 export default function FileSettings({ value, onChange }: FileSettingsProps) {
     return (

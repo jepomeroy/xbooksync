@@ -41,12 +41,30 @@ export default function Sync() {
         return () => unregisterSettingsWatcher(SyncComponent)
     }, [])
 
-    /** Persists the toggle's new position. */
+    /**
+     * Persists the toggle's new position.
+     *
+     * Sets local state as well as writing the setting: the watcher above would
+     * eventually deliver the same value, but not soon enough to avoid a visible
+     * lag on the switch.
+     *
+     * @param state - Requested position.
+     */
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
         await syncEnableSetting.setValue(state)
     }
 
+    /**
+     * Persists the new sync interval, in seconds.
+     *
+     * Written on every keystroke, and the background worker rebuilds its alarm
+     * on each write — so typing "900" resets the schedule three times on the way
+     * there. Values under 30s are accepted here and floored by the alarm.
+     *
+     * @param rate - Raw input value. A cleared field arrives as `''` and is
+     * stored as `0`, which the alarm then floors to 30s.
+     */
     const handleSyncRateChange = async (rate: string) => {
         // `<input type="number">` still hands back a string; the setting is a number.
         const val = +rate

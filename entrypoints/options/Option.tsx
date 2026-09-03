@@ -36,7 +36,7 @@ function Option() {
                     <a href='https://github.com/jepomeroy/xbooksync/blob/main/README.md' target='_blank'>
                         <p>
                             <FaCircleQuestion />
-                            Get help on setup and use of XMarkSync.
+                            Get help on setup and use of XBookSync.
                         </p>
                     </a>
                 </div>
@@ -44,7 +44,7 @@ function Option() {
                     <a href='https://github.com/jepomeroy/xbooksync/issues' target='_blank'>
                         <p>
                             <FaBug />
-                            For issues or features request in XMarkSync.
+                            For issues or features request in XBookSync.
                         </p>
                     </a>
                 </div>

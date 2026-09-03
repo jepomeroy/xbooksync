@@ -8,8 +8,10 @@ import Unimplemented from './unimplemented'
 /**
  * Storage-target picker plus the settings for whichever target is selected.
  *
- * Only {@link StorageBackend.GitHubRepo} and {@link StorageBackend.GitHubGist} have an
- * adapter today; every other target renders {@link Unimplemented}.
+ * Only {@link StorageBackend.GitHubRepo} has settings today; every other target,
+ * Gist included, renders {@link Unimplemented}. The picker still offers all four
+ * so the roadmap is visible — but note nothing stops the user selecting one and
+ * persisting it, which leaves the background worker on its previous adapter.
  */
 export default function Storage() {
     const [selectedOption, setSelectedOption] = useState(StorageBackend.GitHubRepo)
@@ -20,7 +22,12 @@ export default function Storage() {
         storageSetting.getValue().then(data => setSelectedOption(data))
     }, [])
 
-    /** Persists the newly selected storage type. */
+    /**
+     * Persists the newly selected storage type.
+     *
+     * @param e - Change event from the `<select>`. Its value is an untyped
+     * string, hence {@link getStorageBackend} to narrow it back to the enum.
+     */
     const handleStorageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const st = getStorageBackend(e.target.value)
         setSelectedOption(st)

@@ -20,6 +20,10 @@ export class Alarm {
      * place scheduled work can assume it is running. Alarms are best effort — the
      * browser may delay one past its period — so nothing here should depend on
      * having fired an exact number of times.
+     *
+     * @param alarm - The alarm that fired. Every alarm in the extension is
+     * delivered to every listener, so the name check is what keeps this from
+     * running on someone else's schedule.
      */
     public handleTickAlarm = async (alarm: Browser.alarms.Alarm) => {
         if (alarm.name !== TickAlarmName) {
@@ -41,6 +45,10 @@ export class Alarm {
      * below 0.5 for a packed extension and logs a warning. Going finer would mean
      * holding the worker awake with a timer, which MV3 is built to prevent —
      * `alarms` is the supported way to get control back after a suspend.
+     *
+     * @returns {@link syncRateSetting}'s seconds as minutes, clamped up to 0.5
+     * when that would land below the floor. The clamp only applies under a
+     * minute, so `90` gives 1.5 rather than being rounded anywhere.
      */
     private getTickPeriodInMinutes = async (): Promise<number> => {
         const num = await syncRateSetting.getValue()
@@ -71,11 +79,16 @@ export class Alarm {
     }
 
     /**
-     * Reset the tick alarm if the sync rate changes.
+     * Rebuilds the tick alarm against the current sync rate.
      *
-     * The existence check matters: `alarms.create` replaces an alarm of the same
-     * name and restarts its schedule, so re-creating it on every worker startup
-     * would keep pushing the next fire out and it could never arrive.
+     * Clearing first is what makes this work at all: {@link ensureTickAlarm} is
+     * a no-op while an alarm of that name exists, so without the clear the old
+     * period would simply survive. This is the deliberate opposite of the
+     * startup path — here restarting the schedule is the point.
+     *
+     * Neither call is awaited, so the clear and the re-create race in principle.
+     * In practice `alarms.clear` is dispatched first and both are cheap, but a
+     * caller needing the new period to be live on return would have to await.
      */
     public resetTickAlarm = () => {
         browser.alarms.clear(TickAlarmName)

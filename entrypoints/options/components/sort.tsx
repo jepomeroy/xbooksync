@@ -6,6 +6,9 @@ import Toggle from '../../shared/components/toogle'
 /**
  * Sorting preferences: an on/off toggle, plus the direction select that only
  * appears while sorting is on.
+ *
+ * Both settings persist correctly but nothing consumes them yet — the sync path
+ * never sorts. See the TODO in `entrypoints/bookmarks/bookmarks.ts`.
  */
 export default function Sort() {
     const [sort, setSort] = useState(false)
@@ -23,14 +26,25 @@ export default function Sort() {
         await sortedSetting.setValue(state)
     }
 
-    /** Persists the newly selected sort direction. */
+    /**
+     * Persists the newly selected sort direction.
+     *
+     * @param e - Change event from the direction `<select>`. Its value is an
+     * untyped string, hence {@link getSortOrder} to narrow it back to the enum.
+     */
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const sot = getSortOrder(e.target.value)
         setSortOrder(sot)
         await sortOrderSetting.setValue(sot)
     }
 
-    /** Renders nothing when sorting is off, hiding a control that would have no effect. */
+    /**
+     * Renders nothing when sorting is off, hiding a control that would have no
+     * effect.
+     *
+     * @param showSort - Whether sorting is currently on.
+     * @returns The direction row, or undefined — which React renders as nothing.
+     */
     const showSortOrder = (showSort: boolean) => {
         if (showSort) {
             return (

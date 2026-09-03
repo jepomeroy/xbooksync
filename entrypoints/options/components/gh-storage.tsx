@@ -6,9 +6,17 @@ import { ghAuthToken, ghRepo } from '@/entrypoints/shared/localsettings'
 import { AppNotInstalledError, fetchGitHubRepos } from '@/entrypoints/bookmarks/gh-utils'
 
 /**
- * Settings for the GitHub Repo / GitHub Gist sync targets: GitHub App login via
- * the device flow, prompting the user to install the app when needed, and
- * picking which repo to sync to once a token is connected.
+ * Settings for the GitHub Repo sync target: GitHub App login via the device
+ * flow, prompting the user to install the app when needed, and picking which
+ * repo to sync to once a token is connected.
+ *
+ * Named generically because the token is shared with the Gist target, but only
+ * the repo picker is rendered — `storage.tsx` routes Gist to `Unimplemented`.
+ *
+ * Access needs two separate things, which is what most of the state here is
+ * tracking: a token (the device flow) *and* an installation on an account
+ * (a visit to github.com). Having one without the other is the normal first-run
+ * state, not an error.
  */
 export default function GitHubSettings() {
     const [prompt, setPrompt] = useState<DeviceCodePrompt | null>(null)
@@ -104,7 +112,15 @@ export default function GitHubSettings() {
         setRefresh(count => count + 1)
     }
 
-    /** Persists the newly selected repo. */
+    /**
+     * Persists the newly selected repo.
+     *
+     * Writing {@link ghRepo} is what makes the change take effect: the storage
+     * adapter watches that key and rebuilds itself around the new repo.
+     *
+     * @param e - Change event from the repo `<select>`; its value is the repo's
+     * `owner/name`, or `''` for the placeholder option.
+     */
     const handleRepoChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const repo = e.target.value
 
@@ -133,7 +149,13 @@ export default function GitHubSettings() {
         }
     }
 
-    /** Clears the stored token, repo, and any derived UI state. */
+    /**
+     * Clears the stored token, repo, and any derived UI state.
+     *
+     * Local only, despite the name: the grant on GitHub's side and the app
+     * installation both remain, so logging back in needs no re-authorization.
+     * Revoking for real means visiting the account's applications settings.
+     */
     const revokeToken = () => {
         ghAuthToken.removeValue()
         ghRepo.removeValue()

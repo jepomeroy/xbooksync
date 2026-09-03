@@ -1,6 +1,10 @@
 /**
  * GitHub App user authentication via the OAuth device flow.
  *
+ * The device flow is used because it needs no client secret and no redirect
+ * URI — neither of which an extension can hold safely — at the cost of the user
+ * typing a code on github.com.
+ *
  * The GitHub App must have "Enable Device Flow" turned on in its settings.
  */
 
@@ -41,15 +45,29 @@ interface DeviceCodeResponse {
     interval: number
 }
 
-/** Resolves after the given number of seconds. */
+/**
+ * Resolves after the given number of seconds.
+ *
+ * @param seconds - Delay; GitHub states its polling interval in seconds, hence
+ * the unit.
+ */
 const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000))
 
 /**
  * Runs the device flow to completion and returns a user access token.
  *
+ * Stores the token in {@link ghAuthToken} as well as returning it, so a caller
+ * that only needs it persisted can ignore the return value.
+ *
  * @param onPrompt  Called once, as soon as the user code is available. Use it to
  *                  display the code and open the verification page; this call
  *                  then blocks polling GitHub until the user finishes.
+ * @returns The user-to-server access token. Note this grants no repository
+ *          access on its own — that requires the app to be installed on an
+ *          account, which is a separate step at {@link INSTALL_URL}.
+ * @throws If the user denies authorization, the code expires, or GitHub returns
+ *         an error. There is no cancellation path short of that expiry, so a
+ *         caller that abandons the flow leaves it polling until the deadline.
  */
 export async function loginWithGitHubApp(onPrompt: (prompt: DeviceCodePrompt) => void): Promise<string> {
     // 1. Ask GitHub for a device/user code pair.
