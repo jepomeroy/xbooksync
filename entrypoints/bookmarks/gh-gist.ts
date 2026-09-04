@@ -30,7 +30,7 @@ export class GitHubGistAdapter implements StorageAdapter {
      * @param knownVersion - Revision this side was last seen at.
      * @throws Always.
      */
-    read(knownVersion: string): Promise<ReadData> {
+    read(_knownVersion: string): Promise<ReadData> {
         throw new Error('Method not implemented.')
     }
 
@@ -43,7 +43,7 @@ export class GitHubGistAdapter implements StorageAdapter {
      * another way to detect a concurrent write.
      * @throws Always.
      */
-    write(content: string, previousBlobVersion?: string): Promise<string> {
+    write(_content: string, _previousBlobVersion?: string): Promise<string> {
         throw new Error('Method not implemented.')
     }
 
@@ -54,7 +54,7 @@ export class GitHubGistAdapter implements StorageAdapter {
      * @throws Always — including from `Storage.cleanup`, so wiring this backend
      * up before implementing it would break shutdown.
      */
-    registerWatchers(callback: SyncCallback): void {
+    registerWatchers(_callback: SyncCallback): void {
         throw new Error('Method not implemented.')
     }
 
