@@ -154,7 +154,7 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.sortOrder]: SortOrder.Ascending,
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
-    [SettingsKeys.syncRate]: 30, // FIXME: Hardcoded for testing, should be 900
+    [SettingsKeys.syncRate]: 900,
     [SettingsKeys.lastSyncDate]: new Date(0).toISOString(),
     [SettingsKeys.lastSyncValue]: '',
     [SettingsKeys.baseBookmarks]: null,
@@ -171,7 +171,6 @@ const defaultSettings: Record<SettingsKey, unknown> = {
  * update.
  */
 const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
-    // FIXME Everything below here is for debugging and developement remove before release
     // DO NOT COMMIT this with the ghAuthToken set!!!
     // Change it to a blank and paste it in from a locally stored location
     [GitHubSettingsKeys.ghAuthToken]: '',
@@ -208,15 +207,24 @@ export const setDefaultSettings = async () => {
     // get init state
     const init = await storage.getItem<boolean>(initialized)
 
+    // Default the sync rate to 30s for DEV
+    if (import.meta.env.DEV) {
+        syncRateSetting.setValue(30)
+    }
+
     // Check if default should be applied, do so only if they've never been set
     // Otherwise, this would overwrite existing setting
     if (init == null || init == false) {
         await storage.setItems(
             Object.entries(defaultSettings).map(([key, value]) => ({ key: key as SettingsKey, value })),
         )
-        await storage.setItems(
-            Object.entries(debugGitHubSettings).map(([key, value]) => ({ key: key as GitHubSettingsKey, value })),
-        )
+
+        // If this is dev, set configured debugging values
+        if (import.meta.env.DEV) {
+            await storage.setItems(
+                Object.entries(debugGitHubSettings).map(([key, value]) => ({ key: key as GitHubSettingsKey, value })),
+            )
+        }
 
         await storage.setItem<boolean>(initialized, true)
     }
