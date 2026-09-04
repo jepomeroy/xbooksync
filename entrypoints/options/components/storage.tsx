@@ -56,7 +56,7 @@ export default function Storage() {
                 >
                     <option value={StorageBackend.GitHubRepo}>GitHub Repo</option>
                     <option value={StorageBackend.GitHubGist}>GitHub Gist</option>
-                    <option value={StorageBackend.GitlabRepo}>Gitlab Repo</option>
+                    <option value={StorageBackend.GitLabRepo}>GitLab Repo</option>
                     <option value={StorageBackend.S3}>S3 Bucket</option>
                 </select>
             </div>

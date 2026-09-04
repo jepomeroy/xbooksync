@@ -3,7 +3,7 @@ import { FaGear } from 'react-icons/fa6'
 import { FaSync } from 'react-icons/fa'
 
 import './Popup.css'
-import Toggle from '../shared/components/toogle'
+import Toggle from '@/entrypoints/shared/components/toggle'
 import {
     registerSettingsWatcher,
     SettingsKeys,
@@ -11,8 +11,8 @@ import {
     syncLastSyncDateSetting,
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
-import { getLastSynced, parseLastSynced } from '../shared/syncutils'
-import { type MessageResponse, SyncNowMessage, Status } from '../shared/types'
+import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
+import { type MessageResponse, SyncNowMessage, Status } from '@/entrypoints/shared/types'
 
 /**
  * Watcher key prefix used to identify this component's settings subscriptions.

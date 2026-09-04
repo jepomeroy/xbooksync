@@ -7,11 +7,6 @@
 export const API_ROOT = 'https://api.github.com'
 
 /**
- * The token is valid but reaches no repos, because the app isn't installed on
- * any account. Its own type so the UI can offer the install link rather than
- * showing a dead-end message.
- */
-/**
  * The bookmark file is gone from a target that previously held it.
  *
  * Its own type because it is not interchangeable with a first run: both answer
@@ -26,6 +21,11 @@ export class RemoteFileMissingError extends Error {
     }
 }
 
+/**
+ * The token is valid but reaches no repos, because the app isn't installed on
+ * any account. Its own type so the UI can offer the install link rather than
+ * showing a dead-end message.
+ */
 export class AppNotInstalledError extends Error {
     constructor() {
         super('This GitHub App is not installed on any account.')

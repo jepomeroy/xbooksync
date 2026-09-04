@@ -44,7 +44,7 @@ function Option() {
                     <a href='https://github.com/jepomeroy/xbooksync/issues' target='_blank'>
                         <p>
                             <FaBug />
-                            For issues or features request in XBookSync.
+                            For issues or feature requests in XBookSync.
                         </p>
                     </a>
                 </div>

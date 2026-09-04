@@ -1,4 +1,4 @@
-import './toogle.css'
+import './toggle.css'
 
 type ToggleProps = {
     /** Text shown beside the switch; omitted for an unlabelled toggle. */

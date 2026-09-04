@@ -11,7 +11,12 @@
  * surfaced in the options page and otherwise unused.
  */
 
-import { BookmarkType, type BookmarkEntry, type FlatBookmarks, type LocalBookmarkEntry } from '../shared/types'
+import {
+    BookmarkType,
+    type BookmarkEntry,
+    type FlatBookmarks,
+    type LocalBookmarkEntry,
+} from '@/entrypoints/shared/types'
 import { flatten } from './sync'
 
 /**
@@ -78,7 +83,7 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
      *
      * @param rawBookmarks - Root node from `browser.bookmarks.getTree()`.
      */
-    public fromBrowswer(this: Bookmarks<LocalBookmarkEntry>, rawBookmarks: Browser.bookmarks.BookmarkTreeNode) {
+    public fromBrowser(this: Bookmarks<LocalBookmarkEntry>, rawBookmarks: Browser.bookmarks.BookmarkTreeNode) {
         // Convert the browser bookmarks to extension types
         this.rootBookmark = this.parseBookmarks(rawBookmarks)
     }

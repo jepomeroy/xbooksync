@@ -7,7 +7,7 @@ import {
     syncRateSetting,
     unregisterSettingsWatcher,
 } from '@/entrypoints/shared/localsettings'
-import Toggle from '@/entrypoints/shared/components/toogle'
+import Toggle from '@/entrypoints/shared/components/toggle'
 import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
 
 /**

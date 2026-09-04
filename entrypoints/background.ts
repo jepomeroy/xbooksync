@@ -67,7 +67,7 @@ const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide<LocalBookmar
     const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
     const [root] = await browser.bookmarks.getTree()
     if (root) {
-        local.fromBrowswer(root)
+        local.fromBrowser(root)
     }
     const flat = local.flatten()
 
@@ -109,7 +109,7 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
     const local: Bookmarks<LocalBookmarkEntry> = new Bookmarks<LocalBookmarkEntry>()
     const [root] = await browser.bookmarks.getTree()
     if (root) {
-        local.fromBrowswer(root)
+        local.fromBrowser(root)
     }
 
     return local
@@ -307,9 +307,9 @@ const handleStartup = async () => {
  * Seeds default settings on install so the popup never renders against empty
  * storage.
  *
- * Runs on update and browser-update too, not just first install — the reason
- * details are ignored — so an existing profile's settings are overwritten with
- * defaults on every extension update.
+ * Fires on update as well as install, but {@link setDefaultSettings} seeds a
+ * profile only once, so an existing profile's settings survive an update rather
+ * than being overwritten with defaults.
  *
  * @param _ - Install reason and previous version, unused.
  */

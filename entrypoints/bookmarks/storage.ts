@@ -94,7 +94,7 @@ export class Storage {
             // case StorageBackend.GitHubGist:
             case StorageBackend.GitHubRepo:
                 this.storageAdapter = await this.makeGHRepo()
-            //     case StorageBackend.GitlabRepo:
+            //     case StorageBackend.GitLabRepo:
             //     case StorageBackend.S3:
         }
     }

@@ -30,11 +30,11 @@ afterEach(() => {
 const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
     const local = new Bookmarks<LocalBookmarkEntry>()
     const [root] = await browser.bookmarks.getTree()
-    local.fromBrowswer(root as unknown as Browser.bookmarks.BookmarkTreeNode)
+    local.fromBrowser(root as unknown as Browser.bookmarks.BookmarkTreeNode)
     return local
 }
 
-describe('fromBrowswer', () => {
+describe('fromBrowser', () => {
     it('keeps only the two known root folders', async () => {
         fake.seed('0', [{ title: 'Mobile bookmarks', children: [{ title: 'Docs', url: 'https://a.dev' }] }])
 
