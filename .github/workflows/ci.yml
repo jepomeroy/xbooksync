@@ -1,0 +1,36 @@
+name: CI
+
+on:
+    workflow_dispatch:
+    pull_request:
+
+jobs:
+    linting:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+            - name: Install Dependencies
+              run: bun install
+            - name: Compile
+              run: bun run compile
+            - name: Lint files
+              run: bun run lint
+
+    unit-testing:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+            - name: Install Dependencies
+              run: bun install
+            - name: Unit Tests
+              run: bun run test
