@@ -12,7 +12,7 @@
 
 import { registerSettingsWatcher, GitHubSettingsKeys, unregisterSettingsWatcher } from '../shared/localsettings'
 import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
-import { API_ROOT, decodeBase64, encodeBase64 } from './gh-utils'
+import { API_ROOT, decodeBase64, encodeBase64, RemoteFileMissingError } from './gh-utils'
 
 /** {@link StorageAdapter} that reads and writes the bookmark file in a GitHub repository via the Contents API. */
 export class GitHubRepoAdapter implements StorageAdapter {
@@ -91,7 +91,9 @@ export class GitHubRepoAdapter implements StorageAdapter {
      * @returns The decoded content and its blob SHA. A repo with no bookmark
      * file yet reports changed with empty content, which the sync loop then
      * treats as an empty remote tree.
-     * @throws On any non-404 error response.
+     * @throws {RemoteFileMissingError} When the file is absent but `knownVersion`
+     * is set — a deletion rather than a first run.
+     * @throws On any other error response.
      */
     async read(knownVersion: string): Promise<ReadData> {
         const url = `${API_ROOT}/repos/${this.repo}/contents/${this.bookmarkFilename}`
@@ -103,9 +105,18 @@ export class GitHubRepoAdapter implements StorageAdapter {
         }
 
         if (!response.ok) {
-            // first time using this repo, no file present
             if (response.status == 404) {
-                return { changed: true, content: '', blobVersion: '' }
+                // No file and no version ever recorded: first use of this repo,
+                // so an empty remote is the honest answer.
+                if (knownVersion === '') {
+                    return { changed: true, content: '', blobVersion: '' }
+                }
+
+                // A known version means the file was there at the last sync and
+                // has since been deleted. That reads downstream as an empty
+                // remote tree — indistinguishable from the user clearing every
+                // bookmark — so refuse the pass rather than act on the guess.
+                throw new RemoteFileMissingError(this.repo, this.bookmarkFilename)
             }
 
             throw new Error(`GitHub request failed (${response.status} ${response.statusText}): ${url}`)

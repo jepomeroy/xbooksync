@@ -11,6 +11,21 @@ export const API_ROOT = 'https://api.github.com'
  * any account. Its own type so the UI can offer the install link rather than
  * showing a dead-end message.
  */
+/**
+ * The bookmark file is gone from a target that previously held it.
+ *
+ * Its own type because it is not interchangeable with a first run: both answer
+ * 404, but an empty tree from a repo that used to have one diffs as "every
+ * bookmark was deleted", and the sync loop would carry that out against the
+ * browser. Only a known prior version tells the two apart.
+ */
+export class RemoteFileMissingError extends Error {
+    constructor(repo: string, path: string) {
+        super(`${path} is missing from ${repo}, but was present at the last sync.`)
+        this.name = 'RemoteFileMissingError'
+    }
+}
+
 export class AppNotInstalledError extends Error {
     constructor() {
         super('This GitHub App is not installed on any account.')

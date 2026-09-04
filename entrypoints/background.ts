@@ -163,9 +163,8 @@ const syncFunc = async () => {
         await syncLastSyncValueSetting.setValue(currVersion)
         await syncLastSyncDateSetting.setValue(now)
 
-        // What was just written is what both sides now hold, so it becomes the
-        // next base.
-        await syncBaseBookmarks.setValue(localSync.tree.getBookmarks())
+        // The base is stored in the same canonical form that was just written.
+        await syncBaseBookmarks.setValue(JSON.parse(localSync.tree.getContent()))
     } else if (!hasModifications(localSync.diff) && hasModifications(remoteSync.diff)) {
         // Remote-only: the browser still matches the base, so the target's tree
         // can be applied wholesale. This is the case applyRemote's preconditions
@@ -181,8 +180,11 @@ const syncFunc = async () => {
         // Always set here: this branch is only reached on a changed read.
         if (remoteSync.version) await syncLastSyncValueSetting.setValue(remoteSync.version)
         await syncLastSyncDateSetting.setValue(now)
-        // The remote tree is what the browser now holds, so it becomes the next base.
-        await syncBaseBookmarks.setValue(remoteSync.tree.getBookmarks())
+        // The remote tree is what the browser now holds, so it becomes the next
+        // base — re-serialized rather than stored as parsed, so the shape comes
+        // from `getContent` here as it does in every other branch instead of
+        // from whatever the target happened to hold.
+        await syncBaseBookmarks.setValue(JSON.parse(remoteSync.tree.getContent()))
     } else {
         // Both sides changed. Fold the remote diff into the local tree, then
         // push the result — so the write carries local edits the target hasn't
@@ -211,10 +213,7 @@ const syncFunc = async () => {
         // Track the new version
         await syncLastSyncValueSetting.setValue(currVersion)
         await syncLastSyncDateSetting.setValue(now)
-        // The base is stored in the same canonical form that was just written,
-        // rather than the raw local tree the branches above store. Both diff
-        // identically — keys ignore ids and anchor titles — but only this form
-        // is byte-comparable with what the target holds.
+        // The base is stored in the same canonical form that was just written.
         await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
     }
 

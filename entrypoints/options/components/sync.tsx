@@ -15,6 +15,12 @@ import { getLastSynced } from '@/entrypoints/shared/syncutils'
  * syncs, and a read-only view of when the last sync happened.
  */
 
+/**
+ * Watcher key prefix used to identify this component's settings subscriptions.
+ *
+ * Suffixed per key: the registry holds one watcher per name, so registering two
+ * under the same name would drop the first handle and leak that subscription.
+ */
 const SyncComponent = 'sync-component'
 export default function Sync() {
     const [syncEnabled, setSyncEnabled] = useState(true)
@@ -30,15 +36,25 @@ export default function Sync() {
         syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
     }, [])
 
-    // Registered once so the watcher handle stored under SyncComponent isn't overwritten on
-    // re-render, which would leak the previous subscription.
+    // Registered once so the watcher handles stored under these names aren't overwritten on
+    // re-render, which would leak the previous subscriptions.
     useEffect(() => {
-        registerSettingsWatcher<boolean>(SyncComponent, SettingsKeys.syncEnabled, newVal => {
+        registerSettingsWatcher<boolean>(`${SyncComponent}-sync-enabled`, SettingsKeys.syncEnabled, newVal => {
             // `newVal` is null if the key is cleared; fall back to the setting's default.
             setSyncEnabled(newVal ?? true)
         })
 
-        return () => unregisterSettingsWatcher(SyncComponent)
+        // The background worker stamps this key at the end of a sync that
+        // changed something, so the label follows syncs started elsewhere.
+        registerSettingsWatcher<string>(`${SyncComponent}-last-sync`, SettingsKeys.lastSyncDate, newVal => {
+            // A cleared key reports null; render blank rather than the epoch.
+            setLastSynced(newVal ? new Date(newVal) : null)
+        })
+
+        return () => {
+            unregisterSettingsWatcher(`${SyncComponent}-sync-enabled`)
+            unregisterSettingsWatcher(`${SyncComponent}-last-sync`)
+        }
     }, [])
 
     /**

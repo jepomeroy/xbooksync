@@ -14,7 +14,12 @@ import {
 import { getLastSynced } from '../shared/syncutils'
 import { type MessageResponse, SyncNowMessage, Status } from '../shared/types'
 
-/** Watcher key used to identify this component's settings subscription. */
+/**
+ * Watcher key prefix used to identify this component's settings subscriptions.
+ *
+ * Suffixed per key: the registry holds one watcher per name, so registering two
+ * under the same name would drop the first handle and leak that subscription.
+ */
 const PopupComponent = 'popup-component'
 
 /** Popup shell: header, the sync toggle with last-synced time, and buttons to sync now or open the options page. */
@@ -28,15 +33,25 @@ function Popup() {
         syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
     }, [])
 
-    // Registered once so the watcher handle stored under PopupComponent isn't
-    // overwritten on re-render, which would leak the previous subscription.
+    // Registered once so the watcher handles stored under these names aren't
+    // overwritten on re-render, which would leak the previous subscriptions.
     useEffect(() => {
-        registerSettingsWatcher<boolean>(PopupComponent, SettingsKeys.syncEnabled, newVal => {
+        registerSettingsWatcher<boolean>(`${PopupComponent}-sync-enabled`, SettingsKeys.syncEnabled, newVal => {
             // `newVal` is null if the key is cleared; fall back to the setting's default.
             setSyncEnabled(newVal ?? true)
         })
 
-        return () => unregisterSettingsWatcher(PopupComponent)
+        // The background worker stamps this key at the end of a sync that
+        // changed something, so the label follows syncs the popup didn't start.
+        registerSettingsWatcher<string>(`${PopupComponent}-last-sync`, SettingsKeys.lastSyncDate, newVal => {
+            // A cleared key reports null; render blank rather than the epoch.
+            setLastSynced(newVal ? new Date(newVal) : null)
+        })
+
+        return () => {
+            unregisterSettingsWatcher(`${PopupComponent}-sync-enabled`)
+            unregisterSettingsWatcher(`${PopupComponent}-last-sync`)
+        }
     }, [])
 
     /**
