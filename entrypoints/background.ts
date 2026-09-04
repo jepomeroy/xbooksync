@@ -134,7 +134,7 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
  * Failures propagate: an adapter that throws aborts the pass with the stored
  * version and base untouched, so the next tick retries from the same state.
  */
-const syncFunc = async () => {
+const runSync = async () => {
     const now = new Date().toISOString()
     const adapter = storage.getStorageAdapter()
 
@@ -216,6 +216,12 @@ const syncFunc = async () => {
         await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
     }
 }
+
+// Collapses overlapping triggers (tick alarm, manual "sync now") into the same
+// in-flight pass instead of racing two runSync calls against the browser and
+// the sync target.
+let inFlight: Promise<void> | null = null
+const syncFunc = () => (inFlight ??= runSync().finally(() => { inFlight = null }))
 
 const alarm = new Alarm(syncFunc)
 
