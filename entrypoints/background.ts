@@ -93,7 +93,6 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     }
 
     const remote: Bookmarks = new Bookmarks()
-    console.log(readData)
     remote.fromXbsBookmarks(JSON.parse(readData.content !== '' ? readData.content : '{}'))
     const flat = remote.flatten()
     return { tree: remote, flat, diff: diffBase(baseMap, flat), version: readData.blobVersion }
@@ -157,7 +156,7 @@ const syncFunc = async () => {
         // Local-only: the browser is ahead, so push it and let the conditional
         // write reject if the target moved between the read above and here.
         const lastChange = await syncLastSyncValueSetting.getValue()
-        const currVersion = await adapter.write(localSync.tree.getContent(), lastChange)
+        const currVersion = await adapter.write(localSync.tree.getContent(), remoteSync.version ?? lastChange)
 
         // Update the Sync Value and Date
         await syncLastSyncValueSetting.setValue(currVersion)
@@ -216,8 +215,6 @@ const syncFunc = async () => {
         // The base is stored in the same canonical form that was just written.
         await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
     }
-
-    console.log(`[xbooksync] tick at ${now}`)
 }
 
 const alarm = new Alarm(syncFunc)
