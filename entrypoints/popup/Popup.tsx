@@ -11,7 +11,7 @@ import {
     syncLastSyncDateSetting,
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
-import { getLastSynced } from '../shared/syncutils'
+import { getLastSynced, parseLastSynced } from '../shared/syncutils'
 import { type MessageResponse, SyncNowMessage, Status } from '../shared/types'
 
 /**
@@ -25,12 +25,14 @@ const PopupComponent = 'popup-component'
 /** Popup shell: header, the sync toggle with last-synced time, and buttons to sync now or open the options page. */
 function Popup() {
     const [syncEnabled, setSyncEnabled] = useState(true)
+    // null until the stored timestamp resolves, and stays null if it is the
+    // epoch fallback, which keeps the label blank rather than showing 1969.
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
 
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
-        syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
+        syncLastSyncDateSetting.getValue().then(date => setLastSynced(parseLastSynced(date)))
     }, [])
 
     // Registered once so the watcher handles stored under these names aren't
@@ -44,8 +46,7 @@ function Popup() {
         // The background worker stamps this key at the end of a sync that
         // changed something, so the label follows syncs the popup didn't start.
         registerSettingsWatcher<string>(`${PopupComponent}-last-sync`, SettingsKeys.lastSyncDate, newVal => {
-            // A cleared key reports null; render blank rather than the epoch.
-            setLastSynced(newVal ? new Date(newVal) : null)
+            setLastSynced(parseLastSynced(newVal))
         })
 
         return () => {

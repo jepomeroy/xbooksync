@@ -8,7 +8,7 @@ import {
     unregisterSettingsWatcher,
 } from '@/entrypoints/shared/localsettings'
 import Toggle from '@/entrypoints/shared/components/toogle'
-import { getLastSynced } from '@/entrypoints/shared/syncutils'
+import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
 
 /**
  * Sync preferences: the master enable toggle, the interval between automatic
@@ -25,15 +25,15 @@ const SyncComponent = 'sync-component'
 export default function Sync() {
     const [syncEnabled, setSyncEnabled] = useState(true)
     const [syncRate, setSyncRate] = useState(900)
-    // null until the stored timestamp resolves, which keeps the label blank
-    // rather than briefly showing the epoch.
+    // null until the stored timestamp resolves, and stays null if it is the
+    // epoch fallback, which keeps the label blank rather than showing 1969.
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
 
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
         syncRateSetting.getValue().then(data => setSyncRate(data))
-        syncLastSyncDateSetting.getValue().then(date => setLastSynced(new Date(date)))
+        syncLastSyncDateSetting.getValue().then(date => setLastSynced(parseLastSynced(date)))
     }, [])
 
     // Registered once so the watcher handles stored under these names aren't overwritten on
@@ -47,8 +47,7 @@ export default function Sync() {
         // The background worker stamps this key at the end of a sync that
         // changed something, so the label follows syncs started elsewhere.
         registerSettingsWatcher<string>(`${SyncComponent}-last-sync`, SettingsKeys.lastSyncDate, newVal => {
-            // A cleared key reports null; render blank rather than the epoch.
-            setLastSynced(newVal ? new Date(newVal) : null)
+            setLastSynced(parseLastSynced(newVal))
         })
 
         return () => {
