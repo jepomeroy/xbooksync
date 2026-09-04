@@ -164,11 +164,14 @@ const defaultSettings: Record<SettingsKey, unknown> = {
  * Development-only seed values for the GitHub settings, so a freshly installed
  * unpacked build syncs without going through the device flow first.
  *
- * Written by {@link setDefaultSettings} on the same footing as the real
- * defaults, so on release this must be emptied or dropped — otherwise a fresh
- * install silently starts out pointed at whatever is baked in here. The
- * {@link initialized} guard limits that to the first seed rather than every
- * update.
+ * {@link setDefaultSettings} writes these only under `import.meta.env.DEV`, so a
+ * release build never seeds them and a fresh install cannot start out pointed at
+ * whatever is baked in here. That gate — not remembering to blank the values
+ * before a release — is what keeps them out of a shipped build.
+ *
+ * They still reach a real profile in dev, and a token left below is still baked
+ * into every `.output` bundle, so treat this as a file that holds a live
+ * credential even though it must never carry one into a commit.
  */
 const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
     // DO NOT COMMIT this with the ghAuthToken set!!!
