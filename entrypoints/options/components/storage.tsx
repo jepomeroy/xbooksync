@@ -4,6 +4,7 @@ import { storageSetting } from '@/entrypoints/shared/localsettings'
 import { getStorageBackend, StorageBackend } from '@/entrypoints/shared/types'
 import GitHubSettings from './gh-storage'
 import Unimplemented from './unimplemented'
+import NoSelection from './no-selection'
 
 /**
  * Storage-target picker plus the settings for whichever target is selected.
@@ -37,6 +38,8 @@ export default function Storage() {
     /** Target-specific settings for the current selection. */
     const renderLocationSettings = () => {
         switch (selectedOption) {
+            case StorageBackend.None:
+                return <NoSelection />
             case StorageBackend.GitHubRepo:
                 return <GitHubSettings />
             default:
@@ -54,6 +57,7 @@ export default function Storage() {
                     onChange={handleStorageChange}
                     style={{ width: '100%', padding: '6px', borderRadius: '4px' }}
                 >
+                    <option value={StorageBackend.None}>Select a Storage Type</option>
                     <option value={StorageBackend.GitHubRepo}>GitHub Repo</option>
                     <option value={StorageBackend.GitHubGist}>GitHub Gist</option>
                     <option value={StorageBackend.GitLabRepo}>GitLab Repo</option>

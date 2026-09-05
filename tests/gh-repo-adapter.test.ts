@@ -6,7 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { GitHubRepoAdapter } from '@/entrypoints/bookmarks/gh-repo'
+import { GitHubRepoAdapter } from '@/entrypoints/bookmarks/gh-repo-adapter'
 import { RemoteFileMissingError } from '@/entrypoints/bookmarks/gh-utils'
 
 const REPO = 'someone/bookmarks'

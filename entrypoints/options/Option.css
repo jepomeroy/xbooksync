@@ -114,7 +114,13 @@ select {
     font-weight: bold;
 }
 
+.noselection {
+    padding-left: 1em;
+    color: var(--text-color);
+}
+
 /* TODO: this will go away soon */
 .unimplemented {
+    padding-left: 1em;
     color: var(--error-color);
 }

@@ -83,10 +83,13 @@ export const syncLastErrorSetting = storage.defineItem<SyncErrorType | null>(Set
     fallback: null,
 })
 
-/** ISO timestamp of the last sync that changed something; a pass with nothing to do leaves it alone. */
-export const syncLastSyncDateSetting = storage.defineItem<string>(SettingsKeys.lastSyncDate, {
-    // default to Unix Epoch if we've never synced before
-    fallback: new Date(0).toISOString(),
+/**
+ * ISO timestamp of the last sync that changed something; a pass with nothing to do leaves it alone.
+ * A null valule means no sync has occurred for the current adapter
+ * */
+export const syncLastSyncDateSetting = storage.defineItem<string | null>(SettingsKeys.lastSyncDate, {
+    // default to null
+    fallback: null,
 })
 
 /**
@@ -156,13 +159,13 @@ export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
  * {@link SettingsKeys} without seeding it here fails to compile.
  */
 const defaultSettings: Record<SettingsKey, unknown> = {
-    [SettingsKeys.storage]: StorageBackend.GitHubRepo,
+    [SettingsKeys.storage]: StorageBackend.None,
     [SettingsKeys.sortOrder]: SortOrder.Ascending,
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
     [SettingsKeys.syncRate]: 900,
     [SettingsKeys.syncLastError]: null,
-    [SettingsKeys.lastSyncDate]: new Date(0).toISOString(),
+    [SettingsKeys.lastSyncDate]: null,
     [SettingsKeys.lastSyncValue]: '',
     [SettingsKeys.baseBookmarks]: null,
 }
@@ -217,8 +220,9 @@ export const setDefaultSettings = async () => {
     // get init state
     const init = await storage.getItem<boolean>(initialized)
 
-    // Default the sync rate to 30s for DEV
+    // Default the backend to GH and the sync rate to 30s for DEV
     if (import.meta.env.DEV) {
+        storageSetting.setValue(StorageBackend.GitHubRepo)
         syncRateSetting.setValue(30)
     }
 

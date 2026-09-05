@@ -7,7 +7,7 @@ import {
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { StorageBackend, type StorageAdapter } from '@/entrypoints/shared/types'
-import { GitHubRepoAdapter } from './gh-repo'
+import { GitHubRepoAdapter } from './gh-repo-adapter'
 import { NilStorageAdapter } from './nil-adapter'
 
 /** Watcher key used to identify this singleton's own settings subscription. */
@@ -94,8 +94,12 @@ export class Storage {
             // case StorageBackend.GitHubGist:
             case StorageBackend.GitHubRepo:
                 this.storageAdapter = await this.makeGHRepo()
+                break
             //     case StorageBackend.GitLabRepo:
             //     case StorageBackend.S3:
+            //
+            default:
+                this.storageAdapter = new NilStorageAdapter()
         }
     }
 

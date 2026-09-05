@@ -120,6 +120,7 @@ export const getSortOrder = (sortOrderStr: string): SortOrder => {
  * under the old value.
  */
 export enum StorageBackend {
+    None = '',
     GitHubRepo = 'GitHub Repo',
     GitHubGist = 'GitHub Gist',
     GitLabRepo = 'GitLab Repo',
@@ -147,7 +148,7 @@ export const getStorageBackend = (storageTypeStr: string): StorageBackend => {
         case 'S3':
             return StorageBackend.S3
         default:
-            return StorageBackend.GitHubRepo
+            return StorageBackend.None
     }
 }
 
