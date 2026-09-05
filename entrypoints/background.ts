@@ -11,6 +11,7 @@ import {
     type StorageAdapter,
 } from '@/entrypoints/shared/types'
 import {
+    notificationsEnableSetting,
     registerSettingsWatcher,
     setDefaultSettings,
     SettingsKeys,
@@ -277,20 +278,22 @@ const syncFunc = () =>
                 at: new Date().toISOString(),
             })
 
-            const badge = badgeForErrorKind(kind)
-            await setBadge(badge.text, badge.color)
+            if (await notificationsEnableSetting.getValue()) {
+                const badge = badgeForErrorKind(kind)
+                await setBadge(badge.text, badge.color)
 
-            // The badge is easy to miss when the icon isn't pinned to the
-            // toolbar — fall back to a notification for the kinds that were
-            // worth badging in the first place. Conflicts stay silent either
-            // way; see badgeForErrorKind.
-            if (badge.text && !(await isPinned())) {
-                browser.notifications.create({
-                    type: 'basic',
-                    iconUrl: browser.runtime.getURL('/icon/128.png'),
-                    title: 'XBookSync sync failed',
-                    message: syncErrorMessage(kind),
-                })
+                // The badge is easy to miss when the icon isn't pinned to the
+                // toolbar — fall back to a notification for the kinds that were
+                // worth badging in the first place. Conflicts stay silent either
+                // way; see badgeForErrorKind.
+                if (badge.text && !(await isPinned())) {
+                    browser.notifications.create({
+                        type: 'basic',
+                        iconUrl: browser.runtime.getURL('/icon/128.png'),
+                        title: 'XBookSync sync failed',
+                        message: syncErrorMessage(kind),
+                    })
+                }
             }
         })
         .finally(() => {

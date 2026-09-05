@@ -5,6 +5,7 @@ import { FaSync } from 'react-icons/fa'
 import './Popup.css'
 import Toggle from '@/entrypoints/shared/components/toggle'
 import {
+    notificationsEnableSetting,
     registerSettingsWatcher,
     SettingsKeys,
     syncEnableSetting,
@@ -32,6 +33,7 @@ const PopupComponent = 'popup-component'
 /** Popup shell: header, the sync toggle with last-synced time, and buttons to sync now or open the options page. */
 function Popup() {
     const [syncEnabled, setSyncEnabled] = useState(true)
+    const [notificationsEnabled, setNotificationsEnabled] = useState(true)
     // null until the stored timestamp resolves, and stays null if it is the
     // epoch fallback, which keeps the label blank rather than showing 1969.
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
@@ -41,6 +43,7 @@ function Popup() {
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
+        notificationsEnableSetting.getValue().then(data => setNotificationsEnabled(data))
         syncLastSyncDateSetting.getValue().then(date => setLastSynced(parseLastSynced(date)))
         syncLastErrorSetting.getValue().then(setSyncError)
     }, [])
@@ -52,6 +55,15 @@ function Popup() {
             // `newVal` is null if the key is cleared; fall back to the setting's default.
             setSyncEnabled(newVal ?? true)
         })
+
+        registerSettingsWatcher<boolean>(
+            `${PopupComponent}-notifications-enabled`,
+            SettingsKeys.notificationsEnabled,
+            newVal => {
+                // `newVal` is null if the key is cleared; fall back to the setting's default.
+                setNotificationsEnabled(newVal ?? true)
+            },
+        )
 
         // The background worker stamps this key at the end of a sync that
         // changed something, so the label follows syncs the popup didn't start.
@@ -67,6 +79,7 @@ function Popup() {
 
         return () => {
             unregisterSettingsWatcher(`${PopupComponent}-sync-enabled`)
+            unregisterSettingsWatcher(`${PopupComponent}-notifications-enabled`)
             unregisterSettingsWatcher(`${PopupComponent}-last-sync`)
             unregisterSettingsWatcher(`${PopupComponent}-last-error`)
         }
@@ -84,6 +97,18 @@ function Popup() {
     const handleSyncChange = async (state: boolean) => {
         setSyncEnabled(state)
         await syncEnableSetting.setValue(state)
+    }
+
+    /**
+     * Persists the notification toggle's new position.
+     *
+     * Sets local state as well as writing the setting
+     *
+     * @param state - Requested position.
+     */
+    const handleNotificationsChange = async (state: boolean) => {
+        setNotificationsEnabled(state)
+        await notificationsEnableSetting.setValue(state)
     }
 
     /** Opens the extension's options page. */
@@ -128,8 +153,15 @@ function Popup() {
                     <h1>XBookSync</h1>
                 </div>
             </div>
-            <div className='setting'>
+            <div className='setting-group'>
                 <Toggle label='Enable Syncing' checked={syncEnabled} onToggle={handleSyncChange} />
+                {import.meta.env.BROWSER === 'chrome' && (
+                    <Toggle
+                        label='Enable Notification'
+                        checked={notificationsEnabled}
+                        onToggle={handleNotificationsChange}
+                    />
+                )}
                 <div className='last-synced'>
                     <p>Last synced: {getLastSynced(lastSynced)}</p>
                 </div>

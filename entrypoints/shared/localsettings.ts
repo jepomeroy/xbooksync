@@ -28,6 +28,7 @@ export const SettingsKeys = {
     sortOrder: 'local:sortOrder',
     sorted: 'local:sortBookmarks',
     syncEnabled: 'local:syncEnabled',
+    notificationsEnabled: 'local:notificationsEnabled',
     syncRate: 'local:syncrate',
     syncLastError: 'local:syncLastError',
     lastSyncDate: 'local:lastSyncDateTime',
@@ -64,6 +65,15 @@ export const sortedSetting = storage.defineItem<boolean>(SettingsKeys.sorted, {
  * firing and returning early.
  */
 export const syncEnableSetting = storage.defineItem<boolean>(SettingsKeys.syncEnabled, {
+    fallback: true,
+})
+
+/**
+ * Notifications switch. Checked on each tick if there is a {@link syncLastErrorSetting} value,
+ * then notifications on Chrome can be disabled and not displayed. The extension badge is still
+ * displayed.
+ */
+export const notificationsEnableSetting = storage.defineItem<boolean>(SettingsKeys.notificationsEnabled, {
     fallback: true,
 })
 
@@ -163,6 +173,7 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.sortOrder]: SortOrder.Ascending,
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
+    [SettingsKeys.notificationsEnabled]: import.meta.env.BROWSER === 'chrome' ? true : false, // chrome-only
     [SettingsKeys.syncRate]: 900,
     [SettingsKeys.syncLastError]: null,
     [SettingsKeys.lastSyncDate]: null,
