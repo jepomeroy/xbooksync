@@ -218,6 +218,26 @@ export type StorageAdapter = {
 
 // Messaging types
 
+/** Popup -> background: run a sync immediately, ignoring the sync interval. */
+export const SyncNowMessage = 'sync-now'
+
+/** Sync error classifications */
+export enum SyncErrorKind {
+    RemoteMissing = 'remote-missing',
+    AuthRequired = 'auth-required',
+    Conflict = 'conflict',
+    Network = 'network',
+    ServerError = 'server-error',
+    Unknown = 'unknown',
+}
+
+/** Local storage Sync Error type */
+export type SyncErrorType = {
+    kind: SyncErrorKind
+    message: string
+    at: string
+}
+
 /** Outcome of a background operation reported back to the popup. */
 export enum Status {
     Success = 0,
@@ -234,6 +254,3 @@ export type MessageResponse = {
     /** Detail for the user: an error reason, or a summary of what synced. Never populated yet. */
     result?: string
 }
-
-/** Popup -> background: run a sync immediately, ignoring the sync interval. */
-export const SyncNowMessage = 'sync-now'

@@ -1,6 +1,7 @@
 import {
     BookmarkType,
     Status,
+    SyncErrorKind,
     SyncNowMessage,
     type BookmarkEntry,
     type DiffResultType,
@@ -14,6 +15,7 @@ import {
     setDefaultSettings,
     SettingsKeys,
     syncBaseBookmarks,
+    syncLastErrorSetting,
     syncLastSyncDateSetting,
     syncLastSyncValueSetting,
     unregisterSettingsWatcher,
@@ -23,6 +25,8 @@ import { Alarm, TickAlarmName } from './bookmarks/alarm'
 import { Bookmarks } from './bookmarks/bookmarks'
 import { Storage } from './bookmarks/storage'
 import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './bookmarks/sync'
+import { AppNotInstalledError, GitHubApiError, RemoteFileMissingError } from './bookmarks/gh-utils'
+import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
 
 /**
  * Background service worker.
@@ -258,9 +262,115 @@ const runSync = async () => {
 // the sync target.
 let inFlight: Promise<void> | null = null
 const syncFunc = () =>
-    (inFlight ??= runSync().finally(() => {
-        inFlight = null
-    }))
+    (inFlight ??= runSync()
+        .then(async () => {
+            await syncLastErrorSetting.setValue(null)
+            await setBadge('', '')
+        })
+        .catch(async error => {
+            const kind = classifySyncError(error)
+            console.error(`[xbooksync] sync failed: ${kind}`, error)
+
+            await syncLastErrorSetting.setValue({
+                kind,
+                message: error instanceof Error ? error.message : String(error),
+                at: new Date().toISOString(),
+            })
+
+            const badge = badgeForErrorKind(kind)
+            await setBadge(badge.text, badge.color)
+
+            // The badge is easy to miss when the icon isn't pinned to the
+            // toolbar — fall back to a notification for the kinds that were
+            // worth badging in the first place. Conflicts stay silent either
+            // way; see badgeForErrorKind.
+            if (badge.text && !(await isPinned())) {
+                browser.notifications.create({
+                    type: 'basic',
+                    iconUrl: browser.runtime.getURL('/icon/128.png'),
+                    title: 'XBookSync sync failed',
+                    message: syncErrorMessage(kind),
+                })
+            }
+        })
+        .finally(() => {
+            inFlight = null
+        }))
+
+const classifySyncError = (error: unknown): SyncErrorKind => {
+    if (error instanceof RemoteFileMissingError) return SyncErrorKind.RemoteMissing
+    if (error instanceof AppNotInstalledError) return SyncErrorKind.AuthRequired
+
+    if (error instanceof GitHubApiError) {
+        if (error.status === 401 || error.status === 403) return SyncErrorKind.AuthRequired
+        if (error.status === 409 || error.status === 422) return SyncErrorKind.Conflict
+        if (error.status >= 500) return SyncErrorKind.ServerError
+        return SyncErrorKind.Unknown
+    }
+
+    if (error instanceof TypeError) return SyncErrorKind.Network
+
+    return SyncErrorKind.Unknown
+}
+
+/**
+ * Sets the extension icon's badge, on whichever action API this build's
+ * manifest exposes.
+ *
+ * Chrome's MV3 manifest declares `action`; Firefox's MV2 manifest — this
+ * project's Firefox build target, see `.output/firefox-mv2*` — declares
+ * `browser_action` instead, so the runtime object is `browser.browserAction`.
+ * Same methods either way, just under a different name, which is why
+ * `browser.action.setBadgeText` throws "browser.action is undefined" on
+ * Firefox.
+ *
+ * @param text - Badge text; `''` clears it.
+ * @param color - Badge background color; ignored when `text` is `''`.
+ */
+const setBadge = async (text: string, color: string): Promise<void> => {
+    const action = browser.action ?? browser.browserAction
+    await action.setBadgeText({ text })
+    if (text) await action.setBadgeBackgroundColor({ color })
+}
+
+/**
+ * Badge shown on the extension icon for a sync failure.
+ *
+ * Blank for {@link SyncErrorKind.Conflict}: a stale-SHA write conflict just
+ * means another browser synced first, which is expected under normal
+ * multi-device use and resolves itself on the next tick — badging it would
+ * train the user to ignore the badge.
+ *
+ * @param kind - Classification from {@link classifySyncError}.
+ */
+const badgeForErrorKind = (kind: SyncErrorKind): { text: string; color: string } => {
+    switch (kind) {
+        case SyncErrorKind.RemoteMissing:
+        case SyncErrorKind.Unknown:
+            return { text: '!', color: '#dc2626' }
+        case SyncErrorKind.AuthRequired:
+        case SyncErrorKind.Network:
+        case SyncErrorKind.ServerError:
+            return { text: '!', color: '#f59e0b' }
+        case SyncErrorKind.Conflict:
+            return { text: '', color: '#00000000' }
+    }
+}
+
+/**
+ * Whether the extension's icon is pinned to the visible toolbar, as opposed to
+ * sitting behind the puzzle-piece overflow menu where the badge set above is
+ * easy to miss.
+ *
+ * Chrome-only: `getUserSettings` has no Firefox equivalent, so there's no
+ * signal there — default to "assume pinned" and rely on the badge alone.
+ */
+const isPinned = async (): Promise<boolean> => {
+    if (!import.meta.env.CHROME) return true
+
+    const { isOnToolbar } = await browser.action.getUserSettings()
+    return isOnToolbar
+}
 
 const alarm = new Alarm(syncFunc)
 

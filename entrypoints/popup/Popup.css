@@ -53,6 +53,17 @@ h1 {
     padding: 2em;
 }
 
+.sync-error {
+    color: var(--error-color);
+    font-size: 0.9em;
+    margin: 0.5em 0 0;
+}
+
+.sync-error-action {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .card > h3 {
     border-bottom: 1px solid var(--border-color);
 }

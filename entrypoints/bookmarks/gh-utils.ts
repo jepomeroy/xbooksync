@@ -33,6 +33,25 @@ export class AppNotInstalledError extends Error {
     }
 }
 
+/**
+ * A GitHub API response was not ok, and wasn't one of the more specific cases
+ * above (missing file, app not installed).
+ *
+ * Carries the HTTP status so callers can tell a stale-SHA conflict (409/422)
+ * from an expired/invalid token (401/403) or a GitHub-side failure (5xx)
+ * without parsing the message string.
+ */
+export class GitHubApiError extends Error {
+    constructor(
+        public readonly status: number,
+        statusText: string,
+        url: string,
+    ) {
+        super(`GitHub request failed (${status} ${statusText}): ${url}`)
+        this.name = 'GitHubApiError'
+    }
+}
+
 /*
  * Both paginated endpoints used here wrap their results in an object — with a
  * `total_count` alongside — rather than returning a bare array, and each uses a

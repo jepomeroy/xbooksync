@@ -12,7 +12,7 @@
 
 import { registerSettingsWatcher, GitHubSettingsKeys, unregisterSettingsWatcher } from '../shared/localsettings'
 import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
-import { API_ROOT, decodeBase64, encodeBase64, RemoteFileMissingError } from './gh-utils'
+import { API_ROOT, decodeBase64, encodeBase64, GitHubApiError, RemoteFileMissingError } from './gh-utils'
 
 /** {@link StorageAdapter} that reads and writes the bookmark file in a GitHub repository via the Contents API. */
 export class GitHubRepoAdapter implements StorageAdapter {
@@ -119,7 +119,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
                 throw new RemoteFileMissingError(this.repo, this.bookmarkFilename)
             }
 
-            throw new Error(`GitHub request failed (${response.status} ${response.statusText}): ${url}`)
+            throw new GitHubApiError(response.status, response.statusText, response.url)
         }
 
         const body = (await response.json()) as { content: string; sha: string }
@@ -136,9 +136,9 @@ export class GitHubRepoAdapter implements StorageAdapter {
      * create the file.
      * @returns The blob SHA of the committed file, to be carried into the next
      * read or write.
-     * @throws On any error response, including the 409/422 GitHub answers when
-     * the SHA is stale — which is the conflict signal, currently indistinguishable
-     * from a transport failure to the caller.
+     * @throws {GitHubApiError} On any error response, including the 409/422
+     * GitHub answers when the SHA is stale — carries the status so the caller
+     * can tell that conflict apart from a transport failure.
      */
     async write(content: string, previousBlobVersion?: string): Promise<string> {
         const url = `${API_ROOT}/repos/${this.repo}/contents/${this.bookmarkFilename}`
@@ -149,7 +149,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         const response: Response = await fetch(url, reqInit)
 
         if (!response.ok) {
-            throw new Error(`GitHub request failed (${response.status} ${response.statusText}): ${url}`)
+            throw new GitHubApiError(response.status, response.statusText, response.url)
         }
 
         const commit = (await response.json()) as { content: { sha: string } }

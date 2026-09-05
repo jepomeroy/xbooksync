@@ -8,11 +8,18 @@ import {
     registerSettingsWatcher,
     SettingsKeys,
     syncEnableSetting,
+    syncLastErrorSetting,
     syncLastSyncDateSetting,
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
-import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
-import { type MessageResponse, SyncNowMessage, Status } from '@/entrypoints/shared/types'
+import { getLastSynced, parseLastSynced, syncErrorMessage } from '@/entrypoints/shared/syncutils'
+import {
+    type MessageResponse,
+    type SyncErrorType,
+    SyncErrorKind,
+    SyncNowMessage,
+    Status,
+} from '@/entrypoints/shared/types'
 
 /**
  * Watcher key prefix used to identify this component's settings subscriptions.
@@ -28,11 +35,14 @@ function Popup() {
     // null until the stored timestamp resolves, and stays null if it is the
     // epoch fallback, which keeps the label blank rather than showing 1969.
     const [lastSynced, setLastSynced] = useState<null | Date>(null)
+    // null when the last sync succeeded, or before the stored value resolves.
+    const [syncError, setSyncError] = useState<SyncErrorType | null>(null)
 
     // Hydrate from extension storage on mount.
     useEffect(() => {
         syncEnableSetting.getValue().then(data => setSyncEnabled(data))
         syncLastSyncDateSetting.getValue().then(date => setLastSynced(parseLastSynced(date)))
+        syncLastErrorSetting.getValue().then(setSyncError)
     }, [])
 
     // Registered once so the watcher handles stored under these names aren't
@@ -49,9 +59,16 @@ function Popup() {
             setLastSynced(parseLastSynced(newVal))
         })
 
+        // Follows the same failure/success state the extension badge is set
+        // from, so the popup and the badge never disagree.
+        registerSettingsWatcher<SyncErrorType>(`${PopupComponent}-last-error`, SettingsKeys.syncLastError, newVal => {
+            setSyncError(newVal)
+        })
+
         return () => {
             unregisterSettingsWatcher(`${PopupComponent}-sync-enabled`)
             unregisterSettingsWatcher(`${PopupComponent}-last-sync`)
+            unregisterSettingsWatcher(`${PopupComponent}-last-error`)
         }
     }, [])
 
@@ -116,6 +133,18 @@ function Popup() {
                 <div className='last-synced'>
                     <p>Last synced: {getLastSynced(lastSynced)}</p>
                 </div>
+                {syncError && (
+                    <p
+                        className={
+                            syncError.kind === SyncErrorKind.AuthRequired
+                                ? 'sync-error sync-error-action'
+                                : 'sync-error'
+                        }
+                        onClick={syncError.kind === SyncErrorKind.AuthRequired ? openOptions : undefined}
+                    >
+                        {syncErrorMessage(syncError.kind)}
+                    </p>
+                )}
             </div>
             <div className='button-group'>
                 <button onClick={syncNow} aria-label='Sync now' title='Sync now'>

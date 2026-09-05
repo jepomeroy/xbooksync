@@ -1,3 +1,5 @@
+import { SyncErrorKind } from './types'
+
 /**
  * Parses a stored {@link syncLastSyncDateSetting} value into a Date, mapping
  * "never synced" onto null so {@link getLastSynced} renders it blank.
@@ -51,5 +53,31 @@ export const getLastSynced = (lastSynced: Date | null): string => {
         })}`
     } else {
         return ''
+    }
+}
+
+/**
+ * User-facing text for a sync failure.
+ *
+ * Shared by the popup's banner and the fallback notification in
+ * `entrypoints/background.ts`, so the wording can't drift between the two
+ * surfaces a user might see it on.
+ *
+ * @param kind - Classification from `classifySyncError` in `background.ts`.
+ */
+export const syncErrorMessage = (kind: SyncErrorKind): string => {
+    switch (kind) {
+        case SyncErrorKind.RemoteMissing:
+            return 'The remote bookmarks file was deleted.'
+        case SyncErrorKind.AuthRequired:
+            return 'GitHub connection needs attention — reconnect in settings.'
+        case SyncErrorKind.Conflict:
+            return 'Sync conflict — retrying automatically.'
+        case SyncErrorKind.Network:
+            return "Couldn't reach GitHub — will retry."
+        case SyncErrorKind.ServerError:
+            return 'GitHub is having issues — will retry.'
+        case SyncErrorKind.Unknown:
+            return 'Sync failed — will retry.'
     }
 }

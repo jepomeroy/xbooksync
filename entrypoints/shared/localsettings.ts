@@ -1,5 +1,5 @@
 import type { Unwatch, WatchCallback } from 'wxt/utils/storage'
-import { SortOrder, StorageBackend, type BookmarkEntry } from './types'
+import { SortOrder, StorageBackend, type BookmarkEntry, type SyncErrorType } from './types'
 
 /**
  * Typed accessors for every persisted setting.
@@ -29,6 +29,7 @@ export const SettingsKeys = {
     sorted: 'local:sortBookmarks',
     syncEnabled: 'local:syncEnabled',
     syncRate: 'local:syncrate',
+    syncLastError: 'local:syncLastError',
     lastSyncDate: 'local:lastSyncDateTime',
     lastSyncValue: 'local:lastSyncValue',
     baseBookmarks: 'local:baseBookmarks',
@@ -75,6 +76,11 @@ export const syncEnableSetting = storage.defineItem<boolean>(SettingsKeys.syncEn
  */
 export const syncRateSetting = storage.defineItem<number>(SettingsKeys.syncRate, {
     fallback: 900,
+})
+
+/** Last Sync error encountered */
+export const syncLastErrorSetting = storage.defineItem<SyncErrorType | null>(SettingsKeys.syncLastError, {
+    fallback: null,
 })
 
 /** ISO timestamp of the last sync that changed something; a pass with nothing to do leaves it alone. */
@@ -155,6 +161,7 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.sorted]: false,
     [SettingsKeys.syncEnabled]: true,
     [SettingsKeys.syncRate]: 900,
+    [SettingsKeys.syncLastError]: null,
     [SettingsKeys.lastSyncDate]: new Date(0).toISOString(),
     [SettingsKeys.lastSyncValue]: '',
     [SettingsKeys.baseBookmarks]: null,
