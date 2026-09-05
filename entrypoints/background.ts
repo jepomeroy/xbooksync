@@ -1,4 +1,5 @@
 import {
+    BookmarkType,
     Status,
     SyncNowMessage,
     type BookmarkEntry,
@@ -56,6 +57,33 @@ export type SyncSide<T extends BookmarkEntry = BookmarkEntry> = {
 }
 
 /**
+ * Shape check for a payload read back from a sync target, before it's adopted
+ * as the remote tree.
+ *
+ * `fromXbsBookmarks` takes its input as-is with no validation — by design, for
+ * the base-snapshot case where the input is our own previously-written output.
+ * The remote read is different: it's someone else's file, possibly hand-edited
+ * or truncated, and adopting a malformed shape flattens to an empty tree, which
+ * diffs as "everything was removed" and drives `removeTree` for real. This is
+ * the check standing between that and actual data loss.
+ *
+ * @param value - Parsed JSON from a target read.
+ * @returns Whether it's usable as a bookmark tree root: a folder whose children
+ * include both anchors.
+ */
+const isValidRemoteTree = (value: unknown): boolean => {
+    if (typeof value !== 'object' || value === null) return false
+
+    const { type, children } = value as BookmarkEntry
+    if (type !== BookmarkType.folder || !Array.isArray(children)) return false
+
+    const hasBookmarkBar = children.some(c => c && typeof c === 'object' && c.type === BookmarkType.bookmarkbar)
+    const hasOther = children.some(c => c && typeof c === 'object' && c.type === BookmarkType.other)
+
+    return hasBookmarkBar && hasOther
+}
+
+/**
  * Reads the browser's current bookmark tree and diffs it against the base.
  *
  * @param baseMap - Flattened base snapshot from the last successful sync.
@@ -93,7 +121,15 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     }
 
     const remote: Bookmarks = new Bookmarks()
-    remote.fromXbsBookmarks(JSON.parse(readData.content !== '' ? readData.content : '{}'))
+    if (readData.content !== '') {
+        const parsed: unknown = JSON.parse(readData.content)
+        if (!isValidRemoteTree(parsed)) {
+            throw new Error('[xbooksync] remote content is not a valid bookmark tree')
+        }
+
+        remote.fromXbsBookmarks(parsed as BookmarkEntry)
+    }
+
     const flat = remote.flatten()
     return { tree: remote, flat, diff: diffBase(baseMap, flat), version: readData.blobVersion }
 }
@@ -221,7 +257,10 @@ const runSync = async () => {
 // in-flight pass instead of racing two runSync calls against the browser and
 // the sync target.
 let inFlight: Promise<void> | null = null
-const syncFunc = () => (inFlight ??= runSync().finally(() => { inFlight = null }))
+const syncFunc = () =>
+    (inFlight ??= runSync().finally(() => {
+        inFlight = null
+    }))
 
 const alarm = new Alarm(syncFunc)
 
