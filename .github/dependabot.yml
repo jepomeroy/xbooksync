@@ -1,0 +1,18 @@
+version: 2
+updates:
+    # Enable version updates for bun ecosystem
+    - package-ecosystem: 'bun'
+      # Look for `package.json` and `lock` files in the `root` directory
+      directory: '/'
+      # Check for updates weekly, on Weds
+      schedule:
+          day: wednesday
+          interval: 'weekly'
+
+    # Keep the action versions pinned in `.github/workflows` up to date
+    - package-ecosystem: 'github-actions'
+      directory: '/'
+      # Check for updates weekly, on Weds
+      schedule:
+          day: wednesday
+          interval: 'weekly'

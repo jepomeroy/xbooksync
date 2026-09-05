@@ -1,0 +1,46 @@
+/* Everything else `body` needs is in shared/style.css. */
+body {
+    width: 650px;
+}
+
+.card > h3 {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.setting {
+    margin: 0.3em 0em;
+    display: grid;
+    grid-template-columns: var(--label-width) auto;
+    align-items: baseline;
+}
+
+.setting input {
+    padding: 0.5em;
+}
+
+.setting select {
+    width: 100%;
+    padding: 0.5em;
+    border-radius: 4px;
+}
+
+.help-setting {
+    font-size: 1.5em;
+    padding-left: 0.5em;
+}
+
+.help-setting svg {
+    color: var(--main-color);
+    padding-right: 0.7em;
+}
+
+.noselection {
+    padding-left: 1em;
+    color: var(--text-color);
+}
+
+/* TODO: this will go away soon */
+.unimplemented {
+    padding-left: 1em;
+    color: var(--error-color);
+}

@@ -1,0 +1,25 @@
+/* A popup window sizes itself from its content, so anything measured in vh/%
+   against the viewport feeds back into that measurement. Pin the size in px
+   instead and let the panel scroll. Everything else `body` needs is in
+   shared/style.css. */
+body {
+    width: 350px;
+}
+
+.sync-error {
+    color: var(--error-color);
+    font-size: 0.9em;
+    margin: 0.5em 0 0;
+}
+
+.sync-error-action {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    column-gap: 0.5em;
+    padding-top: 0.5em;
+}

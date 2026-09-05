@@ -49,6 +49,81 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+
+    /* Label column width shared by `.toggle` and `.setting`, so a toggle's
+       label lines up with a plain `<label>` in the row above or below it. */
+    --label-width: 140px;
+}
+
+/* Shared by the popup and options page; each sets its own `body` width on top. */
+#root {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    text-align: center;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.container {
+    display: grid;
+    text-align: left;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: 100%;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    justify-items: right;
+    column-gap: 0.5em;
+}
+
+.logo {
+    height: 5em;
+    padding: 0.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 2em var(--shadow-color));
+}
+
+/* Vertical list of settings rows — a `Toggle` or a `.setting` label/input pair —
+   evenly spaced by `row-gap` rather than each row supplying its own margin. */
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.7em;
+    padding: 0.7em;
+}
+
+.last-synced {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Shared with `.setting label` in Option.css: both are a settings row's label,
+   just one for a `Toggle` and one for a plain `<label>`. */
+.toggle-label,
+.setting label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
 }
 
 a {
@@ -58,24 +133,6 @@ a {
 }
 a:hover {
     color: var(--link-hover-color);
-}
-
-/* A popup window sizes itself from its content, so anything measured in vh/%
-   against the viewport feeds back into that measurement. Pin the size in px
-   instead and let the panel scroll. */
-body {
-    margin: 0;
-    width: 350px;
-    height: 500px;
-    overflow: hidden;
-    color: var(--text-color);
-    background-color: var(--background-color);
-}
-
-h1 {
-    font-size: 1.5rem;
-    line-height: 1.1;
-    margin: 0;
 }
 
 button {
