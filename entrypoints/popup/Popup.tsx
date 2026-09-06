@@ -14,13 +14,7 @@ import {
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { getLastSynced, parseLastSynced, syncErrorMessage } from '@/entrypoints/shared/syncutils'
-import {
-    type MessageResponse,
-    type SyncErrorType,
-    SyncErrorKind,
-    SyncNowMessage,
-    Status,
-} from '@/entrypoints/shared/types'
+import { type MessageResponse, type SyncErrorType, SyncErrorKind, SyncNowMessage } from '@/entrypoints/shared/types'
 
 /**
  * Watcher key prefix used to identify this component's settings subscriptions.

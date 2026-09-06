@@ -42,14 +42,14 @@ export class Storage {
      * `NilStorageAdapter` reports "unchanged" rather than throwing: an early
      * tick has to be harmless.
      */
-    public static get instance(): Storage {
+    public static async instance(): Promise<Storage> {
         if (!Storage.#instance) {
             const adapter = new NilStorageAdapter()
             Storage.#instance = new Storage(adapter)
-            Storage.#instance.handleStorageChange()
+            await Storage.#instance.handleStorageChange()
         }
 
-        return Storage.#instance
+        return await Storage.#instance
     }
 
     /**

@@ -37,7 +37,7 @@ import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
  * inside an async callback would miss events after the first suspend.
  */
 
-const storageMgr = Storage.instance
+const storageMgr = await Storage.instance()
 
 /**
  * One side of a three-way comparison — the local browser, or the sync target —
