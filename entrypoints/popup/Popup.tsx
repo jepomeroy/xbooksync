@@ -120,24 +120,11 @@ function Popup() {
      * Asks the background worker to sync immediately, unless syncing is off.
      *
      * Re-reads the setting rather than trusting `syncEnabled` state, so a toggle
-     * flipped in another window is honored. The worker checks it again anyway.
-     *
-     * The status only reports whether the worker accepted the message — it does
-     * not await the sync, so neither branch says anything about the outcome.
-     * TODO: surface the real result in the popup instead of the console; that
-     * needs `handleMessages` to reply from the sync promise.
+     * flipped in another window is honored.
      */
     const syncNow = async () => {
         if ((await syncEnableSetting.getValue()) == true) {
-            const result = await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)
-
-            if (result.status === Status.Success) {
-                console.log('I would sync')
-            } else {
-                console.log('No sync necessary')
-            }
-        } else {
-            console.log('Sync is disabled')
+            await browser.runtime.sendMessage<string, MessageResponse>(SyncNowMessage)
         }
     }
 
