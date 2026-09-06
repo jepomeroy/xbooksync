@@ -14,10 +14,11 @@ export default defineConfig({
         permissions: ['storage', 'bookmarks', 'alarms', 'identity', 'notifications'],
         browser_specific_settings: {
             gecko: {
-                id: 'my-extension-dev@example.com',
+                id: 'developers@xbooksync.org',
             },
         },
         // Sync targets and their APIs.
-        host_permissions: ['https://gitlab.com/*', 'https://github.com/*', 'https://api.github.com/*'],
+        // add 'https://gitlab.com/*' later
+        host_permissions: ['https://github.com/*', 'https://api.github.com/*'],
     },
 })
