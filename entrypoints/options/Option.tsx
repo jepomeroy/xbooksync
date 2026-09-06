@@ -1,4 +1,6 @@
-import appLogo from '@/assets/xbooksync.svg'
+import { browser } from '#imports'
+import type { PublicPath } from 'wxt/browser'
+
 import { FaBug } from 'react-icons/fa6'
 import { FaCircleQuestion } from 'react-icons/fa6'
 import './Option.css'
@@ -7,6 +9,8 @@ import Sort from './components/sort'
 import Sync from './components/sync'
 import Storage from './components/storage'
 
+const iconUrl = browser.runtime.getURL('/icons/128.png' as PublicPath)
+
 /** Options page: header, followed by cards for sync/sort settings, storage settings, and help links. */
 function Option() {
     return (
@@ -14,7 +18,7 @@ function Option() {
             <div className='header'>
                 <div>
                     <a href='https://github.com/jepomeroy/xbooksync' target='_blank'>
-                        <img src={appLogo} className='logo' alt='App logo' />
+                        <img src={iconUrl} className='logo' alt='App logo' />
                     </a>
                 </div>
                 <div>

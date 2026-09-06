@@ -4,7 +4,8 @@ import { defineConfig } from 'wxt'
 export default defineConfig({
     modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
     autoIcons: {
-        baseIconPath: 'icon.svg',
+        baseIconPath: 'assets/icon.svg',
+        developmentIndicator: false,
     },
     manifest: {
         // storage: persisted settings; bookmarks: read/write the bookmark tree;

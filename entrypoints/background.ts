@@ -287,7 +287,7 @@ const syncFunc = () =>
                 if (badge.text && !(await isPinned())) {
                     browser.notifications.create({
                         type: 'basic',
-                        iconUrl: browser.runtime.getURL('/icon/128.png'),
+                        iconUrl: browser.runtime.getURL('/icons/128.png'),
                         title: 'XBookSync sync failed',
                         message: syncErrorMessage(kind),
                     })
