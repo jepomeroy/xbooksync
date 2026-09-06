@@ -37,8 +37,6 @@ import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
  * inside an async callback would miss events after the first suspend.
  */
 
-const storageMgr = await Storage.instance()
-
 /**
  * One side of a three-way comparison — the local browser, or the sync target —
  * in the three forms the merge needs it.
@@ -177,7 +175,7 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
  */
 const runSync = async () => {
     const now = new Date().toISOString()
-    const adapter = storageMgr.getStorageAdapter()
+    const adapter = (await Storage.instance()).getStorageAdapter()
 
     // base bookmarks from last sync
     const baseSnapshot = await syncBaseBookmarks.getValue()
@@ -391,9 +389,10 @@ export default defineBackground(() => {
     browser.alarms.onAlarm.addListener(alarm.handleTickAlarm)
 
     // Cleanup any settings watcher
-    browser.runtime.onSuspend.addListener(() => {
+    browser.runtime.onSuspend.addListener(async () => {
         unregisterSettingsWatcher(TickAlarmName)
-        storageMgr.cleanup()
+        const storage = await Storage.instance()
+        storage.cleanup()
     })
 
     // Not just on install: a worker revived by any event re-runs this, which is
