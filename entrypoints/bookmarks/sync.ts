@@ -146,11 +146,45 @@ export const applyRemote = async ({
         return created.id
     }
 
+    // Keys where `diff.changed` disagrees on type: a folder collides with a
+    // bookmark that shares its identity key (e.g. a folder titled like a
+    // url). `bookmarks.update` can't change a node's type, and setting a url
+    // on a folder throws in Chrome, so these are swapped rather than updated.
+    // This runs before the added loop below: a swap that produces a folder
+    // may itself gain new children in `diff.added`, and those creates need
+    // `idFor` to already resolve this key to the new node, not the old one.
+    const swappedOut = new Set<string>()
+
+    for (const [key, { before, after }] of diff.changed) {
+        if (before.type === after.type) continue
+
+        const id = idFor.get(key)
+        const entry = remoteFlat.get(key)
+        if (!id || !entry) continue
+
+        const created = await browser.bookmarks.create({
+            parentId: await ensure(entry.parentKey),
+            title: after.title,
+            url: after.url,
+        })
+
+        if (before.type === BookmarkType.bookmark) {
+            await browser.bookmarks.remove(id)
+        } else {
+            await browser.bookmarks.removeTree(id)
+            swappedOut.add(key)
+        }
+
+        idFor.set(key, created.id)
+    }
+
     for (const key of diff.added.keys()) {
         await ensure(key)
     }
 
-    for (const [key, { after }] of diff.changed) {
+    for (const [key, { before, after }] of diff.changed) {
+        if (before.type !== after.type) continue
+
         const id = idFor.get(key)
         if (id) await browser.bookmarks.update(id, { title: after.title, url: after.url })
     }
@@ -165,7 +199,7 @@ export const applyRemote = async ({
         let parentKey = baseFlat.get(key)?.parentKey
         while (parentKey && baseFlat.has(parentKey)) {
             // Terminates at an anchor key, which is never in the map.
-            if (diff.removed.has(parentKey)) return true
+            if (diff.removed.has(parentKey) || swappedOut.has(parentKey)) return true
             parentKey = baseFlat.get(parentKey)?.parentKey
         }
         return false

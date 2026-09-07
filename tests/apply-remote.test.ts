@@ -101,6 +101,44 @@ describe('changes', () => {
         expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'Documentation', url: 'https://a.dev' }])
         expect(fake.idAt(CHROME_BAR, 'Documentation')).toBe(id)
     })
+
+    it('swaps a folder for a bookmark at a colliding key rather than updating in place', async () => {
+        // `bookmarks.update` can't change a node's type, and setting a url on
+        // a folder throws in Chrome, so this must go through create+remove.
+        seedLocal([{ title: 'https://a.dev', children: [] }])
+        const base = tree(bar(folder('https://a.dev')))
+
+        await applyOnto(tree(bar(bm('https://a.dev', 'https://a.dev'))), base)
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'https://a.dev', url: 'https://a.dev' }])
+    })
+
+    it('swaps a bookmark for a folder at a colliding key', async () => {
+        seedLocal([{ title: 'https://a.dev', url: 'https://a.dev' }])
+        const base = tree(bar(bm('https://a.dev', 'https://a.dev')))
+
+        await applyOnto(tree(bar(folder('https://a.dev', bm('Docs', 'https://b.dev')))), base)
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            { title: 'https://a.dev', children: [{ title: 'Docs', url: 'https://b.dev' }] },
+        ])
+    })
+
+    it("removes a swapped-out folder's descendants without double-removing them", async () => {
+        // Without `swappedOut`, the removed loop would try to delete
+        // `Deep/Docs` again after `removeTree` already took it.
+        seedLocal([
+            {
+                title: 'https://a.dev',
+                children: [{ title: 'Deep', children: [{ title: 'Docs', url: 'https://b.dev' }] }],
+            },
+        ])
+        const base = tree(bar(folder('https://a.dev', folder('Deep', bm('Docs', 'https://b.dev')))))
+
+        await applyOnto(tree(bar(bm('https://a.dev', 'https://a.dev'))), base)
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'https://a.dev', url: 'https://a.dev' }])
+    })
 })
 
 describe('removals', () => {
