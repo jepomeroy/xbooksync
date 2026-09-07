@@ -10,6 +10,7 @@ import {
 } from '@/entrypoints/shared/localsettings'
 import Toggle from '@/entrypoints/shared/components/toggle'
 import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
+import DurationInput from '@/entrypoints/shared/components/duration-input'
 
 /**
  * Sync preferences: the master enable toggle, the interval between automatic
@@ -98,19 +99,12 @@ export default function Sync() {
     /**
      * Persists the new sync interval, in seconds.
      *
-     * Written on every keystroke, and the background worker rebuilds its alarm
-     * on each write — so typing "900" resets the schedule three times on the way
-     * there. Values under 30s are accepted here and floored by the alarm.
-     *
      * @param rate - Raw input value. A cleared field arrives as `''` and is
      * stored as `0`, which the alarm then floors to 30s.
      */
-    const handleSyncRateChange = async (rate: string) => {
-        // `<input type="number">` still hands back a string; the setting is a number.
-        const val = +rate
-
-        setSyncRate(val)
-        await syncRateSetting.setValue(val)
+    const handleSyncRateChange = async (rate: number) => {
+        setSyncRate(rate)
+        await syncRateSetting.setValue(rate)
     }
 
     return (
@@ -124,18 +118,7 @@ export default function Sync() {
                 />
             )}
             <div className='setting'>
-                <div>
-                    <label htmlFor='sync-rate'>Sync Rate</label>
-                </div>
-                <div>
-                    <input
-                        id='sync-rate'
-                        type='number'
-                        value={syncRate}
-                        onChange={e => handleSyncRateChange(e.target.value)}
-                        placeholder='File path'
-                    />
-                </div>
+                <DurationInput value={syncRate} label='Sync Rate' min={30} step={5} onChange={handleSyncRateChange} />
             </div>
             <div className='last-synced'>
                 <p>Last synced: {getLastSynced(lastSynced)}</p>

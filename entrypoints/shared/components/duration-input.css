@@ -1,0 +1,107 @@
+.duration-input {
+    display: grid;
+    grid-template-columns: var(--label-width) 1fr;
+    align-items: start;
+    column-gap: 1rem;
+}
+
+/* Shared with `.toggle-label` and `.setting label`: this is a settings row's
+   label, just for a stacked field group instead of a switch or plain input. */
+.duration-input-label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    /* Baselines with the first field row rather than the whole stack's height. */
+    padding-top: 0.25rem;
+}
+
+.duration-input-fields {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.4em;
+}
+
+.duration-field {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+}
+
+/* Minus button, value, and plus button share one border as a single
+   segmented control rather than three separate boxes. */
+.duration-field-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition:
+        border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-field-btn svg {
+    /* Overrides the global `button svg` rule, which sizes/colors icons for
+       icon-and-text buttons elsewhere — these are icon-only and smaller. */
+    font-size: 0.75em;
+    color: inherit;
+}
+
+.duration-field-btn:first-child {
+    border-radius: 6px 0 0 6px;
+    border-right: none;
+}
+
+/* The plus button isn't `:last-child` — the unit abbreviation follows it —
+   but it is the last `<button>` among its siblings. */
+.duration-field-btn:last-of-type {
+    border-radius: 0 6px 6px 0;
+}
+
+.duration-field-btn:hover {
+    border-color: var(--main-color);
+    color: var(--main-color);
+}
+
+.duration-field-btn:active {
+    background-color: var(--toggle-off-color);
+}
+
+.duration-field-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2rem;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-right: none;
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-color);
+    background-color: var(--surface-color);
+}
+
+.duration-field-unit {
+    margin-left: 0.5em;
+    min-width: 1em;
+    font-size: 0.8125rem;
+    color: var(--text-color);
+    opacity: 0.65;
+}
+
+.duration-input-summary {
+    margin: 0.2em 0 0;
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.65;
+    white-space: nowrap;
+}
