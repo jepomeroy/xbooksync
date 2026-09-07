@@ -168,8 +168,9 @@ const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: B
  * is the only proof the token both works and reaches something.
  *
  * @param token - User-to-server token from the device flow.
- * @returns Full names, sorted for stable display in the repo picker. May contain
- * duplicates if one repo is reachable through two installations.
+ * @returns Full names, deduplicated (a repo reachable through two
+ * installations would otherwise appear twice) and sorted for stable display
+ * in the repo picker.
  * @throws {AppNotInstalledError} When the token is valid but the app is
  * installed nowhere — a distinct type because the fix is a visit to
  * {@link INSTALL_URL}, not a retry.
@@ -197,7 +198,15 @@ export const fetchGitHubRepos = async (token: string) => {
         ),
     )
 
-    const repos = repoLists.flat()
+    // Flatten and filter duplicate entries.
+    const repos = repoLists.flat().filter((r, idx, self) => {
+        return (
+            idx ===
+            self.findIndex(o => {
+                return o.full_name === r.full_name
+            })
+        )
+    })
 
     return repos.map(repo => repo.full_name).sort((a, b) => a.localeCompare(b))
 }

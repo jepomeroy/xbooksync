@@ -73,6 +73,15 @@ describe('fetchGitHubRepos', () => {
         await expect(fetchGitHubRepos('token')).resolves.toEqual(['alpha/repo', 'zed/repo'])
     })
 
+    it('deduplicates a repo reachable through two installations', async () => {
+        fetchMock
+            .mockResolvedValueOnce(page({ installations: [{ id: 1 }, { id: 2 }] }))
+            .mockResolvedValueOnce(page({ repositories: [{ full_name: 'shared/repo' }] }))
+            .mockResolvedValueOnce(page({ repositories: [{ full_name: 'shared/repo' }] }))
+
+        await expect(fetchGitHubRepos('token')).resolves.toEqual(['shared/repo'])
+    })
+
     it('throws when a page fails rather than returning a partial list', async () => {
         fetchMock.mockResolvedValueOnce({
             ok: false,
