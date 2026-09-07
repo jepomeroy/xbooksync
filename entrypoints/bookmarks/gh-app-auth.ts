@@ -80,6 +80,12 @@ export async function loginWithGitHubApp(onPrompt: (prompt: DeviceCodePrompt) =>
         body: new URLSearchParams({ client_id: CLIENT_ID }),
     })
 
+    if (!codeResponse.ok) {
+        throw new Error(
+            `Error authorizing device with GitHub: status - ${codeResponse.status} error - ${codeResponse.statusText}`,
+        )
+    }
+
     const codeData = await codeResponse.json()
     if (codeData.error) {
         throw new Error(`GitHub device code request failed: ${codeData.error_description ?? codeData.error}`)
