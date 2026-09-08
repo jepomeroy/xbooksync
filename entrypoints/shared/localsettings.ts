@@ -163,6 +163,62 @@ export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
 })
 
 /**
+ * Forgets what was synced, without touching what it was synced to.
+ *
+ * {@link syncBaseBookmarks} and {@link syncLastSyncValueSetting} describe one
+ * specific target: the base is the tree that target held at the last successful
+ * pass, and the version is the revision it was at. Neither means anything
+ * against a different target, and carrying them across is actively harmful —
+ * the sync loop would read "in the base but not on the target" as a deletion
+ * and remove those bookmarks from the browser.
+ *
+ * Clearing both puts the next pass back in its first-run state, where both
+ * diffs are pure additions and the two trees merge rather than either deleting
+ * the other.
+ */
+export const resetSyncState = async () => {
+    await syncLastSyncValueSetting.setValue('')
+    await syncBaseBookmarks.setValue(null)
+}
+
+/**
+ * Points syncing at a different repository.
+ *
+ * The order is the whole point: {@link ghRepo} is watched, and writing it is
+ * what makes `Storage` rebuild its adapter around the new repo. Clearing the
+ * old repo's sync state first means the rebuilt adapter can never be paired
+ * with an ancestor belonging to somewhere else — reversing these two steps
+ * reintroduces exactly the deletion described on {@link resetSyncState}.
+ *
+ * @param repo - Target repository as `owner/name`, or `''` to select none.
+ */
+export const selectSyncRepo = async (repo: string) => {
+    await resetSyncState()
+    await ghRepo.setValue(repo)
+}
+
+/**
+ * Clears the local GitHub connection: token, repo, and the sync state that
+ * described them.
+ *
+ * Local only — the grant on GitHub's side and the app installation both remain,
+ * so logging back in needs no re-authorization.
+ *
+ * The sync state goes first, for the same ordering reason as
+ * {@link selectSyncRepo}: both credential keys are watched, so removing either
+ * rebuilds the adapter, and nothing should be rebuilt while a stale ancestor is
+ * still stored. Note this also drops the base when the user reconnects to the
+ * *same* repo, where it was still accurate — the cost is that a bookmark
+ * deleted locally while disconnected returns from the target instead of
+ * propagating as a deletion. That is the safe direction to be wrong in.
+ */
+export const disconnectGitHub = async () => {
+    await resetSyncState()
+    await ghAuthToken.removeValue()
+    await ghRepo.removeValue()
+}
+
+/**
  * Install-time value for each setting.
  *
  * Typed as a total `Record` over {@link SettingsKey}, so adding a key to

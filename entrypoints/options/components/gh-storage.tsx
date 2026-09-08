@@ -2,7 +2,7 @@ import { loginWithGitHubApp, INSTALL_URL, type DeviceCodePrompt } from '@/entryp
 import { FaGithub } from 'react-icons/fa6'
 
 import './gh-storage.css'
-import { ghAuthToken, ghRepo } from '@/entrypoints/shared/localsettings'
+import { disconnectGitHub, ghAuthToken, ghRepo, selectSyncRepo } from '@/entrypoints/shared/localsettings'
 import { AppNotInstalledError, fetchGitHubRepos } from '@/entrypoints/bookmarks/gh-utils'
 
 /**
@@ -92,11 +92,11 @@ export default function GitHubSettings() {
     }, [needsInstall])
 
     /** Starts the login flow if signed out, or revokes the current token if signed in. */
-    const handleButtonClick = () => {
+    const handleButtonClick = async () => {
         if (token === '') {
             loginWithGitHub()
         } else {
-            revokeToken()
+            await revokeToken()
         }
     }
 
@@ -115,8 +115,9 @@ export default function GitHubSettings() {
     /**
      * Persists the newly selected repo.
      *
-     * Writing {@link ghRepo} is what makes the change take effect: the storage
-     * adapter watches that key and rebuilds itself around the new repo.
+     * {@link selectSyncRepo} owns the write, along with the ordering it depends
+     * on: the storage adapter watches {@link ghRepo} and rebuilds itself when it
+     * changes, so the previous repo's sync state has to be cleared first.
      *
      * @param e - Change event from the repo `<select>`; its value is the repo's
      * `owner/name`, or `''` for the placeholder option.
@@ -125,7 +126,7 @@ export default function GitHubSettings() {
         const repo = e.target.value
 
         setRepo(repo)
-        await ghRepo.setValue(repo)
+        await selectSyncRepo(repo)
     }
 
     /** Runs the GitHub App device-flow login and stores the resulting token. */
@@ -155,10 +156,12 @@ export default function GitHubSettings() {
      * Local only, despite the name: the grant on GitHub's side and the app
      * installation both remain, so logging back in needs no re-authorization.
      * Revoking for real means visiting the account's applications settings.
+     *
+     * {@link disconnectGitHub} covers the stored half, including dropping the
+     * sync state that described the connection being torn down.
      */
-    const revokeToken = () => {
-        ghAuthToken.removeValue()
-        ghRepo.removeValue()
+    const revokeToken = async () => {
+        await disconnectGitHub()
         setToken('')
         setRepo('')
         setRepos([])
