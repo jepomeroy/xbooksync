@@ -24,7 +24,7 @@ jobs:
                   bun-version: 1.4.x
             # setup-bun caches only the Bun executable, so the package cache is ours to keep.
             - name: Cache Dependencies
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: ~/.bun/install/cache
                   key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -47,7 +47,7 @@ jobs:
                   bun-version: 1.4.x
             # setup-bun caches only the Bun executable, so the package cache is ours to keep.
             - name: Cache Dependencies
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: ~/.bun/install/cache
                   key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -67,7 +67,7 @@ jobs:
                   bun-version: 1.4.x
             # setup-bun caches only the Bun executable, so the package cache is ours to keep.
             - name: Cache Dependencies
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: ~/.bun/install/cache
                   key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
