@@ -298,6 +298,4 @@ export type MessageResponse = {
      * off succeeded. See `handleMessages` in `entrypoints/background.ts`.
      */
     status: Status
-    /** Detail for the user: an error reason, or a summary of what synced. Never populated yet. */
-    result?: string
 }
