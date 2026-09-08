@@ -147,7 +147,7 @@ const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: B
         })
 
         if (!response.ok) {
-            throw new Error(`GitHub request failed (${response.status} ${response.statusText}): ${next}`)
+            throw new GitHubApiError(response.status, response.statusText, next)
         }
 
         items.push(...unwrap((await response.json()) as Body))
