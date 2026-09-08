@@ -1,5 +1,4 @@
-import { browser } from '#imports'
-import type { PublicPath } from 'wxt/browser'
+import appLogo from '@/assets/icon.svg'
 
 import { FaGear } from 'react-icons/fa6'
 import { FaSync } from 'react-icons/fa'
@@ -17,8 +16,6 @@ import {
 } from '../shared/localsettings'
 import { getLastSynced, parseLastSynced, syncErrorMessage } from '@/entrypoints/shared/syncutils'
 import { type MessageResponse, type SyncErrorType, SyncErrorKind, SyncNowMessage } from '@/entrypoints/shared/types'
-
-const iconUrl = browser.runtime.getURL('/icons/128.png' as PublicPath)
 
 /**
  * Watcher key prefix used to identify this component's settings subscriptions.
@@ -131,7 +128,7 @@ function Popup() {
             <div className='header'>
                 <div>
                     <a href='https://github.com/jepomeroy/xbooksync' target='_blank'>
-                        <img src={iconUrl} className='logo' alt='App logo' />
+                        <img src={appLogo} className='logo' alt='App logo' />
                     </a>
                 </div>
                 <div>
