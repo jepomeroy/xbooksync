@@ -315,10 +315,16 @@ export const setDefaultSettings = async () => {
  * Subscribes to changes on a stored setting, keyed by a caller-chosen name so it
  * can later be unregistered.
  *
- * One watcher per name: registering a second under a name already in use
- * silently drops the first handle, leaking that subscription — it keeps firing
- * with no way to stop it. Callers that re-register (React components, the
- * storage singleton) either register once or unregister first.
+ * One watcher per name, enforced by dropping any existing one first: the map
+ * holds the only handle that can stop a subscription, so overwriting an entry
+ * rather than unregistering it would leave that watcher firing forever with no
+ * way to reach it. Replacing in place also makes re-registration safe for
+ * callers that rebuild around a changed setting — the `Storage` singleton
+ * re-registers under the same names on every adapter rebuild, and relies on the
+ * swap here being a swap rather than a second live subscription.
+ *
+ * The unregister and the register are one synchronous pair, so no storage event
+ * can be delivered between them and a re-registration drops nothing.
  *
  * @typeParam T - Type stored under `setting`; the callback receives `T | null`,
  * null being what a cleared key reports.
@@ -333,6 +339,8 @@ export const registerSettingsWatcher = <T>(
     setting: StorageItemKey,
     callback: WatchCallback<T | null>,
 ) => {
+    unregisterSettingsWatcher(name)
+
     const unwatch = storage.watch<T>(setting, callback)
     watchers.set(name, unwatch)
 }
