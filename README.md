@@ -26,6 +26,7 @@ between browsers, versioned in Git, or backed up like any other file.
 | **Scheduled sync**  | Configurable interval via the `alarms` API, with the last sync time surfaced in the popup    |
 | **Manual sync**     | Sync-now button in the popup                                                                 |
 | **GitHub App auth** | OAuth device flow — no client secret, no redirect URI                                        |
+| **Failure signals** | A toolbar badge on a failed sync, plus a desktop notification on Chrome when unpinned        |
 | **Sorting**         | Stored preference; not yet applied on the sync path                                          |
 | **Cross-browser**   | Built with [WXT](https://wxt.dev), targeting Chrome MV3 and Firefox MV2 from one source tree |
 
@@ -92,16 +93,16 @@ entrypoints/
     sync.ts                # flatten, diffBase, applyRemote — the merge primitives
     storage.ts             # Storage singleton; owns the active adapter
     alarm.ts               # tick alarm lifecycle
-    gh-repo.ts             # StorageAdapter for a GitHub repo (the working target)
-    gh-gist.ts             # StorageAdapter for a Gist (signatures only, throws)
+    gh-repo-adapter.ts     # StorageAdapter for a GitHub repo (the working target)
+    gh-gist-adapter.ts     # StorageAdapter for a Gist (signatures only, throws)
     gh-app-auth.ts         # GitHub App device flow
     gh-utils.ts            # shared REST helpers: base64, pagination, repo discovery
     nil-adapter.ts         # no-op adapter used before the real one resolves
   shared/
     types.ts               # enums, the StorageAdapter contract, message types
     localsettings.ts       # typed wrappers around WXT's extension-local storage
-    syncutils.ts           # last-synced parsing / formatting
-    components/toggle.tsx  # the switch used by the popup and options page
+    syncutils.ts           # last-synced parsing / formatting, sync-error copy
+    components/            # toggle switch and the debounced duration input
   popup/
     Popup.tsx              # sync toggle, last-synced time, sync-now, options link
   options/
@@ -121,14 +122,15 @@ declarations live in `.wxt/` and are refreshed by `wxt prepare`.
 
 Declared in `wxt.config.ts`:
 
-| Permission  | Why                                      |
-| ----------- | ---------------------------------------- |
-| `storage`   | Persisted settings and the base snapshot |
-| `bookmarks` | Read and write the bookmark tree         |
-| `alarms`    | Schedule periodic syncs                  |
-| `identity`  | GitHub device-flow auth                  |
+| Permission      | Why                                                      |
+| --------------- | -------------------------------------------------------- |
+| `storage`       | Persisted settings and the base snapshot                 |
+| `bookmarks`     | Read and write the bookmark tree                         |
+| `alarms`        | Schedule periodic syncs                                  |
+| `notifications` | Report a failed sync when the icon isn't pinned (Chrome) |
 
-Plus host permissions for `github.com`, `api.github.com`, and `gitlab.com`.
+Plus host permissions for `github.com` and `api.github.com`. The GitHub App device
+flow needs no `identity` permission — it is plain `fetch` against github.com.
 
 ## How a sync works
 
@@ -164,16 +166,26 @@ All settings live in extension-local storage and are defined once in
 `entrypoints/shared/localsettings.ts`. Defaults are seeded on install, guarded by an
 `initialized` flag so an extension update never resets settings you have since changed.
 
-| Key                      | Type             | Default       | Meaning                                        |
-| ------------------------ | ---------------- | ------------- | ---------------------------------------------- |
-| `local:storage`          | `StorageBackend` | `GitHub Repo` | Which storage target to sync with              |
-| `local:sortBookmarks`    | `boolean`        | `false`       | Sort bookmarks before writing them out [^1]    |
-| `local:sortOrder`        | `SortOrder`      | `Ascending`   | Sort direction, when sorting is on [^1]        |
-| `local:syncEnabled`      | `boolean`        | `true`        | Master switch for syncing                      |
-| `local:syncrate`         | `number`         | `900`         | Seconds between automatic syncs                |
-| `local:lastSyncDateTime` | `string`         | Unix epoch    | ISO timestamp of the last successful sync      |
-| `local:lastSyncValue`    | `string`         | `''`          | Opaque revision token the target last reported |
-| `local:baseBookmarks`    | `object \| null` | `null`        | Base snapshot the next diff compares against   |
+| Key                          | Type                  | Default     | Meaning                                              |
+| ---------------------------- | --------------------- | ----------- | ---------------------------------------------------- |
+| `local:storage`              | `StorageBackend`      | `None`      | Which storage target to sync with [^1]               |
+| `local:sortBookmarks`        | `boolean`             | `false`     | Sort bookmarks before writing them out [^2]          |
+| `local:sortOrder`            | `SortOrder`           | `Ascending` | Sort direction, when sorting is on [^2]              |
+| `local:syncEnabled`          | `boolean`             | `true`      | Master switch for syncing                            |
+| `local:notificationsEnabled` | `boolean`             | Chrome only | Show a desktop notification when a sync fails [^3]   |
+| `local:syncrate`             | `number`              | `900`       | Seconds between automatic syncs                      |
+| `local:syncLastError`        | `SyncErrorType\|null` | `null`      | Last sync failure: kind, message, and when           |
+| `local:lastSyncDateTime`     | `string \| null`      | `null`      | ISO timestamp of the last sync that changed anything |
+| `local:lastSyncValue`        | `string`              | `''`        | Opaque revision token the target last reported       |
+| `local:baseBookmarks`        | `object \| null`      | `null`      | Base snapshot the next diff compares against         |
+
+[^1]:
+    A fresh profile starts on no backend at all, so it sits on the no-op adapter until
+    you pick a target in the options page.
+
+[^3]:
+    Seeded `true` on Chrome and `false` on Firefox — `notifications` is a Chrome-only
+    path here. The toolbar badge is shown either way.
 
 GitHub credentials are keyed separately, since they are per-target rather than global:
 
@@ -183,7 +195,7 @@ GitHub credentials are keyed separately, since they are per-target rather than g
 | `local:ghRepo`      | `string` | `''`    | Target repo as `owner/name`                  |
 | `local:ghGist`      | `string` | `''`    | Gist id, for the unimplemented Gist backend  |
 
-[^1]: Stored and editable in the options page, but not yet read by the sync path.
+[^2]: Stored and editable in the options page, but not yet read by the sync path.
 
 Under `import.meta.env.DEV` only, `setDefaultSettings` also seeds the GitHub keys from
 `debugGitHubSettings`, so an unpacked build can sync without going through the device

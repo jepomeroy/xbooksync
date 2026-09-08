@@ -195,6 +195,12 @@ export type StorageAdapter = {
     /**
      * Writes content to storage and returns updated version metadata.
      *
+     * Must throw rather than return if the content did not reach the target. The
+     * caller records a fresh base snapshot on every successful write, so an
+     * adapter that reports success for a write it did not perform leaves the
+     * extension believing a tree was synced that no target holds — see
+     * {@link NotConfiguredError}.
+     *
      * @param content - Serialized bookmark tree to store.
      * @param previousBlobVersion - Previous BLOB version the write is based on. Targets that
      * support it should use this for a conditional write so a concurrent update
@@ -202,6 +208,7 @@ export type StorageAdapter = {
      * create the file for the first time.
      * @returns The version token the write produced, to be passed as
      * `knownVersion`/`previousBlobVersion` next time.
+     * @throws If the write did not happen, for any reason.
      */
     write(content: string, previousBlobVersion?: string): Promise<string>
 
@@ -217,6 +224,44 @@ export type StorageAdapter = {
     unregisterWatchers(): void
 }
 
+/**
+ * No sync target is configured, so there is nowhere to write.
+ *
+ * Thrown by `NilStorageAdapter.write` rather than reported as a successful
+ * no-op. A successful write is what tells the sync loop to record a new base
+ * snapshot, and a base recorded against a target that holds nothing is what
+ * makes the *next* pass read an empty remote as "every bookmark was deleted".
+ *
+ * Not a failure the user needs to see — an unconfigured profile is the normal
+ * state before setup — so {@link SyncErrorKind.NotConfigured} is badged silently.
+ */
+export class NotConfiguredError extends Error {
+    constructor() {
+        super('No sync target is configured.')
+        this.name = 'NotConfiguredError'
+    }
+}
+
+/**
+ * The target returned an empty payload while a base snapshot exists.
+ *
+ * An empty payload means the target holds no file at all. That is coherent only
+ * on a genuine first run, when the base is empty too; a populated base says we
+ * previously synced a tree that the target no longer has. Adopting the empty
+ * payload there would flatten to an empty map, diff as a removal of every
+ * bookmark, and drive `removeTree` for real — so the pass is refused instead.
+ *
+ * Note an emptied-but-synced tree does not look like this: `getContent` still
+ * serializes both anchors, so a user deleting every bookmark yields a JSON
+ * object, never `''`.
+ */
+export class EmptyRemoteError extends Error {
+    constructor() {
+        super('The sync target holds no bookmark file, but a previous sync was recorded.')
+        this.name = 'EmptyRemoteError'
+    }
+}
+
 // Messaging types
 
 /** Popup -> background: run a sync immediately, ignoring the sync interval. */
@@ -225,6 +270,7 @@ export const SyncNowMessage = 'sync-now'
 /** Sync error classifications */
 export enum SyncErrorKind {
     RemoteMissing = 'remote-missing',
+    NotConfigured = 'not-configured',
     AuthRequired = 'auth-required',
     Conflict = 'conflict',
     Network = 'network',

@@ -27,6 +27,7 @@ import { Bookmarks } from './bookmarks/bookmarks'
 import { Storage } from './bookmarks/storage'
 import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './bookmarks/sync'
 import { AppNotInstalledError, GitHubApiError, RemoteFileMissingError } from './bookmarks/gh-utils'
+import { EmptyRemoteError, NotConfiguredError } from '@/entrypoints/shared/types'
 import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
 
 /**
@@ -115,7 +116,7 @@ const checkLocal = async (baseMap: FlatBookmarks): Promise<SyncSide<LocalBookmar
  * indistinguishable from "remote has no changes", which is exactly how the
  * caller treats it.
  */
-const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Promise<SyncSide> => {
+export const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Promise<SyncSide> => {
     const lastChange = await syncLastSyncValueSetting.getValue()
     const readData = await adapter.read(lastChange)
 
@@ -124,7 +125,14 @@ const checkRemote = async (adapter: StorageAdapter, baseMap: FlatBookmarks): Pro
     }
 
     const remote: Bookmarks = new Bookmarks()
-    if (readData.content !== '') {
+    if (readData.content === '') {
+        // No file on the target at all. Coherent only when we have no base
+        // either — the genuine first run against an empty target, which the
+        // local-only branch then populates. With a base in hand it means the
+        // recorded state and the target disagree, and letting the empty tree
+        // through would diff as a removal of every bookmark and apply it.
+        if (baseMap.size > 0) throw new EmptyRemoteError()
+    } else {
         const parsed: unknown = JSON.parse(readData.content)
         if (!isValidRemoteTree(parsed)) {
             throw new Error('[xbooksync] remote content is not a valid bookmark tree')
@@ -300,6 +308,8 @@ const syncFunc = () =>
 
 const classifySyncError = (error: unknown): SyncErrorKind => {
     if (error instanceof RemoteFileMissingError) return SyncErrorKind.RemoteMissing
+    if (error instanceof EmptyRemoteError) return SyncErrorKind.RemoteMissing
+    if (error instanceof NotConfiguredError) return SyncErrorKind.NotConfigured
     if (error instanceof AppNotInstalledError) return SyncErrorKind.AuthRequired
 
     if (error instanceof GitHubApiError) {
@@ -342,6 +352,10 @@ const setBadge = async (text: string, color: string): Promise<void> => {
  * multi-device use and resolves itself on the next tick — badging it would
  * train the user to ignore the badge.
  *
+ * Blank for {@link SyncErrorKind.NotConfigured} too, for the same reason from
+ * the other end: a profile that has not been pointed at a target yet has not
+ * failed at anything, and every tick until setup would badge it.
+ *
  * @param kind - Classification from {@link classifySyncError}.
  */
 const badgeForErrorKind = (kind: SyncErrorKind): { text: string; color: string } => {
@@ -354,6 +368,7 @@ const badgeForErrorKind = (kind: SyncErrorKind): { text: string; color: string }
         case SyncErrorKind.ServerError:
             return { text: '!', color: '#f59e0b' }
         case SyncErrorKind.Conflict:
+        case SyncErrorKind.NotConfigured:
             return { text: '', color: '#00000000' }
     }
 }

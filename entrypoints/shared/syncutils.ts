@@ -69,6 +69,8 @@ export const syncErrorMessage = (kind: SyncErrorKind): string => {
     switch (kind) {
         case SyncErrorKind.RemoteMissing:
             return 'The remote bookmarks file was deleted.'
+        case SyncErrorKind.NotConfigured:
+            return 'No sync target is configured yet.'
         case SyncErrorKind.AuthRequired:
             return 'GitHub connection needs attention — reconnect in settings.'
         case SyncErrorKind.Conflict:

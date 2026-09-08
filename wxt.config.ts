@@ -9,10 +9,13 @@ export default defineConfig({
     },
     manifest: {
         // storage: persisted settings; bookmarks: read/write the bookmark tree;
-        // alarms: schedule periodic syncs; identity: GitHub device-flow auth;
-        // notifications: alert the user when a sync fails and the icon isn't
-        // pinned to the toolbar, where the badge alone is easy to miss.
-        permissions: ['storage', 'bookmarks', 'alarms', 'identity', 'notifications'],
+        // alarms: schedule periodic syncs; notifications: alert the user when a
+        // sync fails and the icon isn't pinned to the toolbar, where the badge
+        // alone is easy to miss.
+        //
+        // No `identity`: the GitHub App device flow in `gh-app-auth.ts` is plain
+        // `fetch` against github.com, so nothing here calls `browser.identity`.
+        permissions: ['storage', 'bookmarks', 'alarms', 'notifications'],
         browser_specific_settings: {
             gecko: {
                 id: 'developers@xbooksync.org',

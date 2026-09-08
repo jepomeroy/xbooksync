@@ -1,12 +1,16 @@
-import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
+import { NotConfiguredError, type ReadData, type StorageAdapter, type SyncCallback } from '../shared/types'
 
 /**
  * No-op {@link StorageAdapter} used before a real sync target is configured.
  *
- * The `Storage` singleton resolves the configured backend asynchronously, so
- * something has to answer in the meantime. Every method here succeeds and does
- * nothing, which makes an early tick a harmless no-op rather than an error —
- * contrast `GitHubGistAdapter`, whose stubs throw.
+ * Two situations land here: the `Storage` singleton resolves the configured
+ * backend asynchronously, so something has to answer during that window; and
+ * {@link StorageBackend.None} — the install-time default — has no adapter of its
+ * own, so an unconfigured profile stays on this one indefinitely.
+ *
+ * Reads are honest no-ops: "nothing changed" is true of a target that does not
+ * exist, and it costs the caller nothing. Writes are not, and must throw — see
+ * {@link write}.
  */
 export class NilStorageAdapter implements StorageAdapter {
     providerId = 'nil-adapter'
@@ -22,16 +26,22 @@ export class NilStorageAdapter implements StorageAdapter {
     }
 
     /**
-     * Discards the write and reports success.
+     * Refuses the write: there is no target, so nothing can be stored.
      *
-     * @param _content - Ignored.
+     * Deliberately not a silent no-op. A returned version token means "this
+     * content is now on the target", and the sync loop answers it by recording a
+     * fresh base snapshot. Reporting success here would stamp a base describing
+     * a tree that no target holds — and the next pass against a real, empty
+     * target would then diff that base against nothing, read it as a removal of
+     * every bookmark, and apply it. The read side stays a no-op precisely
+     * because "nothing changed" is true and costs nothing.
+     *
+     * @param _content - Ignored; there is nowhere to put it.
      * @param _previousBlobVersion - Ignored.
-     * @returns An empty version token. That is the same value as "never read",
-     * so the next read against a real adapter is unconditional and fetches the
-     * target in full.
+     * @throws {NotConfiguredError} Always.
      */
     async write(_content: string, _previousBlobVersion?: string): Promise<string> {
-        return ''
+        throw new NotConfiguredError()
     }
 
     /**
