@@ -56,7 +56,8 @@ export type FlatEntry<T extends BookmarkEntry = BookmarkEntry> = {
  * trees from different browsers can be compared directly.
  *
  * Keys are the path-based identity assigned by `identityKey` in
- * `entrypoints/bookmarks/sync.ts`. The two anchor folders are deliberately
+ * `entrypoints/bookmarks/sync.ts`, with a trailing ordinal on the second and
+ * later of any nodes that key alike. The two anchor folders are deliberately
  * absent — see `flatten` there.
  */
 export type FlatBookmarks<T extends BookmarkEntry = BookmarkEntry> = Map<string, FlatEntry<T>>

@@ -76,6 +76,15 @@ describe('additions', () => {
         expect(fake.shapeOf(CHROME_BAR)).toEqual([])
     })
 
+    it('creates both of two bookmarks the target holds at one url', async () => {
+        await applyOnto(tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev'))), tree(bar()))
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            { title: 'First', url: 'https://a.dev' },
+            { title: 'Second', url: 'https://a.dev' },
+        ])
+    })
+
     it('leaves a node the browser already has alone', async () => {
         seedLocal([{ title: 'Docs', url: 'https://a.dev' }])
         const existingId = fake.idAt(CHROME_BAR, 'Docs')
@@ -180,16 +189,27 @@ describe('removals', () => {
         expect(fake.shapeOf(CHROME_BAR)).toEqual([])
     })
 
-    it('leaves a duplicate url behind when its twin is removed', async () => {
-        // The flat map holds one entry per key, so only one of the two ids is
-        // ever known. Documents the leak that flatten's collision creates.
+    it('removes both twins at a duplicated url', async () => {
+        // Each twin has its own key, so each resolves to its own node id.
         seedLocal([
             { title: 'First', url: 'https://a.dev' },
             { title: 'Second', url: 'https://a.dev' },
         ])
-        const base = tree(bar(bm('Second', 'https://a.dev')))
+        const base = tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev')))
 
         await applyOnto(tree(bar()), base)
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([])
+    })
+
+    it('removes the later twin and leaves the earlier one', async () => {
+        seedLocal([
+            { title: 'First', url: 'https://a.dev' },
+            { title: 'Second', url: 'https://a.dev' },
+        ])
+        const base = tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev')))
+
+        await applyOnto(tree(bar(bm('First', 'https://a.dev'))), base)
 
         expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'First', url: 'https://a.dev' }])
     })

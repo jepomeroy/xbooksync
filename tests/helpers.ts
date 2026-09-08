@@ -31,6 +31,13 @@ export const tree = (...anchors: BookmarkEntry[]): BookmarkEntry => ({
 })
 
 /**
+ * The key `flatten` hands the nth node whose identity collides with an earlier
+ * one — the second twin is `dup(key, 2)`. Spelled out here rather than imported
+ * so the tests pin the format instead of restating it.
+ */
+export const dup = (key: string, ordinal: number): string => `${key}\u0000${ordinal}`
+
+/**
  * Flattens a whole tree the way `Bookmarks.flatten` does — starting at the
  * anchors, since the container above them is not a real bookmark.
  */

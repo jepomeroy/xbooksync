@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest'
 import { BookmarkType } from '@/entrypoints/shared/types'
 import { diffBase, flatten, hasModifications } from '@/entrypoints/bookmarks/sync'
-import { bar, bm, flatOf, folder, other, tree } from './helpers'
+import { bar, bm, dup, flatOf, folder, other, tree } from './helpers'
 
 describe('flatten', () => {
     it('omits the anchor folders themselves', () => {
@@ -30,14 +30,36 @@ describe('flatten', () => {
         expect([...flat.keys()]).toEqual(['bookmarks bar/https://a.dev', 'other bookmarks/https://a.dev'])
     })
 
-    it('collapses two bookmarks sharing a url in one folder', () => {
-        // Documents a real limitation: the second wins, and the first becomes
-        // invisible to both the diff and the apply pass. See the leak this
-        // causes in apply-remote.test.ts.
+    it('numbers two bookmarks sharing a url in one folder', () => {
+        // Both have to survive the flatten, or deleting one is invisible to the
+        // diff and unreachable to the apply pass.
         const flat = flatOf(tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev'))))
 
-        expect(flat.size).toBe(1)
-        expect(flat.get('bookmarks bar/https://a.dev')?.node.title).toBe('Second')
+        expect(flat.size).toBe(2)
+        expect(flat.get('bookmarks bar/https://a.dev')?.node.title).toBe('First')
+        expect(flat.get(dup('bookmarks bar/https://a.dev', 2))?.node.title).toBe('Second')
+    })
+
+    it('numbers a third twin without reusing the second ordinal', () => {
+        const url = 'https://a.dev'
+        const flat = flatOf(tree(bar(bm('First', url), bm('Second', url), bm('Third', url))))
+
+        expect([...flat.keys()]).toEqual([
+            `bookmarks bar/${url}`,
+            dup(`bookmarks bar/${url}`, 2),
+            dup(`bookmarks bar/${url}`, 3),
+        ])
+    })
+
+    it('keeps duplicate folders in separate namespaces', () => {
+        // The collision is what makes this matter: without the ordinal both
+        // folders' children would flatten into one key space and merge.
+        const flat = flatOf(
+            tree(bar(folder('Work', bm('Docs', 'https://a.dev')), folder('Work', bm('Blog', 'https://b.dev')))),
+        )
+
+        expect(flat.get('bookmarks bar/Work/https://a.dev')?.parentKey).toBe('bookmarks bar/Work')
+        expect(flat.get(dup('bookmarks bar/Work', 2) + '/https://b.dev')?.parentKey).toBe(dup('bookmarks bar/Work', 2))
     })
 
     it('starts a nested walk from an anchor with an empty parent key', () => {
@@ -105,6 +127,30 @@ describe('diffBase', () => {
         const firefox = tree({ type: BookmarkType.bookmarkbar, title: 'Bookmarks Toolbar', children: [] })
 
         expect(hasModifications(diffBase(flatOf(chrome), flatOf(firefox)))).toBe(false)
+    })
+
+    it('reports the removal of one of two twins', () => {
+        // The whole point of the ordinal: with both twins in the map, dropping
+        // one leaves a key behind that the other side no longer has.
+        const before = flatOf(tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev'))))
+        const after = flatOf(tree(bar(bm('First', 'https://a.dev'))))
+        const diff = diffBase(before, after)
+
+        expect([...diff.removed.keys()]).toEqual([dup('bookmarks bar/https://a.dev', 2)])
+        expect(diff.added.size).toBe(0)
+        expect(diff.changed.size).toBe(0)
+    })
+
+    it('reports removing the first twin as a retitle of the survivor', () => {
+        // Ordinals are positional, so deleting the earlier twin shifts the later
+        // one up a slot. The end state is the same either way — one bookmark at
+        // that url, titled 'Second' — it just arrives as a change plus a removal.
+        const before = flatOf(tree(bar(bm('First', 'https://a.dev'), bm('Second', 'https://a.dev'))))
+        const after = flatOf(tree(bar(bm('Second', 'https://a.dev'))))
+        const diff = diffBase(before, after)
+
+        expect(diff.changed.get('bookmarks bar/https://a.dev')?.after.title).toBe('Second')
+        expect([...diff.removed.keys()]).toEqual([dup('bookmarks bar/https://a.dev', 2)])
     })
 
     it('reports a node that only the base holds as removed', () => {

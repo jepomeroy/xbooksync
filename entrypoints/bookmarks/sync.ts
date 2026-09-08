@@ -28,9 +28,14 @@ import {
  * url, a folder's title) re-keys the node and reads as a remove plus an add
  * rather than a change. Moving a node re-keys it for the same reason.
  *
+ * Not unique on its own: browsers allow two bookmarks with the same url, or two
+ * folders with the same title, in one folder. {@link disambiguate} is what
+ * separates those, so callers should key through {@link flatten} rather than
+ * calling this directly.
+ *
  * @param node - Node to key.
  * @param parentPath - Key of the containing folder, or `''` at the tree root.
- * @returns The key, unique within a tree.
+ * @returns The key, before any duplicate ordinal is applied.
  */
 const identityKey = (node: BookmarkEntry, parentPath: string): string => {
     switch (node.type) {
@@ -43,6 +48,43 @@ const identityKey = (node: BookmarkEntry, parentPath: string): string => {
         default:
             return `${parentPath}/${node.title}`
     }
+}
+
+/**
+ * Separator between a colliding key and the ordinal that distinguishes it.
+ *
+ * NUL, because the ordinal has to be something no title or url can contain:
+ * anything printable could itself appear in a folder title, and a folder named
+ * to look like a suffixed key would take the twin's slot in the map.
+ */
+const DUPLICATE_MARK = '\u0000'
+
+/**
+ * Makes a colliding key unique by numbering it, second occurrence onwards.
+ *
+ * Duplicates are legal in every browser — the same url bookmarked twice in one
+ * folder, two folders with the same title — and they arrive here as one key.
+ * Overwriting would drop all but the last from the map, which makes the twins
+ * invisible to {@link diffBase} (deleting one leaves the key present, so it
+ * reads as no change at all) and unreachable in {@link applyRemote}, which only
+ * ever learns one of their node ids.
+ *
+ * The ordinal is positional: it names the *nth* twin in depth-first order, not
+ * any particular one. Twins are interchangeable by definition — that's what made
+ * them collide — so the trees still converge; what shifts is which of them a
+ * given edit lands on, and reordering two twins reads as a pair of changes.
+ *
+ * @param key - Key from {@link identityKey}.
+ * @param taken - Keys already in the map being built.
+ * @returns `key` itself when free, otherwise `key` plus the lowest free ordinal.
+ */
+const disambiguate = (key: string, taken: ReadonlyMap<string, unknown>): string => {
+    if (!taken.has(key)) return key
+
+    let ordinal = 2
+    while (taken.has(`${key}${DUPLICATE_MARK}${ordinal}`)) ordinal++
+
+    return `${key}${DUPLICATE_MARK}${ordinal}`
 }
 
 /**
@@ -250,6 +292,11 @@ export const diffBase = (baseMap: FlatBookmarks, otherMap: FlatBookmarks): DiffR
  * Walks a tree depth-first into a key-addressed map, so two trees can be
  * compared by lookup rather than by traversal.
  *
+ * One entry per node, never fewer: nodes whose identity keys collide are
+ * numbered by {@link disambiguate} instead of overwriting each other. Depth-first
+ * order is therefore part of the contract — it's what decides which twin gets
+ * which ordinal, and both sides of a diff have to agree.
+ *
  * @param node - Subtree root to walk. Callers start at an anchor, not the tree
  * root, since the root is synthetic and has no key of its own.
  * @param parentPath - Key of `node`'s parent; `''` at the top of a walk.
@@ -262,11 +309,12 @@ export const flatten = <T extends BookmarkEntry>(
     parentPath = '',
     out: FlatBookmarks<T> = new Map(),
 ): FlatBookmarks<T> => {
-    const key = identityKey(node, parentPath)
-
     // The two anchor folders always exist in every tree — they're never
-    // themselves added/removed/changed, only their contents are.
+    // themselves added/removed/changed, only their contents are. Being absent
+    // from the map, they also can't collide, so they skip the ordinal.
     const isAnchor = node.type === BookmarkType.bookmarkbar || node.type === BookmarkType.other
+    const key = isAnchor ? identityKey(node, parentPath) : disambiguate(identityKey(node, parentPath), out)
+
     if (!isAnchor) {
         out.set(key, { node, parentKey: parentPath })
     }
