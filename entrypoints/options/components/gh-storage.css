@@ -1,0 +1,69 @@
+.storage-setting {
+    display: grid;
+    padding-top: 1em;
+    /* The button column is sized by the button's own fixed width, never by the
+       messages beside it, so the prompt/status text can't resize the button. */
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 1.7em;
+    align-items: center;
+}
+
+.gh-login {
+    width: 12.5rem;
+    box-sizing: border-box;
+    /* Grid stretch would otherwise let the track width leak into the button. */
+    justify-self: start;
+}
+
+.button-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.5em;
+    white-space: nowrap;
+}
+
+/* The repo picker is a row of its own, not a third item auto-placed into the
+   column beside the login button. */
+.gh-repo-setting {
+    padding-top: 1em;
+    grid-column: 1 / -1;
+}
+
+.gh-messages {
+    /* min-width: 0 pairs with minmax(0, 1fr) so a long verification URL wraps
+       instead of widening the grid. */
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+}
+
+.needs-install {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+}
+
+.needs-install p {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.needs-install-actions {
+    display: flex;
+    column-gap: 0.5em;
+    flex-wrap: wrap;
+}
+
+.prompt {
+    margin: 0;
+    height: min-content;
+    font-size: 1.1em;
+    overflow-wrap: anywhere;
+}
+
+.status {
+    margin: 0;
+    overflow-wrap: anywhere;
+}

@@ -1,0 +1,80 @@
+name: CI
+
+permissions:
+    contents: read
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    linting:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+            # setup-bun caches only the Bun executable, so the package cache is ours to keep.
+            - name: Cache Dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ~/.bun/install/cache
+                  key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+                  restore-keys: ${{ runner.os }}-bun-
+            - name: Install Dependencies
+              run: bun install --frozen-lockfile
+            - name: Compile
+              run: bun run compile
+            - name: Lint files
+              run: bun run lint
+
+    unit-testing:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+            # setup-bun caches only the Bun executable, so the package cache is ours to keep.
+            - name: Cache Dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ~/.bun/install/cache
+                  key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+                  restore-keys: ${{ runner.os }}-bun-
+            - name: Install Dependencies
+              run: bun install --frozen-lockfile
+            - name: Unit Tests
+              run: bun run test
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+            # setup-bun caches only the Bun executable, so the package cache is ours to keep.
+            - name: Cache Dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ~/.bun/install/cache
+                  key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+                  restore-keys: ${{ runner.os }}-bun-
+            - name: Install Dependencies
+              run: bun install --frozen-lockfile
+            - name: Build Chrome
+              run: bun run build
+            - name: Build FireFox
+              run: bun run build:firefox
