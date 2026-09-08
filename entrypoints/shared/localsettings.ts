@@ -34,6 +34,7 @@ export const SettingsKeys = {
     lastSyncDate: 'local:lastSyncDateTime',
     lastSyncValue: 'local:lastSyncValue',
     baseBookmarks: 'local:baseBookmarks',
+    syncStateTarget: 'local:syncStateTarget',
 } as const satisfies Record<string, StorageItemKey>
 
 /** Union of the keys in {@link SettingsKeys}. */
@@ -125,6 +126,28 @@ export const syncBaseBookmarks = storage.defineItem<BookmarkEntry | null>(Settin
 })
 
 /**
+ * Which target {@link syncBaseBookmarks} and {@link syncLastSyncValueSetting}
+ * were recorded against — a `StorageAdapter.targetId`.
+ *
+ * The other two describe one specific target and mean nothing anywhere else, but
+ * nothing about their *contents* says which one. This is that missing half, and
+ * it is what makes stale state detectable instead of merely improbable: clearing
+ * the pair before repointing the extension narrows the window in which a sync
+ * pass can re-record them against the target it is already talking to, but no
+ * ordering closes it, because the pass in question started before the user
+ * touched anything. Written together with the pair it labels; a pass that finds
+ * a label other than its own discards all three rather than diffing against
+ * them.
+ *
+ * Empty means "belongs to nobody", which every target reads as state it cannot
+ * use. That is the fallback, so a profile that synced before this key existed
+ * re-merges once rather than trusting a base of unknown provenance.
+ */
+export const syncStateTargetSetting = storage.defineItem<string>(SettingsKeys.syncStateTarget, {
+    fallback: '',
+})
+
+/**
  * GitHub storage settings.
  *
  * Kept separate from {@link SettingsKeys} because they are target-specific
@@ -172,23 +195,37 @@ export const ghRepo = storage.defineItem<string>(GitHubSettingsKeys.ghRepo, {
  * the sync loop would read "in the base but not on the target" as a deletion
  * and remove those bookmarks from the browser.
  *
- * Clearing both puts the next pass back in its first-run state, where both
+ * Clearing all three puts the next pass back in its first-run state, where both
  * diffs are pure additions and the two trees merge rather than either deleting
  * the other.
+ *
+ * {@link syncStateTargetSetting} goes with them because it describes them: state
+ * that no longer exists belongs to nobody, and leaving a stale label behind would
+ * let a pass against that target adopt a base written by a later pass against
+ * another one.
  */
 export const resetSyncState = async () => {
     await syncLastSyncValueSetting.setValue('')
     await syncBaseBookmarks.setValue(null)
+    await syncStateTargetSetting.setValue('')
 }
 
 /**
  * Points syncing at a different repository.
  *
- * The order is the whole point: {@link ghRepo} is watched, and writing it is
- * what makes `Storage` rebuild its adapter around the new repo. Clearing the
- * old repo's sync state first means the rebuilt adapter can never be paired
- * with an ancestor belonging to somewhere else — reversing these two steps
- * reintroduces exactly the deletion described on {@link resetSyncState}.
+ * The order matters: {@link ghRepo} is watched, and writing it is what makes
+ * `Storage` rebuild its adapter around the new repo. Clearing the old repo's
+ * sync state first means the rebuilt adapter is not handed an ancestor belonging
+ * to somewhere else — reversing these two steps hands it one directly.
+ *
+ * It is not sufficient on its own, though, and was never meant to be read that
+ * way. A sync pass already in flight holds the old adapter and the old base in
+ * memory, and finishes by re-recording both after this function returns; the
+ * adapter rebuild is queued and asynchronous, so a pass starting *after* this
+ * one returns can still be handed the outgoing adapter. Neither is closed by
+ * ordering two writes. What covers them is {@link syncStateTargetSetting}: such
+ * a pass labels what it records with the target it actually used, and the next
+ * pass discards state labelled for anywhere else.
  *
  * @param repo - Target repository as `owner/name`, or `''` to select none.
  */
@@ -205,9 +242,9 @@ export const selectSyncRepo = async (repo: string) => {
  * so logging back in needs no re-authorization.
  *
  * The sync state goes first, for the same ordering reason as
- * {@link selectSyncRepo}: both credential keys are watched, so removing either
- * rebuilds the adapter, and nothing should be rebuilt while a stale ancestor is
- * still stored. Note this also drops the base when the user reconnects to the
+ * {@link selectSyncRepo} — and with the same caveat: it narrows the window
+ * rather than closing it, and {@link syncStateTargetSetting} is what actually
+ * closes it. Note this also drops the base when the user reconnects to the
  * *same* repo, where it was still accurate — the cost is that a bookmark
  * deleted locally while disconnected returns from the target instead of
  * propagating as a deletion. That is the safe direction to be wrong in.
@@ -235,6 +272,7 @@ const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.lastSyncDate]: null,
     [SettingsKeys.lastSyncValue]: '',
     [SettingsKeys.baseBookmarks]: null,
+    [SettingsKeys.syncStateTarget]: '',
 }
 
 /**

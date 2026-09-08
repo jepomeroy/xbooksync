@@ -183,6 +183,25 @@ export type StorageAdapter = {
     readonly providerId: string
 
     /**
+     * Identifies the individual target this adapter is pointed at — this repo,
+     * this gist, this bucket — rather than the kind of target
+     * {@link providerId} names. Two adapters may answer the same string only if
+     * reading one is the same as reading the other.
+     *
+     * Recorded next to the base snapshot and version token, which describe one
+     * specific target and are ruinous applied to another. Storing whose they are
+     * is what lets a later pass *detect* that they belong somewhere else, rather
+     * than relying on them having been cleared in time — see
+     * `stateBelongsToTarget` in `entrypoints/background.ts`.
+     *
+     * `''` means "pointed at nothing": the no-op adapter, and any adapter whose
+     * location setting is still unset. A targetless adapter neither claims the
+     * stored state nor invalidates it — it can't read or write, so it has no
+     * standing to say whose state that is.
+     */
+    readonly targetId: string
+
+    /**
      * Reads content along with its current version token.
      *
      * @param knownVersion - Version token from the last read or write, or `''`

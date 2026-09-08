@@ -20,6 +20,7 @@ const adapterReturning = (readData: ReadData) => {
 
     const adapter: StorageAdapter = {
         providerId: 'test',
+        targetId: 'test:target',
         read: async knownVersion => {
             seen.push(knownVersion)
             return readData

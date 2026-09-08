@@ -9,6 +9,12 @@
  * The ordering assertions are the point. Both credential keys are watched, and
  * writing one is what makes `Storage` rebuild its adapter, so the stale state
  * has to be gone *before* the write lands rather than merely soon after.
+ *
+ * Ordering alone is not the whole guarantee, though — it cannot reach a pass
+ * that was already running, or one handed the outgoing adapter while `Storage`
+ * rebuilds. `syncStateTargetSetting` is what covers those, and what the loop does
+ * with it lives in `sync-state-target.test.ts`; here it is simply one more thing
+ * that has to be cleared, and cleared in time.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -22,6 +28,7 @@ import {
     selectSyncRepo,
     syncBaseBookmarks,
     syncLastSyncValueSetting,
+    syncStateTargetSetting,
     unregisterSettingsWatcher,
 } from '@/entrypoints/shared/localsettings'
 import { bar, bm, other, tree } from './helpers'
@@ -32,6 +39,7 @@ const seedSyncedWith = async (repo: string, version: string) => {
     await ghAuthToken.setValue('token')
     await syncLastSyncValueSetting.setValue(version)
     await syncBaseBookmarks.setValue(tree(bar(bm('OnlyInA', 'https://a.dev')), other()))
+    await syncStateTargetSetting.setValue(`github-repo:${repo}`)
 }
 
 /** Lets queued storage-change callbacks run. */
@@ -44,12 +52,13 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 10))
  * @returns A getter for what was observed, or null if the watcher never fired.
  */
 const captureStateWhenKeyChanges = (name: string, key: StorageItemKey) => {
-    let observed: { version: string; base: unknown } | null = null
+    let observed: { version: string; base: unknown; target: string } | null = null
 
     registerSettingsWatcher(name, key, async () => {
         observed = {
             version: await syncLastSyncValueSetting.getValue(),
             base: await syncBaseBookmarks.getValue(),
+            target: await syncStateTargetSetting.getValue(),
         }
     })
 
@@ -64,6 +73,18 @@ describe('resetSyncState', () => {
 
         expect(await syncLastSyncValueSetting.getValue()).toBe('')
         expect(await syncBaseBookmarks.getValue()).toBeNull()
+    })
+
+    it('clears the label with them, since it describes them', async () => {
+        // A label left standing over cleared state would let the next pass
+        // against that same repo adopt whatever base a later pass happens to
+        // write — the label has to mean "this state is repo A's", not "repo A was
+        // here once".
+        await seedSyncedWith('owner/repo-a', 'sha-from-repo-a')
+
+        await resetSyncState()
+
+        expect(await syncStateTargetSetting.getValue()).toBe('')
     })
 
     it('leaves the credentials alone — it forgets what was synced, not where', async () => {
@@ -96,6 +117,7 @@ describe('selectSyncRepo', () => {
         // local bookmark it doesn't already have.
         expect(await syncLastSyncValueSetting.getValue()).toBe('')
         expect(await syncBaseBookmarks.getValue()).toBeNull()
+        expect(await syncStateTargetSetting.getValue()).toBe('')
     })
 
     it('has already cleared them by the time the repo key changes', async () => {
@@ -109,7 +131,7 @@ describe('selectSyncRepo', () => {
         await settle()
         unregisterSettingsWatcher('probe-repo')
 
-        expect(observed()).toEqual({ version: '', base: null })
+        expect(observed()).toEqual({ version: '', base: null, target: '' })
     })
 
     it('clears state when the repo is deselected, too', async () => {
@@ -145,7 +167,7 @@ describe('disconnectGitHub', () => {
         await settle()
         unregisterSettingsWatcher('probe-token')
 
-        expect(observed()).toEqual({ version: '', base: null })
+        expect(observed()).toEqual({ version: '', base: null, target: '' })
     })
 
     it('leaves a reconnect looking like a first run rather than a deletion', async () => {

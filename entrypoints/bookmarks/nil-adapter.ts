@@ -16,6 +16,19 @@ export class NilStorageAdapter implements StorageAdapter {
     providerId = 'nil-adapter'
 
     /**
+     * Empty: there is no target, so there is nothing for stored sync state to
+     * belong to.
+     *
+     * Deliberately not a name of its own. A profile passing through this adapter
+     * — waiting on the configured backend to resolve, or sitting on
+     * {@link StorageBackend.None} between two real targets — would otherwise
+     * look like a *different* target to the sync loop and invalidate a base that
+     * is still perfectly good for the target it was recorded against. Reads here
+     * are no-ops and writes throw, so claiming nothing costs nothing.
+     */
+    readonly targetId = ''
+
+    /**
      * Always reports nothing to sync, so the caller takes its "no changes" path
      * and leaves the stored base and version untouched.
      *

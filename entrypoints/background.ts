@@ -13,12 +13,14 @@ import {
 import {
     notificationsEnableSetting,
     registerSettingsWatcher,
+    resetSyncState,
     setDefaultSettings,
     SettingsKeys,
     syncBaseBookmarks,
     syncLastErrorSetting,
     syncLastSyncDateSetting,
     syncLastSyncValueSetting,
+    syncStateTargetSetting,
     unregisterSettingsWatcher,
 } from '@/entrypoints/shared/localsettings'
 
@@ -163,6 +165,85 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
 }
 
 /**
+ * Hands back the base snapshot if it describes `targetId`, and discards the
+ * stored sync state if it describes anywhere else.
+ *
+ * The base and the version token are only meaningful against the target they
+ * were recorded from — carried across to another, "in the base but not on the
+ * target" reads as a deletion and `applyRemote` performs it. `selectSyncRepo`
+ * and `disconnectGitHub` clear them before repointing the extension, but that
+ * only covers state that was already stored when the user acted. It cannot cover
+ * a pass that was *already running*: it holds its adapter and its base in memory,
+ * and re-records both when it finishes, minutes later and against the old target.
+ * Nor can it cover a pass that starts in the gap before `Storage` finishes
+ * rebuilding, which is handed the outgoing adapter with the state already
+ * cleared. Both end with state describing one target while the extension syncs
+ * with another.
+ *
+ * So rather than trying to win those races, every pass labels what it records
+ * with the target it actually used, and this refuses to adopt a label that isn't
+ * ours. A refused base becomes a null one, which is the first-run state: both
+ * diffs are pure additions, the trees merge, and nothing is deleted.
+ *
+ * @param targetId - `targetId` of the adapter this pass will use. `''` — a
+ * targetless adapter — neither claims the state nor invalidates it, so the base
+ * is passed through untouched: such an adapter reads nothing and refuses to
+ * write, and a profile idling on it would otherwise throw away a base that is
+ * still correct for the target it names.
+ * @returns The base to diff against, or null if there is none to be had.
+ */
+const claimSyncState = async (targetId: string): Promise<BookmarkEntry | null> => {
+    const base = await syncBaseBookmarks.getValue()
+    if (!targetId) return base
+
+    if ((await syncStateTargetSetting.getValue()) === targetId) return base
+
+    // Labelled for somewhere else, or from before this key existed. Discarded
+    // rather than merely ignored, so the version token goes with it — `checkRemote`
+    // reads that itself, and a token from another target either 304s a read that
+    // should have returned everything or fails every write as a conflict.
+    if (base !== null || (await syncLastSyncValueSetting.getValue()) !== '') await resetSyncState()
+
+    return null
+}
+
+/**
+ * Records the outcome of a pass that changed something: what was synced, when,
+ * and — the point of the label — where.
+ *
+ * The label is written first so the state is never briefly attributed to the
+ * wrong target. A pass cut short after it lands leaves a label over a base that
+ * predates it, which the next pass either recognizes as its own (and the base
+ * was already correct for it) or discards; the reverse order would leave a fresh
+ * base under whatever label happened to be there.
+ *
+ * @param targetId - The adapter this pass actually read and wrote, not whatever
+ * is configured by the time this runs — the two differ precisely in the cases
+ * {@link claimSyncState} exists to catch.
+ * @param version - Version token the target is now at, or undefined to leave the
+ * stored one alone.
+ * @param content - Serialized tree that is now on the target, stored verbatim as
+ * the next base so it is in the same canonical form that was written.
+ * @param at - ISO timestamp for the pass.
+ */
+const recordSyncState = async ({
+    targetId,
+    version,
+    content,
+    at,
+}: {
+    targetId: string
+    version: string | undefined
+    content: string
+    at: string
+}): Promise<void> => {
+    await syncStateTargetSetting.setValue(targetId)
+    if (version !== undefined) await syncLastSyncValueSetting.setValue(version)
+    await syncLastSyncDateSetting.setValue(at)
+    await syncBaseBookmarks.setValue(JSON.parse(content) as BookmarkEntry)
+}
+
+/**
  * One sync pass: three-way merge between the browser, the sync target, and the
  * base snapshot recorded at the end of the last successful pass.
  *
@@ -180,13 +261,20 @@ const readLocal = async (): Promise<Bookmarks<LocalBookmarkEntry>> => {
  *
  * Failures propagate: an adapter that throws aborts the pass with the stored
  * version and base untouched, so the next tick retries from the same state.
+ *
+ * The adapter is read once, at the top, and everything below is relative to that
+ * one — including what gets recorded at the end. A pass that outlives a change of
+ * target finishes honestly against the target it started with and says so, rather
+ * than half-completing against one and being filed under the other; the next pass
+ * is what notices, in {@link claimSyncState}.
  */
-const runSync = async () => {
+export const runSync = async () => {
     const now = new Date().toISOString()
     const adapter = (await Storage.instance()).getStorageAdapter()
+    const targetId = adapter.targetId
 
-    // base bookmarks from last sync
-    const baseSnapshot = await syncBaseBookmarks.getValue()
+    // base bookmarks from the last sync — if it was a sync with this target.
+    const baseSnapshot = await claimSyncState(targetId)
     const base = new Bookmarks()
     if (baseSnapshot) base.fromXbsBookmarks(baseSnapshot)
 
@@ -203,14 +291,10 @@ const runSync = async () => {
         // Local-only: the browser is ahead, so push it and let the conditional
         // write reject if the target moved between the read above and here.
         const lastChange = await syncLastSyncValueSetting.getValue()
-        const currVersion = await adapter.write(localSync.tree.getContent(), remoteSync.version ?? lastChange)
+        const content = localSync.tree.getContent()
+        const currVersion = await adapter.write(content, remoteSync.version ?? lastChange)
 
-        // Update the Sync Value and Date
-        await syncLastSyncValueSetting.setValue(currVersion)
-        await syncLastSyncDateSetting.setValue(now)
-
-        // The base is stored in the same canonical form that was just written.
-        await syncBaseBookmarks.setValue(JSON.parse(localSync.tree.getContent()))
+        await recordSyncState({ targetId, version: currVersion, content, at: now })
     } else if (!hasModifications(localSync.diff) && hasModifications(remoteSync.diff)) {
         // Remote-only: the browser still matches the base, so the target's tree
         // can be applied wholesale. This is the case applyRemote's preconditions
@@ -223,14 +307,17 @@ const runSync = async () => {
             localRoot: localSync.tree.getBookmarks(),
         })
 
-        // Always set here: this branch is only reached on a changed read.
-        if (remoteSync.version) await syncLastSyncValueSetting.setValue(remoteSync.version)
-        await syncLastSyncDateSetting.setValue(now)
         // The remote tree is what the browser now holds, so it becomes the next
         // base — re-serialized rather than stored as parsed, so the shape comes
         // from `getContent` here as it does in every other branch instead of
-        // from whatever the target happened to hold.
-        await syncBaseBookmarks.setValue(JSON.parse(remoteSync.tree.getContent()))
+        // from whatever the target happened to hold. The version is always set:
+        // this branch is only reached on a changed read.
+        await recordSyncState({
+            targetId,
+            version: remoteSync.version,
+            content: remoteSync.tree.getContent(),
+            at: now,
+        })
     } else {
         // Both sides changed. Fold the remote diff into the local tree, then
         // push the result — so the write carries local edits the target hasn't
@@ -254,13 +341,10 @@ const runSync = async () => {
 
         // Based on the version just read, not the one last written: the target
         // moved, and passing the stale token would make the write fail.
-        const currVersion = await adapter.write(merged.getContent(), remoteSync.version)
+        const content = merged.getContent()
+        const currVersion = await adapter.write(content, remoteSync.version)
 
-        // Track the new version
-        await syncLastSyncValueSetting.setValue(currVersion)
-        await syncLastSyncDateSetting.setValue(now)
-        // The base is stored in the same canonical form that was just written.
-        await syncBaseBookmarks.setValue(JSON.parse(merged.getContent()))
+        await recordSyncState({ targetId, version: currVersion, content, at: now })
     }
 }
 

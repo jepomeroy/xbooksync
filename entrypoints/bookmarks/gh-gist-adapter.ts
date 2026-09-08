@@ -24,6 +24,16 @@ export class GitHubGistAdapter implements StorageAdapter {
     readonly providerId: string = 'github-gist'
 
     /**
+     * Empty, as nothing can select this backend yet.
+     *
+     * Implementing this adapter means returning `` `${this.providerId}:${gist}` ``
+     * from the stored {@link ghGist} — leaving it empty once the backend is
+     * reachable would let a gist's base snapshot survive a switch to a different
+     * gist. See {@link StorageAdapter.targetId}.
+     */
+    readonly targetId: string = ''
+
+    /**
      * Not yet implemented. Would read the gist file's content and revision id,
      * the gist to use coming from {@link ghGist}.
      *

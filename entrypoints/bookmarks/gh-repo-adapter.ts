@@ -51,6 +51,22 @@ export class GitHubRepoAdapter implements StorageAdapter {
     private bookmarkFilename: string = 'bookmarks.json'
 
     /**
+     * The repo this adapter reads and writes, qualified by provider so it can
+     * never collide with another backend's naming.
+     *
+     * A getter rather than a stored field only because {@link repo} is a
+     * constructor parameter property; it is as immutable as the adapter is —
+     * `Storage` rebuilds rather than repoints.
+     *
+     * Empty while no repo is selected, which is the {@link StorageAdapter.targetId}
+     * contract's "pointed at nothing". Every request this adapter would issue
+     * without a repo is malformed anyway, so it has nothing to claim.
+     */
+    get targetId(): string {
+        return this.repo ? `${this.providerId}:${this.repo}` : ''
+    }
+
+    /**
      * @param token - GitHub App user-to-server token, from {@link ghAuthToken}.
      * @param repo - Target repository as `owner/name`, from {@link ghRepo}.
      *
