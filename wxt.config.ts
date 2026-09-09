@@ -19,6 +19,10 @@ export default defineConfig({
         browser_specific_settings: {
             gecko: {
                 id: 'developers@xbooksync.org',
+                data_collection_permissions: {
+                    required: ['bookmarksInfo'],
+                    optional: [],
+                },
             },
         },
         // Sync targets and their APIs.
