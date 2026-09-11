@@ -17,6 +17,7 @@ import {
     setDefaultSettings,
     SettingsKeys,
     syncBaseBookmarks,
+    syncEnableSetting,
     syncLastErrorSetting,
     syncLastSyncDateSetting,
     syncLastSyncValueSetting,
@@ -557,6 +558,9 @@ const handleMessages = (
  */
 const handleStartup = async () => {
     await alarm.ensureTickAlarm()
+
+    // Run the sync on startup instead of waiting until the next tick
+    if (await syncEnableSetting.getValue()) syncFunc()
 }
 
 /**
@@ -571,4 +575,7 @@ const handleStartup = async () => {
  */
 const handleSetup = async (_: Browser.runtime.InstalledDetails) => {
     await setDefaultSettings()
+
+    // Run the sync on startup instead of waiting until the next tick
+    if (await syncEnableSetting.getValue()) syncFunc()
 }
