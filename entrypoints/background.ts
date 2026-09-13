@@ -495,6 +495,23 @@ export default defineBackground(() => {
         storage.cleanup()
     })
 
+    // Sync on any change to bookmarks
+    browser.bookmarks.onChanged.addListener(async () => {
+        await syncFunc()
+    })
+
+    browser.bookmarks.onCreated.addListener(async () => {
+        await syncFunc()
+    })
+
+    browser.bookmarks.onMoved.addListener(async () => {
+        await syncFunc()
+    })
+
+    browser.bookmarks.onRemoved.addListener(async () => {
+        await syncFunc()
+    })
+
     // Not just on install: a worker revived by any event re-runs this, which is
     // what repairs the alarm if it was ever lost (browser update, profile move).
     void alarm.ensureTickAlarm()
