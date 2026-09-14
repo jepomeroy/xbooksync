@@ -497,19 +497,19 @@ export default defineBackground(() => {
 
     // Sync on any change to bookmarks
     browser.bookmarks.onChanged.addListener(async () => {
-        if (await syncEnableSetting.getValue()) syncFunc()
+        if (await syncEnableSetting.getValue()) await syncFunc()
     })
 
     browser.bookmarks.onCreated.addListener(async () => {
-        if (await syncEnableSetting.getValue()) syncFunc()
+        if (await syncEnableSetting.getValue()) await syncFunc()
     })
 
     browser.bookmarks.onMoved.addListener(async () => {
-        if (await syncEnableSetting.getValue()) syncFunc()
+        if (await syncEnableSetting.getValue()) await syncFunc()
     })
 
     browser.bookmarks.onRemoved.addListener(async () => {
-        if (await syncEnableSetting.getValue()) syncFunc()
+        if (await syncEnableSetting.getValue()) await syncFunc()
     })
 
     // Not just on install: a worker revived by any event re-runs this, which is
@@ -577,7 +577,7 @@ const handleStartup = async () => {
     await alarm.ensureTickAlarm()
 
     // Run the sync on startup instead of waiting until the next tick
-    if (await syncEnableSetting.getValue()) syncFunc()
+    if (await syncEnableSetting.getValue()) await syncFunc()
 }
 
 /**
@@ -594,5 +594,5 @@ const handleSetup = async (_: Browser.runtime.InstalledDetails) => {
     await setDefaultSettings()
 
     // Run the sync on startup instead of waiting until the next tick
-    if (await syncEnableSetting.getValue()) syncFunc()
+    if (await syncEnableSetting.getValue()) await syncFunc()
 }
