@@ -121,8 +121,9 @@ export class GitHubRepoAdapter implements StorageAdapter {
      * a conflict. Either way a concurrent update is rejected rather than lost.
      */
     private getPayload = (content: string, sha?: string): BodyInit => {
+        const message = `XBookSync: ${import.meta.env.BROWSER} browser updated bookmarks`
         return JSON.stringify({
-            message: 'XBookSync updated bookmarks',
+            message,
             content: encodeBase64(content),
             ...(sha && { sha }),
         })
