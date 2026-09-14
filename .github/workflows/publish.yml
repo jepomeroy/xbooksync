@@ -1,0 +1,54 @@
+name: Release
+
+on:
+    workflow_dispatch:
+
+jobs:
+    submit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Out
+              uses: actions/checkout@v7
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.x
+
+            # setup-bun caches only the Bun executable, so the package cache is ours to keep.
+            - name: Cache Dependencies
+              uses: actions/cache@v6
+              with:
+                  path: ~/.bun/install/cache
+                  key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+                  restore-keys: ${{ runner.os }}-bun-
+
+            - name: Install Dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Zip extensions
+              run: |
+                  bun run zip
+                  bun run zip:firefox
+
+            - name: Submit to stores
+              run: |
+                  bunx wxt submit \
+                    --chrome-zip .output/*-chrome.zip \
+                    --firefox-zip .output/*-firefox.zip --firefox-sources-zip .output/*-sources.zip
+              env:
+                  CHROME_API_VERSION: ${{ vars.CHROME_API_VERSION }}
+                  CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+                  CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+                  CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+                  CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+                  CHROME_SKIP_SUBMIT_REVIEW: ${{ vars.CHROME_SKIP_SUBMIT_REVIEW }}
+                  CHROME_CANCEL_PENDING: ${{ vars.CHROME_CANCEL_PENDING }}
+                  CHROME_SKIP_REVIEW: ${{ vars.CHROME_SKIP_REVIEW }}
+                  CHROME_PUBLISH_TYPE: ${{ vars.CHROME_PUBLISH_TYPE }}
+                  CHROME_DEPLOY_PERCENTAGE: ${{ vars.CHROME_DEPLOY_PERCENTAGE }}
+                  FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+                  FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+                  FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+                  FIREFOX_CHANNEL: ${{ vars.FIREFOX_CHANNEL }}
+                  FIREFOX_SKIP_SUBMIT_REVIEW: ${{ vars.FIREFOX_SKIP_SUBMIT_REVIEW }}
