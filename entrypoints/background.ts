@@ -497,19 +497,19 @@ export default defineBackground(() => {
 
     // Sync on any change to bookmarks
     browser.bookmarks.onChanged.addListener(async () => {
-        await syncFunc()
+        if (await syncEnableSetting.getValue()) syncFunc()
     })
 
     browser.bookmarks.onCreated.addListener(async () => {
-        await syncFunc()
+        if (await syncEnableSetting.getValue()) syncFunc()
     })
 
     browser.bookmarks.onMoved.addListener(async () => {
-        await syncFunc()
+        if (await syncEnableSetting.getValue()) syncFunc()
     })
 
     browser.bookmarks.onRemoved.addListener(async () => {
-        await syncFunc()
+        if (await syncEnableSetting.getValue()) syncFunc()
     })
 
     // Not just on install: a worker revived by any event re-runs this, which is
