@@ -1,4 +1,5 @@
 import {
+    BookmarkEvent,
     BookmarkType,
     Status,
     SyncErrorKind,
@@ -8,6 +9,7 @@ import {
     type FlatBookmarks,
     type LocalBookmarkEntry,
     type MessageResponse,
+    type SelfWrite,
     type StorageAdapter,
 } from '@/entrypoints/shared/types'
 import {
@@ -17,7 +19,6 @@ import {
     setDefaultSettings,
     SettingsKeys,
     syncBaseBookmarks,
-    syncEnableSetting,
     syncLastErrorSetting,
     syncLastSyncDateSetting,
     syncLastSyncValueSetting,
@@ -32,6 +33,7 @@ import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './book
 import { AppNotInstalledError, GitHubApiError, RemoteFileMissingError } from './bookmarks/gh-utils'
 import { EmptyRemoteError, NotConfiguredError } from '@/entrypoints/shared/types'
 import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
+import { SyncService } from './bookmarks/sync-service'
 
 /**
  * Background service worker.
@@ -269,7 +271,7 @@ const recordSyncState = async ({
  * than half-completing against one and being filed under the other; the next pass
  * is what notices, in {@link claimSyncState}.
  */
-export const runSync = async () => {
+export const runSync = async (onSelfWrite?: (write: SelfWrite) => void): Promise<void> => {
     const now = new Date().toISOString()
     const adapter = (await Storage.instance()).getStorageAdapter()
     const targetId = adapter.targetId
@@ -306,6 +308,7 @@ export const runSync = async () => {
             localFlat: localSync.flat,
             baseFlat: baseMap,
             localRoot: localSync.tree.getBookmarks(),
+            onSelfWrite: onSelfWrite,
         })
 
         // The remote tree is what the browser now holds, so it becomes the next
@@ -334,6 +337,7 @@ export const runSync = async () => {
             localFlat: localSync.flat,
             baseFlat: baseMap,
             localRoot: localSync.tree.getBookmarks(),
+            onSelfWrite: onSelfWrite,
         })
 
         // applyRemote mutated the browser directly, so the tree read before it
@@ -348,48 +352,6 @@ export const runSync = async () => {
         await recordSyncState({ targetId, version: currVersion, content, at: now })
     }
 }
-
-// Collapses overlapping triggers (tick alarm, manual "sync now") into the same
-// in-flight pass instead of racing two runSync calls against the browser and
-// the sync target.
-let inFlight: Promise<void> | null = null
-const syncFunc = () =>
-    (inFlight ??= runSync()
-        .then(async () => {
-            await syncLastErrorSetting.setValue(null)
-            await setBadge('', '')
-        })
-        .catch(async error => {
-            const kind = classifySyncError(error)
-            console.error(`[xbooksync] sync failed: ${kind}`, error)
-
-            await syncLastErrorSetting.setValue({
-                kind,
-                message: error instanceof Error ? error.message : String(error),
-                at: new Date().toISOString(),
-            })
-
-            if (await notificationsEnableSetting.getValue()) {
-                const badge = badgeForErrorKind(kind)
-                await setBadge(badge.text, badge.color)
-
-                // The badge is easy to miss when the icon isn't pinned to the
-                // toolbar — fall back to a notification for the kinds that were
-                // worth badging in the first place. Conflicts stay silent either
-                // way; see badgeForErrorKind.
-                if (badge.text && !(await isPinned())) {
-                    browser.notifications.create({
-                        type: 'basic',
-                        iconUrl: browser.runtime.getURL('/icons/128.png'),
-                        title: 'XBookSync sync failed',
-                        message: syncErrorMessage(kind),
-                    })
-                }
-            }
-        })
-        .finally(() => {
-            inFlight = null
-        }))
 
 const classifySyncError = (error: unknown): SyncErrorKind => {
     if (error instanceof RemoteFileMissingError) return SyncErrorKind.RemoteMissing
@@ -473,7 +435,56 @@ const isPinned = async (): Promise<boolean> => {
     return isOnToolbar
 }
 
-const alarm = new Alarm(syncFunc)
+/**
+ * Tells the user how a pass went: the stored error the popup renders, the badge
+ * on the icon, and — when the icon is easy to miss — a notification.
+ *
+ * Handed to {@link SyncService}, which calls it once per pass. Reporting lives
+ * here rather than in the service because all three channels are background
+ * worker territory; the service needs the failure only to time its cooldown.
+ *
+ * @param error - What the pass threw, or null when it succeeded. Should not
+ * throw — the service catches and logs a reporter that does, but a failure here
+ * still costs the user the badge and the stored error the popup renders.
+ */
+const reportSyncOutcome = async (error: unknown): Promise<void> => {
+    if (error === null) {
+        await syncLastErrorSetting.setValue(null)
+        await setBadge('', '')
+        return
+    }
+
+    const kind = classifySyncError(error)
+    console.error(`[xbooksync] sync failed: ${kind}`, error)
+
+    await syncLastErrorSetting.setValue({
+        kind,
+        message: error instanceof Error ? error.message : String(error),
+        at: new Date().toISOString(),
+    })
+
+    // Badged regardless of the notifications setting: that switch governs the
+    // OS-level popup, which is the intrusive half. The badge is the quiet
+    // indicator the popup's error banner pairs with, and a user who turned
+    // notifications off still needs some sign that syncing is failing.
+    const badge = badgeForErrorKind(kind)
+    await setBadge(badge.text, badge.color)
+
+    // The badge is easy to miss when the icon isn't pinned to the toolbar — fall
+    // back to a notification for the kinds that were worth badging in the first
+    // place. Conflicts stay silent either way; see badgeForErrorKind.
+    if (!badge.text || !(await notificationsEnableSetting.getValue()) || (await isPinned())) return
+
+    browser.notifications.create({
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('/icons/128.png'),
+        title: 'XBookSync sync failed',
+        message: syncErrorMessage(kind),
+    })
+}
+
+const syncService = new SyncService(runSync, reportSyncOutcome)
+const alarm = new Alarm(() => syncService.request('alarm'))
 
 export default defineBackground(() => {
     // On first install
@@ -496,21 +507,19 @@ export default defineBackground(() => {
     })
 
     // Sync on any change to bookmarks
-    browser.bookmarks.onChanged.addListener(async () => {
-        if (await syncEnableSetting.getValue()) await syncFunc()
-    })
+    // The node is passed on: a create is recognized as our own by what was
+    // created, since its id did not exist when the pass recorded it.
+    browser.bookmarks.onCreated.addListener((id, node) => syncService.onBookmarkEvent(BookmarkEvent.created, id, node))
+    browser.bookmarks.onChanged.addListener(id => syncService.onBookmarkEvent(BookmarkEvent.changed, id))
+    browser.bookmarks.onMoved.addListener(id => syncService.onBookmarkEvent(BookmarkEvent.moved, id))
+    browser.bookmarks.onRemoved.addListener(id => syncService.onBookmarkEvent(BookmarkEvent.removed, id))
 
-    browser.bookmarks.onCreated.addListener(async () => {
-        if (await syncEnableSetting.getValue()) await syncFunc()
-    })
-
-    browser.bookmarks.onMoved.addListener(async () => {
-        if (await syncEnableSetting.getValue()) await syncFunc()
-    })
-
-    browser.bookmarks.onRemoved.addListener(async () => {
-        if (await syncEnableSetting.getValue()) await syncFunc()
-    })
+    // An HTML import fires onCreated per node. Chrome brackets the burst
+    // with these two so observers can sit it out rather than pushing — and
+    // recording as the base — a half-imported tree. These listeners are not
+    // available in Firefox
+    browser.bookmarks.onImportBegan?.addListener(() => syncService.onImportBegan())
+    browser.bookmarks.onImportEnded?.addListener(() => syncService.onImportEnded())
 
     // Not just on install: a worker revived by any event re-runs this, which is
     // what repairs the alarm if it was ever lost (browser update, profile move).
@@ -526,9 +535,9 @@ export default defineBackground(() => {
  * Routes messages from the popup.
  *
  * {@link SyncNowMessage} is fired and forgotten — the reply says the sync was
- * *started*, not that it succeeded, since `syncFunc` is deliberately not awaited
- * here. Reporting the real outcome would mean awaiting it and replying from the
- * promise, which is what the open channel below already allows for.
+ * *started*, not that it succeeded, since the request is deliberately not
+ * awaited here. Reporting the real outcome would mean awaiting it and replying
+ * from the promise, which is what the open channel below already allows for.
  *
  * @param message - The message name; anything unrecognized is answered with
  * {@link Status.Error}.
@@ -552,7 +561,7 @@ const handleMessages = (
 
     if (message === SyncNowMessage) {
         // call the bookmark sync function
-        syncFunc()
+        void syncService.request('manual')
         response.status = Status.Success
     }
 
@@ -576,8 +585,11 @@ const handleMessages = (
 const handleStartup = async () => {
     await alarm.ensureTickAlarm()
 
-    // Run the sync on startup instead of waiting until the next tick
-    if (await syncEnableSetting.getValue()) await syncFunc()
+    // Run the sync on startup instead of waiting until the next tick. Awaited:
+    // the listener's promise settling is what tells MV3 the worker may be torn
+    // down, and a floating pass here can be killed after `applyRemote` has
+    // mutated bookmarks but before the base is recorded.
+    await syncService.request('startup')
 }
 
 /**
@@ -593,6 +605,7 @@ const handleStartup = async () => {
 const handleSetup = async (_: Browser.runtime.InstalledDetails) => {
     await setDefaultSettings()
 
-    // Run the sync on startup instead of waiting until the next tick
-    if (await syncEnableSetting.getValue()) await syncFunc()
+    // Run the sync on startup instead of waiting until the next tick. Awaited
+    // for the same reason as `handleStartup`.
+    await syncService.request('install')
 }

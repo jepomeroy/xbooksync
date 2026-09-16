@@ -6,10 +6,11 @@
  * there.
  */
 
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { applyRemote, diffBase } from '@/entrypoints/bookmarks/sync'
 import { Bookmarks } from '@/entrypoints/bookmarks/bookmarks'
-import type { BookmarkEntry, LocalBookmarkEntry } from '@/entrypoints/shared/types'
+import { SyncService } from '@/entrypoints/bookmarks/sync-service'
+import { BookmarkEvent, type BookmarkEntry, type LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { FakeBookmarks, installFakeBookmarks, type SeedNode } from './fake-bookmarks'
 import { bar, bm, flatOf, folder, other, tree } from './helpers'
 
@@ -237,6 +238,54 @@ describe('folder rename', () => {
         await applyOnto(tree(bar(folder('Job', bm('Docs', 'https://a.dev')))), base)
 
         expect(fake.idAt(CHROME_BAR, 'Job', 'Docs')).not.toBe(before)
+    })
+})
+
+describe('echo suppression', () => {
+    /**
+     * The one place this file asserts on timing rather than on the resulting
+     * tree, because the property is not visible in the tree: a create has to be
+     * recorded *before* the call that makes it. Chrome dispatches `onCreated`
+     * during the model mutation, which can arrive before `bookmarks.create`
+     * resolves — so a record written from the resolved node suppresses nothing,
+     * and every remote-driven pass pays for another pass from its own writes.
+     */
+    it('records its creates early enough to suppress the events they cause', async () => {
+        vi.useFakeTimers()
+
+        try {
+            const runSync = vi.fn().mockResolvedValue(undefined)
+            const service = new SyncService(runSync)
+
+            // Fired from inside the call, which is the ordering a record taken
+            // from the returned node always loses to.
+            const create = browser.bookmarks.create.bind(browser.bookmarks)
+            vi.spyOn(browser.bookmarks, 'create').mockImplementation(async details => {
+                const node = await create(details)
+                void service.onBookmarkEvent(BookmarkEvent.created, node.id, node)
+                return node
+            })
+
+            const local = await readLocal()
+            const baseFlat = flatOf(tree(bar()))
+            const remoteFlat = flatOf(tree(bar(folder('Work', bm('Docs', 'https://a.dev')))))
+
+            await applyRemote({
+                diff: diffBase(baseFlat, remoteFlat),
+                remoteFlat,
+                localFlat: local.flatten(),
+                baseFlat,
+                localRoot: local.getBookmarks(),
+                onSelfWrite: service.markSelfWrite,
+            })
+
+            await vi.advanceTimersByTimeAsync(3_000)
+
+            expect(runSync).not.toHaveBeenCalled()
+        } finally {
+            vi.useRealTimers()
+            vi.restoreAllMocks()
+        }
     })
 })
 

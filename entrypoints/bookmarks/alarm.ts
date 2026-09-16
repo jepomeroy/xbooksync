@@ -2,16 +2,20 @@
  * Periodic sync scheduling via the browser `alarms` API.
  */
 
-import { syncEnableSetting, syncRateSetting } from '../shared/localsettings'
-import type { SyncCallback } from '../shared/types'
+import { syncRateSetting } from '../shared/localsettings'
 
 /** Name of the alarm driving the periodic task. */
 export const TickAlarmName = 'sync-tick'
 
 /** Owns the tick alarm's lifecycle and invokes the sync callback when it fires. */
 export class Alarm {
-    /** @param syncFunc Callback invoked on each tick while syncing is enabled. */
-    constructor(private syncFunc: SyncCallback) {}
+    /**
+     * @param syncFunc Callback invoked on each tick. Whether a pass actually
+     * runs is not decided here — `SyncService.request` owns the master switch,
+     * the cooldown and the overlap rules, and a second opinion on any of them
+     * would only be a second place for them to drift.
+     */
+    constructor(private syncFunc: () => Promise<void>) {}
 
     /**
      * Runs the periodic task.
@@ -30,12 +34,10 @@ export class Alarm {
             return
         }
 
-        const enabled = await syncEnableSetting.getValue()
-
-        if (enabled) {
-            // call the bookmark sync function
-            this.syncFunc()
-        }
+        // Awaited: this listener's promise settling is what tells MV3 the worker
+        // may be torn down, and a floating pass can be killed after `applyRemote`
+        // has mutated bookmarks but before the new base is recorded.
+        await this.syncFunc()
     }
 
     /**

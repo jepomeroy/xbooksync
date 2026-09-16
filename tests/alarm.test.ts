@@ -11,28 +11,43 @@ import { syncEnableSetting, syncRateSetting } from '@/entrypoints/shared/localse
 
 const tick = (name = TickAlarmName) => ({ name }) as Browser.alarms.Alarm
 
+const noop = () => vi.fn().mockResolvedValue(undefined)
+
 describe('handleTickAlarm', () => {
-    it('runs the sync when enabled', async () => {
-        const sync = vi.fn()
-        await syncEnableSetting.setValue(true)
+    it('runs the sync', async () => {
+        const sync = noop()
 
         await new Alarm(sync).handleTickAlarm(tick())
 
         expect(sync).toHaveBeenCalledOnce()
     })
 
-    it('does nothing while syncing is switched off', async () => {
-        const sync = vi.fn()
+    it('delegates even while syncing is switched off', async () => {
+        // The master switch belongs to `SyncService.request`, which is where it
+        // is covered; a second check here would only be somewhere for the two to
+        // disagree.
+        const sync = noop()
         await syncEnableSetting.setValue(false)
 
         await new Alarm(sync).handleTickAlarm(tick())
 
-        expect(sync).not.toHaveBeenCalled()
+        expect(sync).toHaveBeenCalledOnce()
+    })
+
+    it('waits for the pass, so the worker is not torn down underneath it', async () => {
+        let settled = false
+        const sync = vi.fn().mockImplementation(async () => {
+            await Promise.resolve()
+            settled = true
+        })
+
+        await new Alarm(sync).handleTickAlarm(tick())
+
+        expect(settled).toBe(true)
     })
 
     it('ignores an alarm belonging to something else', async () => {
-        const sync = vi.fn()
-        await syncEnableSetting.setValue(true)
+        const sync = noop()
 
         await new Alarm(sync).handleTickAlarm(tick('some-other-alarm'))
 
