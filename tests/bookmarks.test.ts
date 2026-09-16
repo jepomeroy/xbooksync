@@ -59,6 +59,18 @@ describe('fromBrowser', () => {
 
         expect((await readLocal()).flatten().size).toBe(0)
     })
+
+    it('classifies anchors by folderType even when the title does not match the table', async () => {
+        // Chrome 134+'s account-based bookmark sync rollout can retitle these
+        // anchors ("Bookmarks Bar" instead of "Bookmarks bar") and stop handing
+        // out fixed ids — `folderType` is what stays reliable.
+        fake = installFakeBookmarks('Bookmarks Bar', 'Other Bookmarks', { bar: 'bookmarks-bar', other: 'other' })
+        fake.seed(fake.idAt('Bookmarks Bar'), [{ title: 'Docs', url: 'https://a.dev' }])
+
+        const root = (await readLocal()).getBookmarks()
+
+        expect(root?.children?.map(child => child.type)).toEqual([BookmarkType.bookmarkbar, BookmarkType.other])
+    })
 })
 
 describe('getContent', () => {
