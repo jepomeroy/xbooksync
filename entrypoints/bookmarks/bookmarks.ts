@@ -155,7 +155,7 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
         const children: LocalBookmarkEntry[] = []
 
         for (const node of rawBookmarks.children ?? []) {
-            const rootKind = this.classifyRoot(node.title)
+            const rootKind = this.classifyRoot(node)
             if (!rootKind) continue
 
             children.push({
@@ -190,20 +190,35 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
     }
 
     /**
-     * Identifies which of the two anchor folders a top-level node is, by title.
+     * Identifies which of the two anchor folders a top-level node is.
+     *
+     * Prefers `folderType` (Chrome 134+): Chrome's account-based bookmark sync
+     * rollout made both the node id and the display title unreliable for this —
+     * ids are no longer fixed per Chrome's own docs, and the title's
+     * capitalization can now differ from the hardcoded {@link RootFolderTitles}
+     * ("Bookmarks Bar" vs "Bookmarks bar") even in English. `folderType` is
+     * immune to both. Falls back to the title table for browsers/versions that
+     * don't set it — older Chrome, and Firefox, which has no equivalent field.
      *
      * Only meaningful directly under the tree root — a nested folder that
      * happens to be called "Bookmarks bar" would match too.
      *
-     * @param title - The node's title, as the browser reports it.
+     * @param node - The top-level node to classify.
      * @returns The anchor's type, or undefined for anything not recognized —
      * including every node when `import.meta.env.BROWSER` isn't a key of
      * {@link RootFolderTitles}, which drops the whole tree.
      */
-    private classifyRoot(title: string): BookmarkType.bookmarkbar | BookmarkType.other | undefined {
+    private classifyRoot(node: Browser.bookmarks.BookmarkTreeNode): BookmarkType.bookmarkbar | BookmarkType.other | undefined {
+        switch (node.folderType) {
+            case 'bookmarks-bar':
+                return BookmarkType.bookmarkbar
+            case 'other':
+                return BookmarkType.other
+        }
+
         const titles = Bookmarks.RootFolderTitles[import.meta.env.BROWSER]
-        if (title === titles?.bookmarkbar) return BookmarkType.bookmarkbar
-        if (title === titles?.other) return BookmarkType.other
+        if (node.title === titles?.bookmarkbar) return BookmarkType.bookmarkbar
+        if (node.title === titles?.other) return BookmarkType.other
         return undefined
     }
 

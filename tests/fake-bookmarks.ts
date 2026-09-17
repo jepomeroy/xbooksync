@@ -20,6 +20,7 @@ export type FakeNode = {
     index?: number
     title: string
     url?: string
+    folderType?: string
     children?: FakeNode[]
 }
 
@@ -46,16 +47,31 @@ export class FakeBookmarks {
      * @param barTitle - Toolbar folder title. Defaults to Chrome's, matching
      * `import.meta.env.BROWSER` under test; pass Firefox's to exercise
      * `classifyRoot` against the other browser's naming.
+     * @param folderTypes - `folderType` to stamp on each anchor, as real Chrome
+     * 134+ does. Omitted by default so most tests still exercise the
+     * title-matching fallback; pass `{ bar: 'bookmarks-bar', other: 'other' }` to
+     * simulate a profile where `classifyRoot` must use `folderType` instead.
      */
-    constructor(barTitle = 'Bookmarks bar', otherTitle = 'Other bookmarks') {
+    constructor(
+        barTitle = 'Bookmarks bar',
+        otherTitle = 'Other bookmarks',
+        folderTypes?: { bar?: string; other?: string },
+    ) {
         this.root = { id: '0', title: '', children: [] }
         this.byId.set('0', this.root)
-        this.anchor('1', barTitle)
-        this.anchor('2', otherTitle)
+        this.anchor('1', barTitle, folderTypes?.bar)
+        this.anchor('2', otherTitle, folderTypes?.other)
     }
 
-    private anchor(id: string, title: string) {
-        const node: FakeNode = { id, parentId: '0', index: this.root.children!.length, title, children: [] }
+    private anchor(id: string, title: string, folderType?: string) {
+        const node: FakeNode = {
+            id,
+            parentId: '0',
+            index: this.root.children!.length,
+            title,
+            folderType,
+            children: [],
+        }
         this.root.children!.push(node)
         this.byId.set(id, node)
     }
@@ -177,8 +193,12 @@ export class FakeBookmarks {
  * `wxt/browser` resolves to the same `fakeBrowser` singleton the tests import,
  * so assigning the namespace here is what every module under test sees.
  */
-export const installFakeBookmarks = (barTitle?: string, otherTitle?: string): FakeBookmarks => {
-    const fake = new FakeBookmarks(barTitle, otherTitle)
+export const installFakeBookmarks = (
+    barTitle?: string,
+    otherTitle?: string,
+    folderTypes?: { bar?: string; other?: string },
+): FakeBookmarks => {
+    const fake = new FakeBookmarks(barTitle, otherTitle, folderTypes)
     Object.assign(fakeBrowser, { bookmarks: fake.api })
     return fake
 }
