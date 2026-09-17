@@ -10,11 +10,13 @@
  */
 
 import {
+    BookmarkEvent,
     BookmarkType,
     type BookmarkEntry,
     type DiffResultType,
     type FlatBookmarks,
     type LocalBookmarkEntry,
+    type SelfWrite,
 } from '@/entrypoints/shared/types'
 
 /**
@@ -132,6 +134,14 @@ const compareBookmarks = (left: BookmarkEntry, right: BookmarkEntry): boolean =>
  * whether a removal was already covered by an ancestor's.
  * @param localRoot - Local tree root, the only place the anchor folders' node ids
  * can be read from since {@link flatten} omits them.
+ * @param onSelfWrite - Called for each mutation made here, so the scheduler can
+ * recognize the `browser.bookmarks` events this pass is about to cause as its
+ * own rather than treating them as fresh local edits. Removals and updates are
+ * reported *before* the call they describe: the browser may deliver the event
+ * before the API promise settles, and a record that lands after its echo
+ * suppresses nothing. So are creates, which is why they are reported as the
+ * content being created — the new node's id only exists once the call returns,
+ * by which point Chrome has already dispatched `onCreated` for it.
  */
 export const applyRemote = async ({
     diff,
@@ -139,12 +149,14 @@ export const applyRemote = async ({
     localFlat,
     baseFlat,
     localRoot,
+    onSelfWrite,
 }: {
     diff: DiffResultType
     remoteFlat: FlatBookmarks
     localFlat: FlatBookmarks<LocalBookmarkEntry>
     baseFlat: FlatBookmarks
     localRoot: LocalBookmarkEntry | null
+    onSelfWrite?: (write: SelfWrite) => void
 }): Promise<void> => {
     // Key -> browser node id, for everything that exists locally right now.
     const idFor = new Map<string, string>()
@@ -178,11 +190,12 @@ export const applyRemote = async ({
         const entry = remoteFlat.get(key)
         if (!entry) throw new Error(`[xbooksync] remote key has no node: ${key}`)
 
-        const created = await browser.bookmarks.create({
-            parentId: await ensure(entry.parentKey),
-            title: entry.node.title,
-            url: entry.node.url,
-        })
+        const parentId = await ensure(entry.parentKey)
+        const { title, url } = entry.node
+
+        onSelfWrite?.({ event: BookmarkEvent.created, parentId, title, url })
+
+        const created = await browser.bookmarks.create({ parentId, title, url })
 
         idFor.set(key, created.id)
         return created.id
@@ -204,11 +217,15 @@ export const applyRemote = async ({
         const entry = remoteFlat.get(key)
         if (!id || !entry) continue
 
-        const created = await browser.bookmarks.create({
-            parentId: await ensure(entry.parentKey),
-            title: after.title,
-            url: after.url,
-        })
+        const parentId = await ensure(entry.parentKey)
+
+        onSelfWrite?.({ event: BookmarkEvent.created, parentId, title: after.title, url: after.url })
+
+        const created = await browser.bookmarks.create({ parentId, title: after.title, url: after.url })
+
+        // One record covers both branches: a recursive removal is announced once,
+        // for the folder itself, with nothing fired for its contents.
+        onSelfWrite?.({ event: BookmarkEvent.removed, id })
 
         if (before.type === BookmarkType.bookmark) {
             await browser.bookmarks.remove(id)
@@ -228,7 +245,10 @@ export const applyRemote = async ({
         if (before.type !== after.type) continue
 
         const id = idFor.get(key)
-        if (id) await browser.bookmarks.update(id, { title: after.title, url: after.url })
+        if (id) {
+            onSelfWrite?.({ event: BookmarkEvent.changed, id })
+            await browser.bookmarks.update(id, { title: after.title, url: after.url })
+        }
     }
 
     /**
@@ -251,6 +271,7 @@ export const applyRemote = async ({
         const id = idFor.get(key)
         if (!id || ancestorRemoved(key)) continue
 
+        onSelfWrite?.({ event: BookmarkEvent.removed, id })
         await (node.type === BookmarkType.bookmark ? browser.bookmarks.remove(id) : browser.bookmarks.removeTree(id))
     }
 }

@@ -1,14 +1,64 @@
 name: Release
 
+permissions:
+    contents: read
+
 on:
+    # A merge to main pushes to main, which runs CI; this picks up where that
+    # left off, so nothing reaches a store that has not compiled, linted, passed
+    # its tests and built for both browsers.
+    workflow_run:
+        workflows: [CI]
+        types: [completed]
+        branches: [main]
     workflow_dispatch:
 
 jobs:
     submit:
         runs-on: ubuntu-latest
+        # Overrides the workflow-wide `read` for this job alone: the tag pushed
+        # at the end is the only thing here that writes to the repository.
+        permissions:
+            contents: write
+        # `workflow_run` fires whatever CI concluded, so the conclusion check is
+        # what actually gates the release rather than the trigger. The event
+        # check narrows it to a real merge: CI also runs on `workflow_dispatch`,
+        # and re-running it by hand should not ship anything. Neither applies to
+        # dispatching *this* workflow, which carries no `workflow_run` payload.
+        if: >-
+            github.event_name == 'workflow_dispatch' ||
+            (github.event.workflow_run.conclusion == 'success' &&
+            github.event.workflow_run.event == 'push')
         steps:
             - name: Check Out
               uses: actions/checkout@v7
+              with:
+                  # A `workflow_run` job checks out the tip of the default branch,
+                  # which is not necessarily the commit CI just passed on — another
+                  # merge can land in between. Pinning the SHA is what makes "only
+                  # after CI succeeds" true of the code being published rather than
+                  # merely of the run before it. Empty on a manual dispatch, where
+                  # checkout falls back to the ref it was started from.
+                  ref: ${{ github.event.workflow_run.head_sha }}
+
+            - name: Resolve release tag
+              id: tag
+              run: |
+                  tag=$(jq -er .version package.json)
+
+                  # Checked here rather than beside the tag push at the end,
+                  # because this is the last point at which the run can still
+                  # fail cleanly. Past the submit step the packages are in the
+                  # stores' review queues and cannot be recalled, so a collision
+                  # discovered then would leave a release published under a
+                  # version this repository already has a tag for — and no way
+                  # to tell the two apart afterwards.
+                  if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+                      echo "::error::${tag} already exists. Bump the version in package.json before releasing." >&2
+                      exit 1
+                  fi
+
+                  echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
             - name: Setup Bun
               uses: oven-sh/setup-bun@v2
@@ -52,3 +102,41 @@ jobs:
                   FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
                   FIREFOX_CHANNEL: ${{ vars.FIREFOX_CHANNEL }}
                   FIREFOX_SKIP_SUBMIT_REVIEW: ${{ vars.FIREFOX_SKIP_SUBMIT_REVIEW }}
+
+            # Last, and only on success: the tag is the record that this commit
+            # is what went to the stores, so it must not exist for a commit that
+            # failed on the way there. Tags pushed with GITHUB_TOKEN do not start
+            # further workflow runs, so this cannot loop back into CI.
+            - name: Tag the release
+              # Through the environment rather than interpolated into the script,
+              # so the value stays data instead of becoming shell syntax.
+              env:
+                  TAG: ${{ steps.tag.outputs.tag }}
+              run: |
+                  git config user.name 'github-actions[bot]'
+                  git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                  git tag -a "${TAG}" -m "Release ${TAG}"
+                  git push origin "refs/tags/${TAG}"
+
+            # The zips are byte-for-byte what the stores received, so attaching
+            # them is what lets a shipped version be inspected afterwards — the
+            # stores hand back no copy, and the build that produced them is gone
+            # with the runner.
+            #
+            # `--verify-tag` keeps this honest about its dependency: it refuses to
+            # invent a tag of its own if the push above somehow did not land. If
+            # this step is the one that fails, the tag is already pushed, so the
+            # collision check at the top will stop a re-run — recover by deleting
+            # the tag, or by creating the release by hand from the same zips.
+            - name: Publish GitHub Release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TAG: ${{ steps.tag.outputs.tag }}
+              run: |
+                  gh release create "${TAG}" \
+                    --title "${TAG}" \
+                    --verify-tag \
+                    --generate-notes \
+                    .output/*-chrome.zip \
+                    .output/*-firefox.zip \
+                    .output/*-sources.zip

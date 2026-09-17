@@ -156,6 +156,35 @@ export const getStorageBackend = (storageTypeStr: string): StorageBackend => {
 /** Notification that something a sync depends on changed; takes no arguments and returns nothing. */
 export type SyncCallback = () => void
 
+export type SyncTrigger = 'alarm' | 'startup' | 'install' | 'manual' | 'bookmark'
+
+/** Which `browser.bookmarks` listener a change arrived on. */
+export enum BookmarkEvent {
+    created = 'created',
+    changed = 'changed',
+    moved = 'moved',
+    removed = 'removed',
+}
+/**
+ * Events `applyRemote` can generate itself. `moved` is absent deliberately: it
+ * never calls `bookmarks.move` — a move re-keys the node, so it goes out as a
+ * create plus a remove — so an `onMoved` is always the user's.
+ */
+export type SelfWriteEvent = BookmarkEvent.created | BookmarkEvent.changed | BookmarkEvent.removed
+
+/**
+ * One mutation `applyRemote` is about to make, described so the scheduler can
+ * recognize the event it causes.
+ *
+ * Creates are described by content, everything else by node id, because a record
+ * is only useful if it is in place *before* the API call that causes the event —
+ * and a new node's id does not exist until after that call. What we asked the
+ * browser to make is the only thing available to match on beforehand.
+ */
+export type SelfWrite =
+    | { event: BookmarkEvent.changed | BookmarkEvent.removed; id: string }
+    | { event: BookmarkEvent.created; parentId: string; title?: string; url?: string }
+
 /** A payload read from a target, paired with the revision it was read at. */
 export type ReadData = {
     /**
