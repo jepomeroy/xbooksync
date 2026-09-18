@@ -36,7 +36,7 @@ between browsers, versioned in Git, or backed up like any other file.
   rather regenerate the lockfile)
 - Chrome/Chromium or Firefox for development
 - A GitHub account, to authorize the XBookSync GitHub App and install it on the
-  repository you want to sync to
+  repository you want to sync to — see [docs/github-setup.md](docs/github-setup.md)
 
 ## Getting started
 
@@ -51,13 +51,18 @@ there's no manual "load unpacked" step during development.
 
 ### Connecting a repository
 
-1. Open the extension's options page.
-2. Under **Storage Type**, leave _GitHub Repo_ selected and click **Login**. This starts
+1. Create a private repo for the bookmarks, and install the [XBookSync GitHub
+   App](https://github.com/apps/xbooksync/installations/new) on the account that owns it,
+   granting it access to that repo. This is what decides which repos the extension can
+   see.
+2. Open the extension's options page.
+3. Under **Storage Type**, leave _GitHub Repo_ selected and click **Login**. This starts
    the device flow: a code to paste on github.com.
-3. Authorizing yields a token but grants it no repository access — that comes from a
-   separate step. Follow the install link to install the app on the account that owns
-   your target repo.
 4. Pick the repo from the dropdown. Sync begins on the next tick.
+
+[**docs/github-setup.md**](docs/github-setup.md) walks all of this in detail — creating
+the account and the private repo, installing the app, choosing which repos it can reach,
+changing that list later, connecting a second browser, and troubleshooting.
 
 ### Building
 
@@ -238,4 +243,5 @@ are allowed, which is how the not-yet-implemented adapter methods stay lint clea
 ## Help & issues
 
 - [Setup and usage](https://github.com/jepomeroy/xbooksync/blob/main/README.md)
+- [Setting up GitHub as a sync target](docs/github-setup.md)
 - [Bug reports and feature requests](https://github.com/jepomeroy/xbooksync/issues)

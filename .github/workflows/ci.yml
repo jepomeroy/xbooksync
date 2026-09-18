@@ -7,6 +7,19 @@ on:
     push:
         branches:
             - main
+        # Nothing under these paths reaches a build, and a merge that touches
+        # only them is also what would otherwise start a pointless release:
+        # `Release` triggers on this workflow completing, and `workflow_run`
+        # accepts no path filter of its own, so this is where that is stopped.
+        # A push mixing docs with code still runs — the filter skips only when
+        # every changed path matches.
+        paths-ignore:
+            - .github/**
+            - docs/**
+            - README.md
+    # Deliberately unfiltered: a skipped run reports nothing, so a docs-only PR
+    # would sit forever on checks that never arrive if CI is required to merge.
+    # Nothing here publishes, so the cost is a few wasted minutes.
     pull_request:
         branches:
             - main
