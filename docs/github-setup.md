@@ -116,6 +116,16 @@ invisible to the app — it cannot enumerate them, read them, or write to them.
 
 ## 5. Sign in from the extension
 
+> **Before you connect, turn off the browser's own bookmark sync.** XBookSync replaces
+> Chrome Sync and Firefox Sync for bookmarks. It cannot run alongside them:
+>
+> - **Chrome:** `chrome://settings/syncSetup` → **Manage what you sync** → turn off
+>   **Bookmarks**.
+> - **Firefox:** **Settings → Sync** → uncheck **Bookmarks**.
+>
+> Passwords, history, tabs and everything else can keep syncing. See "Bookmarks are
+> duplicated" under [Troubleshooting](#troubleshooting) for what happens if both run.
+
 1. Open the extension's options page. In Chrome: right-click the XBookSync toolbar icon →
    **Options**, or `chrome://extensions` → XBookSync → **Extension options**. In Firefox:
    `about:addons` → XBookSync → **Preferences**.
@@ -169,6 +179,9 @@ after narrowing the grant.
 The point of a shared repo is that two browsers sync through it, so repeat steps 5 and 6
 in the other browser:
 
+- **Browser bookmark sync** has to be off here too — see the note at the top of
+  [step 5](#5-sign-in-from-the-extension). This applies to every browser running
+  XBookSync, including a second machine signed in to the same Google or Firefox account.
 - **Step 5 (login)** has to be done again — the token is stored per browser profile and
   is never shared.
 - **Steps 3 and 4 (install and approve)** do not. The app is already installed on your
@@ -227,6 +240,21 @@ Deliberate: the extension refuses to treat a file that vanished as "every bookma
 deleted" and sync that back into the browser. Restore the file — `git revert` of the
 deleting commit is the safest route — or, if you meant to start over, revoke the token
 and reconnect, which clears the stored sync state along with it.
+
+**Bookmarks are duplicated, sometimes many times over.**
+Chrome Sync or Firefox Sync is still syncing bookmarks alongside XBookSync. Both deliver
+the same bookmark to your other machines, and neither can recognize the other's copy as
+the same bookmark. Each copy then gets passed back through the other sync, so the
+duplicates multiply with every sync. The copies also land in the repo, and from there
+they reach every browser. To fix it:
+
+1. On every browser running XBookSync, turn off bookmark syncing — see the note at the top
+   of [step 5](#5-sign-in-from-the-extension).
+2. In one browser, delete the extra copies. Its next sync pushes the cleanup, and the
+   other browsers apply the removals on theirs.
+
+Do step 1 first. If you clean up while the browser's sync is still on, it restores the
+copies from its own account.
 
 **The device code expired.**
 Click **Login With GitHub** again. Codes last about fifteen minutes and there is no way

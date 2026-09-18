@@ -45,15 +45,33 @@ https://github.com/jepomeroy/xbooksync/blob/main/docs/github-setup.md
 
 The short version:
 
-1. Create a private GitHub repository to hold your bookmarks.
-2. Install the XBookSync GitHub App on the account that owns it, and grant it
+1. Turn off bookmark syncing in Chrome Sync and Firefox Sync (see IMPORTANT
+   below).
+2. Create a private GitHub repository to hold your bookmarks.
+3. Install the XBookSync GitHub App on the account that owns it, and grant it
    access to that one repository. This is what decides which repositories the
    extension can see:
    https://github.com/apps/xbooksync/installations/new
-3. Open the extension's options page, leave "GitHub Repo" selected as the
+4. Open the extension's options page, leave "GitHub Repo" selected as the
    storage type, and click Login. You'll be given a code to enter on github.com.
-4. Choose your repository from the dropdown. Syncing begins on the next tick.
+5. Choose your repository from the dropdown. Syncing begins on the next tick.
 
-On your other browser, repeat steps 3 and 4 only — the app is already installed —
-and point it at the same repository.
+On your other browser, repeat steps 1, 4 and 5 only — the app is already
+installed — and point it at the same repository.
+
+IMPORTANT: TURN OFF YOUR BROWSER'S BOOKMARK SYNC
+
+XBookSync replaces Chrome Sync and Firefox Sync for bookmarks. It cannot run
+alongside them. On every browser where XBookSync is installed, switch off
+bookmark syncing:
+
+• Chrome: chrome://settings/syncSetup → Manage what you sync → turn off Bookmarks
+• Firefox: Settings → Sync → uncheck Bookmarks
+
+Your other synced data (passwords, history, tabs) is unaffected. If both syncs
+run on the same bookmarks, each delivers bookmarks the other has already
+delivered. Neither can tell the other's copy apart from a new bookmark, so
+duplicates multiply with every sync. If you already see duplicates, turn the
+browser's bookmark sync off first, then delete the extra copies in one browser.
+XBookSync will carry the cleanup to the others.
 ```

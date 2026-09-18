@@ -60,6 +60,14 @@ there's no manual "load unpacked" step during development.
    the device flow: a code to paste on github.com.
 4. Pick the repo from the dropdown. Sync begins on the next tick.
 
+> **Turn off the browser's own bookmark sync first.** On every browser running XBookSync,
+> disable _Bookmarks_ in Chrome Sync (`chrome://settings/syncSetup` → _Manage what you
+> sync_) and in Firefox Sync (_Settings_ → _Sync_). Running both on the same bookmarks
+> duplicates them: each sync delivers a bookmark the other has already delivered, and
+> neither can recognize the other's copy as the same one. Every pass then multiplies the
+> copies. If duplicates have already appeared, turn the browser sync off before deleting
+> them, or it will bring them back.
+
 [**docs/github-setup.md**](docs/github-setup.md) walks all of this in detail — creating
 the account and the private repo, installing the app, choosing which repos it can reach,
 changing that list later, connecting a second browser, and troubleshooting.
