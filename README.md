@@ -60,13 +60,21 @@ there's no manual "load unpacked" step during development.
    the device flow: a code to paste on github.com.
 4. Pick the repo from the dropdown. Sync begins on the next tick.
 
+> **Export your bookmarks first.** In every browser you connect, before installing:
+> `chrome://bookmarks` → the manager's **⋮** → _Export bookmarks_, or in Firefox
+> `Ctrl+Shift+O` → _Import and Backup_ → _Backup…_. A pass writes to the real bookmark
+> tree and resolves conflicts in the repository's favour, and the repo's history holds
+> only what it was already given — never the tree you had before connecting. See
+> [Before you start](docs/github-setup.md#before-you-start-export-your-bookmarks).
+
 > **Turn off the browser's own bookmark sync first.** On every browser running XBookSync,
 > disable _Bookmarks_ in Chrome Sync (`chrome://settings/syncSetup` → _Manage what you
 > sync_) and in Firefox Sync (_Settings_ → _Sync_). Running both on the same bookmarks
 > duplicates them: each sync delivers a bookmark the other has already delivered, and
 > neither can recognize the other's copy as the same one. Every pass then multiplies the
 > copies. If duplicates have already appeared, turn the browser sync off before deleting
-> them, or it will bring them back.
+> them, or it will bring them back. See
+> [Turn off the browser's own bookmark sync](docs/github-setup.md#then-turn-off-the-browsers-own-bookmark-sync).
 
 [**docs/github-setup.md**](docs/github-setup.md) walks all of this in detail — creating
 the account and the private repo, installing the app, choosing which repos it can reach,

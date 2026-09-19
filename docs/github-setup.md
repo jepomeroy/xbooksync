@@ -10,6 +10,8 @@ in the extension.
 
 **Contents**
 
+- [Before you start: export your bookmarks](#before-you-start-export-your-bookmarks)
+- [Then: turn off the browser's own bookmark sync](#then-turn-off-the-browsers-own-bookmark-sync)
 - [How access works](#how-access-works)
 - [1. Create a GitHub account](#1-create-a-github-account)
 - [2. Create a private repository](#2-create-a-private-repository)
@@ -22,6 +24,83 @@ in the extension.
 - [Disconnecting](#disconnecting)
 - [Troubleshooting](#troubleshooting)
 - [Appendix: using your own GitHub App](#appendix-using-your-own-github-app)
+
+## Before you start: export your bookmarks
+
+Do this in **every** browser you plan to connect, before installing the extension.
+
+XBookSync does not keep a copy of what your bookmarks looked like before it started. It
+writes directly to the browser's real bookmark tree — a sync pass creates, moves, and
+deletes actual bookmarks — and once two browsers share a repo, a conflict resolves in the
+repository's favour: a bookmark you renamed locally takes the other side's title, and one
+deleted on the other browser is deleted here. That is the intended behaviour, but it
+means an unnoticed mistake — the wrong repo picked, or duplicates from leaving the
+browser's own sync running — is not something the repo's Git history can undo. The
+history only has what was already committed, and your pre-XBookSync tree never was.
+
+An export takes under a minute and is the one copy that is entirely yours.
+
+**Chrome**
+
+1. Open `chrome://bookmarks` (or **⋮ → Bookmarks → Bookmark manager**, `Ctrl+Shift+O`).
+2. Click the **⋮** at the top right of the manager — not the browser's own menu.
+3. Choose **Export bookmarks**, and save the HTML file somewhere outside the browser
+   profile.
+
+**Firefox**
+
+1. Open the Library with `Ctrl+Shift+O` (**☰ → Bookmarks → Manage bookmarks**).
+2. Click **Import and Backup** in the toolbar.
+3. **Backup…** writes a `.jsonlz4` file — the more faithful of the two, and what
+   **Restore** reads back. **Export Bookmarks to HTML…** writes a file Chrome can also
+   read. Taking both costs nothing.
+
+Firefox also keeps rolling automatic backups in the `bookmarkbackups` folder of your
+profile, reachable from that same **Restore** submenu — useful, but they age out, so
+don't rely on them for this.
+
+**Restoring one, if it comes to that**
+
+Turn syncing off first — the toggle in the extension's popup — or the restore is itself a
+change that gets pushed to the repo and on to your other browsers, which may not be what
+you want.
+
+- **Firefox → Import and Backup → Restore** replaces your current bookmarks with the
+  backup exactly, folders and order intact. This is why the `.jsonlz4` file is worth
+  having.
+- **An HTML file imports as a copy, not a restore.** Both browsers file it under a new
+  folder — _Imported_ in Chrome, _Bookmarks menu_ in Firefox — beside what is already
+  there, so recovering a tree from HTML means deleting the damaged one and dragging the
+  imported folder back into place.
+
+On Chrome an import is bracketed by events the extension watches, so it sits the burst
+out and syncs the finished result. Firefox exposes no such signal, so an import there
+lands as an ordinary flurry of changes — another reason to switch syncing off before
+starting one.
+
+## Then: turn off the browser's own bookmark sync
+
+The other thing to do before installing, again in **every** browser you connect.
+XBookSync replaces Chrome Sync and Firefox Sync for bookmarks; it cannot run alongside
+them.
+
+- **Chrome** — `chrome://settings/syncSetup` → **Manage what you sync** → turn off
+  **Bookmarks**.
+- **Firefox** — `about:preferences#sync` (**Settings → Sync**) → uncheck **Bookmarks**.
+
+Everything else you sync — passwords, history, open tabs, extensions — is unaffected.
+Only bookmarks have to move over.
+
+Leaving both running duplicates your bookmarks, and not once. Each system delivers
+bookmarks the other has already delivered, and neither recognizes the other's copy as
+the same bookmark: XBookSync keys a node on its position plus its url or title, so a
+second copy sitting in a different place is, as far as it can tell, a new bookmark to
+propagate. Every pass multiplies what the last one made.
+
+If duplicates have already appeared, turn the browser's bookmark sync off **first**,
+then delete the extra copies in one browser. Deleting them while it is still running
+just brings them back. XBookSync carries the cleanup to your other browsers on the next
+pass.
 
 ## How access works
 

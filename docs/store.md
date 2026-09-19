@@ -45,19 +45,37 @@ https://github.com/jepomeroy/xbooksync/blob/main/docs/github-setup.md
 
 The short version:
 
-1. Turn off bookmark syncing in Chrome Sync and Firefox Sync (see IMPORTANT
+1. Export your bookmarks first, in every browser you plan to connect (see BACK
+   UP FIRST below).
+2. Turn off bookmark syncing in Chrome Sync and Firefox Sync (see IMPORTANT
    below).
-2. Create a private GitHub repository to hold your bookmarks.
-3. Install the XBookSync GitHub App on the account that owns it, and grant it
+3. Create a private GitHub repository to hold your bookmarks.
+4. Install the XBookSync GitHub App on the account that owns it, and grant it
    access to that one repository. This is what decides which repositories the
    extension can see:
    https://github.com/apps/xbooksync/installations/new
-4. Open the extension's options page, leave "GitHub Repo" selected as the
+5. Open the extension's options page, leave "GitHub Repo" selected as the
    storage type, and click Login. You'll be given a code to enter on github.com.
-5. Choose your repository from the dropdown. Syncing begins on the next tick.
+6. Choose your repository from the dropdown. Syncing begins on the next tick.
 
-On your other browser, repeat steps 1, 4 and 5 only — the app is already
+On your other browser, repeat steps 1, 2, 5 and 6 only — the app is already
 installed — and point it at the same repository.
+
+BACK UP FIRST
+
+XBookSync writes to your real bookmarks: a sync pass creates, moves and deletes
+them, and where two browsers disagree, the repository wins. Take an export
+before you connect anything, in each browser, and keep it somewhere outside the
+browser:
+
+• Chrome: chrome://bookmarks → the ⋮ menu inside the manager → Export bookmarks
+• Firefox: Ctrl+Shift+O → Import and Backup → Backup… (and/or Export Bookmarks
+  to HTML…)
+
+Firefox's Backup file restores your bookmarks exactly, through the same menu. An
+HTML file imports as a separate folder alongside what you already have, rather
+than replacing it. Switch syncing off in the extension's popup before restoring
+either one.
 
 IMPORTANT: TURN OFF YOUR BROWSER'S BOOKMARK SYNC
 
