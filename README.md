@@ -36,7 +36,7 @@ between browsers, versioned in Git, or backed up like any other file.
   rather regenerate the lockfile)
 - Chrome/Chromium or Firefox for development
 - A GitHub account, to authorize the XBookSync GitHub App and install it on the
-  repository you want to sync to
+  repository you want to sync to — see [docs/github-setup.md](docs/github-setup.md)
 
 ## Getting started
 
@@ -51,13 +51,34 @@ there's no manual "load unpacked" step during development.
 
 ### Connecting a repository
 
-1. Open the extension's options page.
-2. Under **Storage Type**, leave _GitHub Repo_ selected and click **Login**. This starts
+1. Create a private repo for the bookmarks, and install the [XBookSync GitHub
+   App](https://github.com/apps/xbooksync/installations/new) on the account that owns it,
+   granting it access to that repo. This is what decides which repos the extension can
+   see.
+2. Open the extension's options page.
+3. Under **Storage Type**, leave _GitHub Repo_ selected and click **Login**. This starts
    the device flow: a code to paste on github.com.
-3. Authorizing yields a token but grants it no repository access — that comes from a
-   separate step. Follow the install link to install the app on the account that owns
-   your target repo.
 4. Pick the repo from the dropdown. Sync begins on the next tick.
+
+> **Export your bookmarks first.** In every browser you connect, before installing:
+> `chrome://bookmarks` → the manager's **⋮** → _Export bookmarks_, or in Firefox
+> `Ctrl+Shift+O` → _Import and Backup_ → _Backup…_. A pass writes to the real bookmark
+> tree and resolves conflicts in the repository's favour, and the repo's history holds
+> only what it was already given — never the tree you had before connecting. See
+> [Before you start](docs/github-setup.md#before-you-start-export-your-bookmarks).
+
+> **Turn off the browser's own bookmark sync first.** On every browser running XBookSync,
+> disable _Bookmarks_ in Chrome Sync (`chrome://settings/syncSetup` → _Manage what you
+> sync_) and in Firefox Sync (_Settings_ → _Sync_). Running both on the same bookmarks
+> duplicates them: each sync delivers a bookmark the other has already delivered, and
+> neither can recognize the other's copy as the same one. Every pass then multiplies the
+> copies. If duplicates have already appeared, turn the browser sync off before deleting
+> them, or it will bring them back. See
+> [Turn off the browser's own bookmark sync](docs/github-setup.md#then-turn-off-the-browsers-own-bookmark-sync).
+
+[**docs/github-setup.md**](docs/github-setup.md) walks all of this in detail — creating
+the account and the private repo, installing the app, choosing which repos it can reach,
+changing that list later, connecting a second browser, and troubleshooting.
 
 ### Building
 
@@ -238,4 +259,5 @@ are allowed, which is how the not-yet-implemented adapter methods stay lint clea
 ## Help & issues
 
 - [Setup and usage](https://github.com/jepomeroy/xbooksync/blob/main/README.md)
+- [Setting up GitHub as a sync target](docs/github-setup.md)
 - [Bug reports and feature requests](https://github.com/jepomeroy/xbooksync/issues)

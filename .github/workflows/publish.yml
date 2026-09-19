@@ -7,6 +7,11 @@ on:
     # A merge to main pushes to main, which runs CI; this picks up where that
     # left off, so nothing reaches a store that has not compiled, linted, passed
     # its tests and built for both browsers.
+    #
+    # Which also makes CI's own triggers this workflow's: a push CI skips over
+    # `paths-ignore` produces no CI run, so no completion event, so no release.
+    # That list is the one place documentation and workflow commits are held
+    # back — change it and you change what releases.
     workflow_run:
         workflows: [CI]
         types: [completed]
