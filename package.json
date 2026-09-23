@@ -30,7 +30,7 @@
         "@types/react-dom": "^19.3.0",
         "@wxt-dev/auto-icons": "^1.1.2",
         "@wxt-dev/module-react": "^1.2.2",
-        "eslint": "^10.10.0",
+        "eslint": "^10.11.0",
         "eslint-plugin-react-hooks": "^7.1.1",
         "typescript": "^5.9.3",
         "globals": "^17.12.0",
