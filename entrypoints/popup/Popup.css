@@ -23,3 +23,10 @@ body {
     column-gap: 0.5em;
     padding-top: 0.5em;
 }
+
+.version {
+    display: flex;
+    justify-content: center;
+    padding-top: 0.5em;
+    color: var(--secondary-text);
+}

@@ -1,10 +1,15 @@
 /* Everything else `body` needs is in shared/style.css. */
 body {
     width: 650px;
+    padding-left: 150px;
 }
 
 .card > h3 {
     border-bottom: 1px solid var(--border-color);
+}
+
+.card > button {
+    margin-top: 1.5em;
 }
 
 .setting {
@@ -25,7 +30,7 @@ body {
 }
 
 .help-setting {
-    font-size: 1.5em;
+    font-size: 1.3em;
     padding-left: 0.5em;
 }
 
@@ -37,6 +42,24 @@ body {
 .noselection {
     padding-left: 1em;
     color: var(--text-color);
+}
+
+.tablist {
+    display: flex;
+    flex-direction: row;
+    column-gap: 50px;
+    margin: 2em 0em;
+}
+
+.tabitem {
+    font-size: 1.5rem;
+    color: var(--secondary-text);
+    cursor: pointer;
+}
+
+.tabitem.selected {
+    color: var(--text-color);
+    border-bottom: solid 1px var(--text-color);
 }
 
 /* TODO: this will go away soon */

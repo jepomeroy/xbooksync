@@ -15,6 +15,7 @@
     --toggle-knob-color: #ffffff;
     --success-color: #22c55e;
     --error-color: #dc2626;
+    --secondary-text: #c0c0c0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +33,7 @@
         --toggle-knob-color: #f9fafb;
         --success-color: #4ade80;
         --error-color: #f87171;
+        --secondary-text: #808080;
     }
 }
 
@@ -113,7 +115,7 @@ h1 {
 }
 
 .last-synced {
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
 }
 

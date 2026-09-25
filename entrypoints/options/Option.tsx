@@ -1,12 +1,15 @@
 import appLogo from '@/assets/icon.svg'
 
-import { FaBug } from 'react-icons/fa6'
-import { FaCircleQuestion } from 'react-icons/fa6'
 import './Option.css'
+import Tabs from './components/tabs'
+import Settings from './pages/settings'
+import Tools from './pages/tools'
 
-import Sort from './components/sort'
-import Sync from './components/sync'
-import Storage from './components/storage'
+//tabData mock:
+const tabData = [
+    { id: 'settings', title: 'Settings', content: <Settings /> },
+    { id: 'tools', title: 'Tools', content: <Tools /> },
+]
 
 /** Options page: header, followed by cards for sync/sort settings, storage settings, and help links. */
 function Option() {
@@ -22,33 +25,16 @@ function Option() {
                     <h1>XBookSync Options</h1>
                 </div>
             </div>
-            <div className='card'>
-                <h3>Settings</h3>
-                <Sort />
-                <Sync />
-            </div>
-            <div className='card'>
-                <h3>Sync Storage</h3>
-                <Storage />
-            </div>
-            <div className='card'>
-                <h3>Help</h3>
-                <div className='help-setting'>
-                    <a href='https://github.com/jepomeroy/xbooksync/blob/main/README.md' target='_blank'>
-                        <p>
-                            <FaCircleQuestion />
-                            Get help on setup and use of XBookSync.
-                        </p>
-                    </a>
-                </div>
-                <div className='help-setting'>
-                    <a href='https://github.com/jepomeroy/xbooksync/issues' target='_blank'>
-                        <p>
-                            <FaBug />
-                            For issues or feature requests in XBookSync.
-                        </p>
-                    </a>
-                </div>
+            <div className='tabs-wrapper'>
+                <Tabs>
+                    <Tabs.Titles items={tabData.map(({ id, title }) => ({ id, title }))} />
+                    <Tabs.Contents
+                        items={tabData.map(({ id, content }) => ({
+                            id,
+                            content,
+                        }))}
+                    />
+                </Tabs>
             </div>
         </div>
     )

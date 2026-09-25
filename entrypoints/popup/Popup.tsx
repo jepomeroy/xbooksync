@@ -168,6 +168,9 @@ function Popup() {
                     <FaGear />
                 </button>
             </div>
+            <div className='version'>
+                <p>version: {browser.runtime.getManifest().version}</p>
+            </div>
         </div>
     )
 }
