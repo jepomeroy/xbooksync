@@ -17,6 +17,7 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "postinstall": "wxt prepare",
+        "clean": "wxt clean",
         "dependabot": "npm i --package-lock-only"
     },
     "dependencies": {
