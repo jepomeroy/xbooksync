@@ -30,6 +30,9 @@ WHAT IT DOES
   silently overwriting a change another browser just made
 • Clear failure signals: a toolbar badge on a failed sync, and an optional
   desktop notification on Chrome
+• Cleanup tools: find and delete duplicate bookmarks (same URL) and empty
+  folders from the options page's Tools tab, with each item's folder path shown
+  so you can pick which copy to keep
 • Sign in with the XBookSync GitHub App using GitHub's device flow — you paste
   a code on github.com; the extension never asks for your password, and access
   is scoped to only the repositories you choose to install it on
@@ -91,5 +94,6 @@ run on the same bookmarks, each delivers bookmarks the other has already
 delivered. Neither can tell the other's copy apart from a new bookmark, so
 duplicates multiply with every sync. If you already see duplicates, turn the
 browser's bookmark sync off first, then delete the extra copies in one browser.
+The Duplicate Bookmarks tool on the options page's Tools tab lists them for you.
 XBookSync will carry the cleanup to the others.
 ```
