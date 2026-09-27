@@ -5,13 +5,13 @@ import Tabs from './components/tabs'
 import Settings from './pages/settings'
 import Tools from './pages/tools'
 
-//tabData mock:
+/** Options page tabs, in display order. The first entry is selected on load. */
 const tabData = [
     { id: 'settings', title: 'Settings', content: <Settings /> },
     { id: 'tools', title: 'Tools', content: <Tools /> },
 ]
 
-/** Options page: header, followed by cards for sync/sort settings, storage settings, and help links. */
+/** Options page: header, followed by the Settings and Tools tabs from {@link tabData}. */
 function Option() {
     return (
         <div className='container'>

@@ -3,6 +3,7 @@ import Sort from '../components/sort'
 import Sync from '../components/sync'
 import Storage from '../components/storage'
 
+/** Settings tab: sync/sort settings, storage settings, and help links. */
 export default function Settings() {
     return (
         <>

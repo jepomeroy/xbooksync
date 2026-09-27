@@ -2,11 +2,22 @@ import type { LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { FaBookmark, FaTrashCan } from 'react-icons/fa6'
 
 export type DupicateProps = {
+    /** Groups of bookmarks sharing a URL; each group holds two or more entries. */
     bookmarkSets: LocalBookmarkEntry[][]
+    /** Resolves a bookmark id to its folder path, shown so the user can tell copies apart. */
     buildPath: (id: string) => string
+    /** Removes one bookmark; `setIndex` names the group it belongs to in `bookmarkSets`. */
     deleteBookmark: (setIndex: number, id: string) => void
 }
 
+/**
+ * Card listing duplicate-bookmark results from the Tools tab.
+ *
+ * Each group is headed by the shared URL, followed by one row per copy showing
+ * where it lives and a trash icon to delete that copy.
+ *
+ * @param props - See {@link DupicateProps}.
+ */
 export default function Duplicates({
     bookmarkSets: bookmarks,
     buildPath,

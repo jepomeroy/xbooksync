@@ -5,6 +5,14 @@ import { findDuplicateBookmarks, findEmptyFolders } from '../tools/tools'
 import Empty from '../components/empty'
 import Duplicates from '../components/duplicate'
 
+/**
+ * Tools tab: toggles for which cleanup scans to run, a Run button, and a result
+ * card for each scan that found something.
+ *
+ * Results are a snapshot from the last run. Deleting from a card removes the
+ * item from the browser and from the card, but edits made elsewhere don't
+ * show up until the next run.
+ */
 export default function Tools() {
     // Held in state so the tree loaded by runTools survives the re-render its results trigger.
     const [local] = useState(() => new Bookmarks<LocalBookmarkEntry>())
@@ -23,7 +31,7 @@ export default function Tools() {
 
     const runTools = async () => {
         if (emptyEnabled || duplicateEnabled) {
-            // browser's current bookmark tree.
+            // Reload from the browser's current bookmark tree so each run sees fresh data.
             const [root] = await browser.bookmarks.getTree()
             if (root) {
                 local.fromBrowser(root)
@@ -51,7 +59,7 @@ export default function Tools() {
             return bookmarks.filter(bookmark => bookmark.id !== id)
         })
 
-        // remove bookmark sets with only one element
+        // A set down to one bookmark is no longer a duplicate, so drop it.
         setDuplicateBookmarks(remaining.filter(bookmarks => bookmarks.length > 1))
     }
 

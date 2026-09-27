@@ -20,6 +20,10 @@ type TabsProps = {
     children: React.ReactNode
 }
 
+/**
+ * Clickable tab headers. Selection is by position, so `items` must be in the
+ * same order as the matching {@link TabContents}.
+ */
 const TabTitles = ({ items }: TabTitlesProps) => {
     const { currentIndex, setCurrentIndex } = useTabsContext()
     return (
@@ -43,6 +47,10 @@ const TabTitles = ({ items }: TabTitlesProps) => {
     )
 }
 
+/**
+ * Renders only the selected tab's panel. Switching tabs unmounts the previous
+ * panel, so its local state (e.g. Tools results) is lost.
+ */
 const TabContents = ({ items }: TabContentProps) => {
     const { currentIndex } = useTabsContext()
     const item = items[currentIndex]
@@ -57,6 +65,17 @@ const TabContents = ({ items }: TabContentProps) => {
     )
 }
 
+/**
+ * Compound tab component. Wrap `Tabs.Titles` and `Tabs.Contents` in `Tabs` so
+ * they share one selection:
+ *
+ * ```tsx
+ * <Tabs>
+ *     <Tabs.Titles items={[{ id, title }]} />
+ *     <Tabs.Contents items={[{ id, content }]} />
+ * </Tabs>
+ * ```
+ */
 const Tabs = Object.assign(({ children }: TabsProps) => <TabsProvider>{children}</TabsProvider>, {
     Titles: TabTitles,
     Contents: TabContents,

@@ -110,6 +110,62 @@ describe('getContent', () => {
     })
 })
 
+describe('fromBrowser dateAdded', () => {
+    it('carries dateAdded through from the raw node', () => {
+        const local = new Bookmarks<LocalBookmarkEntry>()
+        local.fromBrowser({
+            id: '0',
+            title: '',
+            children: [
+                {
+                    id: '1',
+                    title: CHROME_BAR,
+                    children: [{ id: '10', parentId: '1', title: 'Docs', url: 'https://a.dev', dateAdded: 1234 }],
+                },
+            ],
+        } as Browser.bookmarks.BookmarkTreeNode)
+
+        expect(local.getBookmarks()?.children?.[0]?.children?.[0]?.dateAdded).toBe(1234)
+    })
+})
+
+describe('buildPath', () => {
+    it('joins titles from the anchor down to the node, skipping the untitled root', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [{ title: 'Work', children: [{ title: 'Docs', url: 'https://a.dev' }] }])
+
+        const path = (await readLocal()).buildPath(fake.idAt(CHROME_BAR, 'Work', 'Docs'))
+
+        expect(path).toBe(`${CHROME_BAR}/Work/Docs`)
+    })
+
+    it('uses the given separator', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [{ title: 'Work', children: [] }])
+
+        const path = (await readLocal()).buildPath(fake.idAt(CHROME_BAR, 'Work'), ' > ')
+
+        expect(path).toBe(`${CHROME_BAR} > Work`)
+    })
+
+    it('returns just the anchor title for an anchor', async () => {
+        expect((await readLocal()).buildPath(fake.idAt(CHROME_BAR))).toBe(CHROME_BAR)
+    })
+
+    it('returns an empty string for an id not in the tree', async () => {
+        expect((await readLocal()).buildPath('does-not-exist')).toBe('')
+    })
+
+    it('returns an empty string for a node outside the two anchors', async () => {
+        // `fromBrowser` drops unrecognized roots, so their contents can't be found.
+        fake.seed('0', [{ title: 'Mobile bookmarks', children: [{ title: 'Docs', url: 'https://a.dev' }] }])
+
+        expect((await readLocal()).buildPath(fake.idAt('Mobile bookmarks', 'Docs'))).toBe('')
+    })
+
+    it('returns an empty string when nothing has been loaded', () => {
+        expect(new Bookmarks<LocalBookmarkEntry>().buildPath('1')).toBe('')
+    })
+})
+
 describe('round trip', () => {
     it('flattens identically before and after a serialization pass', async () => {
         fake.seed(fake.idAt(CHROME_BAR), [
