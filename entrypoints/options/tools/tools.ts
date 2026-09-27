@@ -3,25 +3,21 @@ import { BookmarkType, type LocalBookmarkEntry } from '@/entrypoints/shared/type
 
 export const findDuplicateBookmarks = async (
     bookmarks: Bookmarks<LocalBookmarkEntry>,
-): Promise<LocalBookmarkEntry[]> => {
-    const titleSet = new Set()
-    const urlSet = new Set()
-    const duplicateBookmarks: LocalBookmarkEntry[] = []
+): Promise<LocalBookmarkEntry[][]> => {
+    const groupedMap = new Map<string, LocalBookmarkEntry[]>()
     const root = bookmarks.getBookmarks()
 
-    if (!root) return []
+    if (!root) return [[]]
 
     const evalDuplicateBookmarks = async (entry: LocalBookmarkEntry): Promise<void> => {
         if (entry.type === BookmarkType.bookmark) {
-            const titleMatch = titleSet.has(entry.title)
-            const urlMatch = urlSet.has(entry.url)
+            const key = entry.url ?? 'blank'
 
-            if (titleMatch || urlMatch) {
-                duplicateBookmarks.push(entry)
+            if (groupedMap.has(key)) {
+                groupedMap.get(key)?.push(entry)
+            } else {
+                groupedMap.set(key, [entry])
             }
-
-            titleSet.add(entry.title)
-            urlSet.add(entry.url)
         } else {
             entry.children?.forEach(async child => {
                 await evalDuplicateBookmarks(child as LocalBookmarkEntry)
@@ -31,7 +27,15 @@ export const findDuplicateBookmarks = async (
 
     await evalDuplicateBookmarks(root)
 
-    return duplicateBookmarks
+    const duplicateMap = []
+
+    for (const entries of groupedMap.values()) {
+        if (entries.length >= 2) {
+            duplicateMap.push(entries)
+        }
+    }
+
+    return duplicateMap
 }
 
 export const findEmptyFolders = async (bookmarks: Bookmarks<LocalBookmarkEntry>): Promise<LocalBookmarkEntry[]> => {

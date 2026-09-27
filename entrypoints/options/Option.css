@@ -62,6 +62,54 @@ body {
     border-bottom: solid 1px var(--text-color);
 }
 
+.empty-folders {
+    display: flex;
+    flex-direction: column;
+    padding: 0.7em;
+    row-gap: 0.7em;
+}
+
+.folder {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.folder-name {
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    align-items: center;
+    color: var(--main-color);
+}
+
+.folder-delete {
+    cursor: pointer;
+}
+
+.bookmark-set {
+    display: flex;
+    flex-direction: column;
+    padding: 0.7em;
+    row-gap: 0.7em;
+}
+
+.bookmark {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.bookmark-name {
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    align-items: center;
+    color: var(--main-color);
+}
+
 /* TODO: this will go away soon */
 .unimplemented {
     padding-left: 1em;

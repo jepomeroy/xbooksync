@@ -31,6 +31,7 @@ export type LocalBookmarkEntry = BookmarkEntry & {
     id: string
     index?: number
     parentId?: string
+    dateAdded?: number
     children?: LocalBookmarkEntry[]
 }
 
