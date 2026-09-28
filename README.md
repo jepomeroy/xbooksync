@@ -31,6 +31,11 @@ between browsers, versioned in Git, or backed up like any other file.
 | **Sorting**         | Stored preference; not yet applied on the sync path                                          |
 | **Cross-browser**   | Built with [WXT](https://wxt.dev), targeting Chrome MV3 and Firefox MV2 from one source tree |
 
+The popup: sync and notification toggles, the last sync time, and the sync-now and
+options buttons.
+
+![The XBookSync popup](docs/Popup.png)
+
 ## Requirements
 
 - [Bun](https://bun.sh) (the repo ships a `bun.lock`; npm or pnpm work too if you'd
@@ -60,6 +65,8 @@ there's no manual "load unpacked" step during development.
 3. Under **Storage Type**, leave _GitHub Repo_ selected and click **Login**. This starts
    the device flow: a code to paste on github.com.
 4. Pick the repo from the dropdown. Sync begins on the next tick.
+
+![The options page's Settings tab, connected to a GitHub repo](docs/Options.png)
 
 > **Export your bookmarks first.** In every browser you connect, before installing:
 > `chrome://bookmarks` → the manager's **⋮** → _Export bookmarks_, or in Firefox
@@ -196,6 +203,8 @@ The options page has two tabs: **Settings** and **Tools**. On the Tools tab, pic
 scans you want and click **Run**. Every run reads the browser's current bookmark tree
 again. Each scan that finds something gets its own result card. Every row in a card shows
 the item's full folder path and a trash icon that deletes it.
+
+![The options page's Tools tab](docs/Tools.png)
 
 | Scan                    | Default | Finds                                                                         |
 | ----------------------- | ------- | ----------------------------------------------------------------------------- |
