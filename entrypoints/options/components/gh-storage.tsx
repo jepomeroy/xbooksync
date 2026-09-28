@@ -182,7 +182,7 @@ export default function GitHubSettings() {
             >
                 <div className='button-text'>
                     <FaGithub />
-                    {token === '' ? 'Login With GitHub' : 'Revoke Token'}
+                    {token === '' ? 'Login With GitHub' : 'Remove Token'}
                 </div>
             </button>
             <div className='gh-messages'>

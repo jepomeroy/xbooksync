@@ -56,6 +56,33 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
     static CanonicalRootTitle = { bookmarkbar: 'Bookmarks Bar', other: 'Other Bookmarks' } as const
 
     /**
+     * The chain of folder titles leading to a node, root-most first and ending
+     * with the node's own title.
+     *
+     * Resolved against the loaded tree rather than `browser.bookmarks`, so it's
+     * synchronous and safe to call during render.
+     *
+     * @param id - Browser node id to locate.
+     * @param separator - Placed between each title.
+     * @returns The joined path, or `''` if no tree is loaded or `id` isn't in it.
+     */
+    public buildPath(this: Bookmarks<LocalBookmarkEntry>, id: string, separator = '/'): string {
+        const find = (node: LocalBookmarkEntry, trail: string[]): string[] | undefined => {
+            // The synthetic root has no title and contributes nothing.
+            const here = node.title ? [...trail, node.title] : trail
+            if (node.id === id) return here
+
+            for (const child of node.children ?? []) {
+                const found = find(child as LocalBookmarkEntry, here)
+                if (found) return found
+            }
+            return undefined
+        }
+
+        return this.rootBookmark ? (find(this.rootBookmark, []) ?? []).join(separator) : ''
+    }
+
+    /**
      * Flattens the tree into the key-addressed map the diff works against.
      *
      * @returns A map covering both anchor folders' contents. Empty if no tree
@@ -184,6 +211,7 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
             parentId: node.parentId,
             title: node.title,
             url: node.url,
+            dateAdded: node.dateAdded,
             type: this.getBookmarkType(node.title, node.url),
             children: (node.children ?? []).map(child => this.parseNode(child)),
         }
@@ -208,7 +236,9 @@ export class Bookmarks<T extends BookmarkEntry = BookmarkEntry> {
      * including every node when `import.meta.env.BROWSER` isn't a key of
      * {@link RootFolderTitles}, which drops the whole tree.
      */
-    private classifyRoot(node: Browser.bookmarks.BookmarkTreeNode): BookmarkType.bookmarkbar | BookmarkType.other | undefined {
+    private classifyRoot(
+        node: Browser.bookmarks.BookmarkTreeNode,
+    ): BookmarkType.bookmarkbar | BookmarkType.other | undefined {
         switch (node.folderType) {
             case 'bookmarks-bar':
                 return BookmarkType.bookmarkbar

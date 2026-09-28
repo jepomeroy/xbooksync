@@ -168,8 +168,8 @@ export type GitHubSettingsKey = (typeof GitHubSettingsKeys)[keyof typeof GitHubS
  * GitHub App user-to-server token, from the device flow in `gh-app-auth.ts`.
  *
  * Empty means signed out, which is what the options page keys its Login /
- * Revoke button off. A non-empty token still reaches no repos until the app is
- * installed on an account — see `fetchGitHubRepos`.
+ * Remove Token button off. A non-empty token still reaches no repos until the
+ * app is installed on an account — see `fetchGitHubRepos`.
  */
 export const ghAuthToken = storage.defineItem<string>(GitHubSettingsKeys.ghAuthToken, {
     fallback: '',

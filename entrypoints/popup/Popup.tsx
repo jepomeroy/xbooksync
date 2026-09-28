@@ -168,6 +168,10 @@ function Popup() {
                     <FaGear />
                 </button>
             </div>
+            {/* Extension version from the manifest, useful in bug reports. */}
+            <div className='version'>
+                <p>version: {browser.runtime.getManifest().version}</p>
+            </div>
         </div>
     )
 }
