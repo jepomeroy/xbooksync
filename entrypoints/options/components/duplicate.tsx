@@ -30,7 +30,7 @@ export default function Duplicates({
                 {bookmarks.map((bookmarkSet: LocalBookmarkEntry[], index: number) => {
                     return (
                         <div className='bookmark-set' key={index}>
-                            <div>
+                            <div className='bookmark-url'>
                                 <a href={bookmarkSet[0]?.url}>{bookmarkSet[0]?.url}</a>
                             </div>
                             {bookmarkSet.map(f => {

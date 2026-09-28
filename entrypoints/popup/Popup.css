@@ -4,6 +4,7 @@
    shared/style.css. */
 body {
     width: 350px;
+    overflow: hidden;
 }
 
 .sync-error {

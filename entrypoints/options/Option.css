@@ -2,6 +2,8 @@
 body {
     width: 650px;
     padding-left: 150px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .card > h3 {
@@ -93,6 +95,11 @@ body {
     flex-direction: column;
     padding: 0.7em;
     row-gap: 0.7em;
+}
+
+.bookmark-url {
+    overflow-wrap: break-word;
+    word-break: break-all;
 }
 
 .bookmark {
