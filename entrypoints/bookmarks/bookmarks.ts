@@ -4,11 +4,9 @@
  * Holds one tree — read from `browser.bookmarks`, or parsed back out of a sync
  * target — and converts between that and the `content` string a
  * {@link StorageAdapter} round-trips. Writing a tree *back* onto the browser is
- * `applyRemote` in `sync.ts`, not here.
- *
- * TODO: sorting (`sortedSetting` / `sortOrderSetting`) belongs on the way out of
- * `getContent`, but isn't implemented yet — the two settings are stored and
- * surfaced in the options page and otherwise unused.
+ * `applyRemote` in `sync.ts`, not here; re-ordering it is `sortIfEnabled` in
+ * `sort.ts`. `getContent` writes children in whatever order the tree holds them,
+ * since order isn't part of the diff.
  */
 
 import {

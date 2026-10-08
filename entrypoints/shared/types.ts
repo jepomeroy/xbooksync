@@ -91,6 +91,12 @@ export enum SortOrder {
     Descending = 'Descending',
 }
 
+/** Whether folders sort ahead of bookmarks, or both are interleaved by title. */
+export enum SortFolders {
+    FoldersFirst = 'FoldersFirst',
+    BookmarksAndFolders = 'BookmarksAndFolders',
+}
+
 /**
  * Narrows an arbitrary string to a {@link SortOrder}.
  *
@@ -109,6 +115,27 @@ export const getSortOrder = (sortOrderStr: string): SortOrder => {
             return SortOrder.Descending
         default:
             return SortOrder.Ascending
+    }
+}
+
+/**
+ * Narrows an arbitrary string to a {@link SortFolders}.
+ *
+ * Needed at every boundary where the value arrives untyped — `<select>` change
+ * events and previously persisted settings — since neither can be trusted to
+ * hold a current enum member. Unrecognized input falls back to
+ * {@link SortFolders.FoldersFirst} rather than throwing.
+ *
+ * @param sortFolderStr - Candidate value, matched against the enum's string values.
+ */
+export const getSortFolders = (sortFolderStr: string): SortFolders => {
+    switch (sortFolderStr) {
+        case 'FoldersFirst':
+            return SortFolders.FoldersFirst
+        case 'BookmarksAndFolders':
+            return SortFolders.BookmarksAndFolders
+        default:
+            return SortFolders.FoldersFirst
     }
 }
 
@@ -167,15 +194,15 @@ export enum BookmarkEvent {
     removed = 'removed',
 }
 /**
- * Events `applyRemote` can generate itself. `moved` is absent deliberately: it
- * never calls `bookmarks.move` — a move re-keys the node, so it goes out as a
- * create plus a remove — so an `onMoved` is always the user's.
+ * Events a sync pass can generate itself. `applyRemote` never calls
+ * `bookmarks.move` — a move re-keys the node, so it goes out as a create plus a
+ * remove — but `sortIfEnabled` reorders within a folder, which fires `onMoved`.
  */
-export type SelfWriteEvent = BookmarkEvent.created | BookmarkEvent.changed | BookmarkEvent.removed
+export type SelfWriteEvent = BookmarkEvent.created | BookmarkEvent.changed | BookmarkEvent.moved | BookmarkEvent.removed
 
 /**
- * One mutation `applyRemote` is about to make, described so the scheduler can
- * recognize the event it causes.
+ * One mutation a sync pass (`applyRemote` or `sortIfEnabled`) is about to make,
+ * described so the scheduler can recognize the event it causes.
  *
  * Creates are described by content, everything else by node id, because a record
  * is only useful if it is in place *before* the API call that causes the event —
@@ -183,7 +210,7 @@ export type SelfWriteEvent = BookmarkEvent.created | BookmarkEvent.changed | Boo
  * browser to make is the only thing available to match on beforehand.
  */
 export type SelfWrite =
-    | { event: BookmarkEvent.changed | BookmarkEvent.removed; id: string }
+    | { event: BookmarkEvent.changed | BookmarkEvent.moved | BookmarkEvent.removed; id: string }
     | { event: BookmarkEvent.created; parentId: string; title?: string; url?: string }
 
 /** A payload read from a target, paired with the revision it was read at. */

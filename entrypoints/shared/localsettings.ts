@@ -1,5 +1,5 @@
 import type { Unwatch, WatchCallback } from 'wxt/utils/storage'
-import { SortOrder, StorageBackend, type BookmarkEntry, type SyncErrorType } from './types'
+import { SortFolders, SortOrder, StorageBackend, type BookmarkEntry, type SyncErrorType } from './types'
 
 /**
  * Typed accessors for every persisted setting.
@@ -25,8 +25,9 @@ const watchers = new Map<string, Unwatch>()
  */
 export const SettingsKeys = {
     storage: 'local:storage',
-    sortOrder: 'local:sortOrder',
     sorted: 'local:sortBookmarks',
+    sortOrder: 'local:sortOrder',
+    sortFolders: 'local:sortFolders',
     syncEnabled: 'local:syncEnabled',
     notificationsEnabled: 'local:notificationsEnabled',
     syncRate: 'local:syncrate',
@@ -45,17 +46,20 @@ export const storageSetting = storage.defineItem<StorageBackend>(SettingsKeys.st
     fallback: StorageBackend.GitHubRepo,
 })
 
-/**
- * Sort direction; would be ignored unless {@link sortedSetting} is on.
- *
- * Stored and surfaced in the options page, but not yet read by the sync path —
- * see the TODO in `entrypoints/bookmarks/bookmarks.ts`.
- */
+/** Sort direction; ignored unless {@link sortedSetting} is on. */
 export const sortOrderSetting = storage.defineItem<SortOrder>(SettingsKeys.sortOrder, {
     fallback: SortOrder.Ascending,
 })
 
-/** Whether bookmarks are sorted before being written out. Not yet applied — see {@link sortOrderSetting}. */
+/** Folders ahead of bookmarks, or both interleaved; ignored unless {@link sortedSetting} is on. */
+export const sortFoldersSetting = storage.defineItem<SortFolders>(SettingsKeys.sortFolders, {
+    fallback: SortFolders.FoldersFirst,
+})
+
+/**
+ * Whether the browser's bookmarks are re-sorted at the end of every sync pass —
+ * see `sortIfEnabled` in `entrypoints/bookmarks/sort.ts`.
+ */
 export const sortedSetting = storage.defineItem<boolean>(SettingsKeys.sorted, {
     fallback: false,
 })
@@ -263,8 +267,9 @@ export const disconnectGitHub = async () => {
  */
 const defaultSettings: Record<SettingsKey, unknown> = {
     [SettingsKeys.storage]: StorageBackend.None,
-    [SettingsKeys.sortOrder]: SortOrder.Ascending,
     [SettingsKeys.sorted]: false,
+    [SettingsKeys.sortOrder]: SortOrder.Ascending,
+    [SettingsKeys.sortFolders]: SortFolders.FoldersFirst,
     [SettingsKeys.syncEnabled]: true,
     [SettingsKeys.notificationsEnabled]: import.meta.env.BROWSER === 'chrome' ? true : false, // chrome-only
     [SettingsKeys.syncRate]: 900,

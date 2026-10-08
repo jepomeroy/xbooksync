@@ -51,7 +51,7 @@ const selfWriteKey = (write: SelfWrite): string =>
         ? createKey(write.parentId, write.title, write.url)
         : `${write.event}:${write.id}`
 
-/** One sync pass. `onSelfWrite` must be threaded through to `applyRemote`. */
+/** One sync pass. `onSelfWrite` must be threaded through to `applyRemote` and `sortIfEnabled`. */
 export type RunSync = (onSelfWrite: (write: SelfWrite) => void) => Promise<void>
 
 /**
@@ -242,7 +242,7 @@ export class SyncService {
      * Records a mutation this extension is about to be told about.
      *
      * Passed into `runSync` and threaded to `applyRemote`, which calls it before
-     * each create/update/remove. Without it every remote-driven pass triggers
+     * each create/update/remove, and to `sortIfEnabled`, before each move. Without it every remote-driven pass triggers
      * another pass from its own writes — wasted round-trips normally, and an
      * unbounded retry loop when the write that follows fails and leaves no base
      * recorded.

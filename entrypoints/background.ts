@@ -34,6 +34,7 @@ import { AppNotInstalledError, GitHubApiError, RemoteFileMissingError } from './
 import { EmptyRemoteError, NotConfiguredError } from '@/entrypoints/shared/types'
 import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
 import { SyncService } from './bookmarks/sync-service'
+import { sortIfEnabled } from './bookmarks/sort'
 
 /**
  * Background service worker.
@@ -258,6 +259,10 @@ const recordSyncState = async ({
  * - remote only — apply the target's tree to the browser;
  * - both — apply remote onto local, then push the merged result back.
  *
+ * Whichever branch ran, the pass ends by sorting the browser's tree if sorting
+ * is on — after any apply, so only what survived the merge is moved, and on the
+ * no-change branch too, so a hand-reordered folder is re-sorted on the next tick.
+ *
  * Every branch that changes something ends by recording the new version token,
  * the timestamp, and a fresh base snapshot; getting that base wrong is what
  * would make the next pass misread an old edit as a new one.
@@ -288,8 +293,8 @@ export const runSync = async (onSelfWrite?: (write: SelfWrite) => void): Promise
     if (!hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
         // Both sides still match the base. Nothing to write, and crucially
         // nothing to record either — leaving the stored version and base alone
-        // keeps the next pass comparing against the same ancestor.
-        return
+        // keeps the next pass comparing against the same ancestor. Falls through
+        // to the sort below, which still runs.
     } else if (hasModifications(localSync.diff) && !hasModifications(remoteSync.diff)) {
         // Local-only: the browser is ahead, so push it and let the conditional
         // write reject if the target moved between the read above and here.
@@ -351,6 +356,13 @@ export const runSync = async (onSelfWrite?: (write: SelfWrite) => void): Promise
 
         await recordSyncState({ targetId, version: currVersion, content, at: now })
     }
+
+    // Sort once, after every branch: any applyRemote has already run, so deleted
+    // nodes are gone and created ones are in place. Runs on the no-change branch
+    // too, so a sorted tree the user reordered by hand is re-sorted without
+    // waiting for an edit. Order isn't part of the diff, so the base recorded
+    // above stays valid.
+    await sortIfEnabled(onSelfWrite)
 }
 
 const classifySyncError = (error: unknown): SyncErrorKind => {

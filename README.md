@@ -7,8 +7,8 @@ instead of a vendor account.
 > **Status: early development.** The sync engine works end to end against a **GitHub
 > repo**: it reads the browser's bookmark tree, three-way merges it against the target,
 > and writes the result back on a schedule. The other targets in the picker (Gist, GitLab
-> repo, S3) render a "not implemented yet" panel. Sorting is stored but not yet applied,
-> and sync results are not yet surfaced in the UI.
+> repo, S3) render a "not implemented yet" panel, and sync results are not yet surfaced
+> in the UI.
 
 ## Why
 
@@ -28,7 +28,7 @@ between browsers, versioned in Git, or backed up like any other file.
 | **GitHub App auth** | OAuth device flow — no client secret, no redirect URI                                        |
 | **Failure signals** | A toolbar badge on a failed sync, plus a desktop notification on Chrome when unpinned        |
 | **Cleanup tools**   | Find and delete empty folders and duplicate bookmarks from the options page's Tools tab      |
-| **Sorting**         | Stored preference; not yet applied on the sync path                                          |
+| **Sorting**         | Optional A–Z / Z–A sort, folders first or mixed, re-applied at the end of every sync          |
 | **Cross-browser**   | Built with [WXT](https://wxt.dev), targeting Chrome MV3 and Firefox MV2 from one source tree |
 
 The popup: sync and notification toggles, the last sync time, and the sync-now and
@@ -122,6 +122,7 @@ entrypoints/
   bookmarks/
     bookmarks.ts           # the Bookmarks tree: read from / write to browser.bookmarks
     sync.ts                # flatten, diffBase, applyRemote — the merge primitives
+    sort.ts                # sortIfEnabled: re-orders the browser's tree after each pass
     storage.ts             # Storage singleton; owns the active adapter
     alarm.ts               # tick alarm lifecycle
     gh-repo-adapter.ts     # StorageAdapter for a GitHub repo (the working target)
@@ -197,6 +198,27 @@ from the same state.
 > locally and removed remotely is removed, and a node edited on both sides takes the
 > remote title.
 
+### Sorting
+
+When **Sort Bookmarks** is on, every pass ends by sorting the browser's tree, whichever
+branch ran — so a scheduled tick, a manual sync, and a bookmark add or edit all leave
+the tree sorted. It runs after any remote changes are applied, so nothing is sorted only
+to be deleted, and newly created bookmarks (which land at the end of their folder) are
+moved into place.
+
+- Both anchor folders and everything beneath them are sorted; Firefox's other root
+  folders (Bookmarks Menu, Mobile Bookmarks) are left alone, as they are by sync.
+- Titles compare case- and accent-insensitively, with numbers by value (`Item 2`
+  before `Item 10`). An untitled bookmark sorts by its url.
+- Firefox separators stay where they are; each run between them is sorted on its own.
+- Only nodes out of place are moved, so an already-sorted tree costs no API calls. Each
+  move is recorded as the pass's own, so its `onMoved` echo doesn't trigger another sync.
+
+Order is not part of the diff, so sorting never reads as a change, and the file on the
+target holds bookmarks in whatever order the pushing browser had them.
+
+Sorting rides on the sync pass, so it doesn't happen while syncing is switched off.
+
 ## Cleanup tools
 
 The options page has two tabs: **Settings** and **Tools**. On the Tools tab, pick the
@@ -233,10 +255,11 @@ All settings live in extension-local storage and are defined once in
 | Key                          | Type                  | Default     | Meaning                                              |
 | ---------------------------- | --------------------- | ----------- | ---------------------------------------------------- |
 | `local:storage`              | `StorageBackend`      | `None`      | Which storage target to sync with [^1]               |
-| `local:sortBookmarks`        | `boolean`             | `false`     | Sort bookmarks before writing them out [^2]          |
-| `local:sortOrder`            | `SortOrder`           | `Ascending` | Sort direction, when sorting is on [^2]              |
+| `local:sortBookmarks`        | `boolean`             | `false`     | Sort the browser's bookmarks after every sync        |
+| `local:sortOrder`            | `SortOrder`           | `Ascending` | Sort direction, when sorting is on                   |
+| `local:sortFolders`          | `SortFolders`         | `FoldersFirst` | Folders ahead of bookmarks, or interleaved        |
 | `local:syncEnabled`          | `boolean`             | `true`      | Master switch for syncing                            |
-| `local:notificationsEnabled` | `boolean`             | Chrome only | Show a desktop notification when a sync fails [^3]   |
+| `local:notificationsEnabled` | `boolean`             | Chrome only | Show a desktop notification when a sync fails [^2]   |
 | `local:syncrate`             | `number`              | `900`       | Seconds between automatic syncs                      |
 | `local:syncLastError`        | `SyncErrorType\|null` | `null`      | Last sync failure: kind, message, and when           |
 | `local:lastSyncDateTime`     | `string \| null`      | `null`      | ISO timestamp of the last sync that changed anything |
@@ -247,7 +270,7 @@ All settings live in extension-local storage and are defined once in
     A fresh profile starts on no backend at all, so it sits on the no-op adapter until
     you pick a target in the options page.
 
-[^3]:
+[^2]:
     Seeded `true` on Chrome and `false` on Firefox — `notifications` is a Chrome-only
     path here. The toolbar badge is shown either way.
 
@@ -258,8 +281,6 @@ GitHub credentials are keyed separately, since they are per-target rather than g
 | `local:ghAuthToken` | `string` | `''`    | User-to-server token; empty means signed out |
 | `local:ghRepo`      | `string` | `''`    | Target repo as `owner/name`                  |
 | `local:ghGist`      | `string` | `''`    | Gist id, for the unimplemented Gist backend  |
-
-[^2]: Stored and editable in the options page, but not yet read by the sync path.
 
 Under `import.meta.env.DEV` only, `setDefaultSettings` also seeds the GitHub keys from
 `debugGitHubSettings`, so an unpacked build can sync without going through the device
