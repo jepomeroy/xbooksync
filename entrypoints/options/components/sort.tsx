@@ -1,23 +1,25 @@
 import { useState, useEffect } from '#imports'
-import { getSortOrder, SortOrder } from '@/entrypoints/shared/types'
-import { sortedSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
+import { getSortFolders, getSortOrder, SortFolders, SortOrder } from '@/entrypoints/shared/types'
+import { sortedSetting, sortFoldersSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from '@/entrypoints/shared/components/toggle'
 
 /**
- * Sorting preferences: an on/off toggle, plus the direction select that only
- * appears while sorting is on.
+ * Sorting preferences: an on/off toggle, plus the direction and folder-grouping
+ * selects that only appear while sorting is on.
  *
- * Both settings persist correctly but nothing consumes them yet — the sync path
- * never sorts. See the TODO in `entrypoints/bookmarks/bookmarks.ts`.
+ * Read by `sortIfEnabled` at the end of each sync pass, so a change here takes
+ * effect on the next tick, manual sync, or bookmark edit.
  */
 export default function Sort() {
     const [sort, setSort] = useState(false)
     const [sortOrder, setSortOrder] = useState(SortOrder.Ascending)
+    const [sortFolders, setSortFolders] = useState(SortFolders.FoldersFirst)
 
     // Hydrate from extension storage on mount.
     useEffect(() => {
         sortedSetting.getValue().then(data => setSort(data))
         sortOrderSetting.getValue().then(data => setSortOrder(getSortOrder(data)))
+        sortFoldersSetting.getValue().then(data => setSortFolders(getSortFolders(data)))
     }, [])
 
     /** Persists the toggle's new position. */
@@ -33,9 +35,21 @@ export default function Sort() {
      * untyped string, hence {@link getSortOrder} to narrow it back to the enum.
      */
     const handleSortOrderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const sot = getSortOrder(e.target.value)
-        setSortOrder(sot)
-        await sortOrderSetting.setValue(sot)
+        const so = getSortOrder(e.target.value)
+        setSortOrder(so)
+        await sortOrderSetting.setValue(so)
+    }
+
+    /**
+     * Persists the newly selected folder grouping.
+     *
+     * @param e - Change event from the grouping `<select>`. Its value is an
+     * untyped string, hence {@link getSortFolders} to narrow it back to the enum.
+     */
+    const handleSortFoldersChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const sf: SortFolders = getSortFolders(e.target.value)
+        setSortFolders(sf)
+        await sortFoldersSetting.setValue(sf)
     }
 
     /**
@@ -43,7 +57,7 @@ export default function Sort() {
      * effect.
      *
      * @param showSort - Whether sorting is currently on.
-     * @returns The direction row, or undefined — which React renders as nothing.
+     * @returns The direction and grouping rows, or undefined — which React renders as nothing.
      */
     const showSortOrder = (showSort: boolean) => {
         if (showSort) {
@@ -53,6 +67,11 @@ export default function Sort() {
                     <select id='Sort Order' value={sortOrder} onChange={handleSortOrderChange}>
                         <option value={SortOrder.Ascending}>Ascending (A-Z)</option>
                         <option value={SortOrder.Descending}>Descending (Z-A)</option>
+                    </select>
+                    <label htmlFor='Sort Folders'>Sort Folders</label>
+                    <select id='Sort Folders' value={sortFolders} onChange={handleSortFoldersChange}>
+                        <option value={SortFolders.FoldersFirst}>Sort Folders First</option>
+                        <option value={SortFolders.BookmarksAndFolders}>Sort Bookmarks and Folders Together</option>
                     </select>
                 </div>
             )

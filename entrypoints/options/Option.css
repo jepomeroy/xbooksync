@@ -19,6 +19,7 @@ body {
     display: grid;
     grid-template-columns: var(--label-width) auto;
     align-items: baseline;
+    row-gap: 0.4em;
 }
 
 .setting input {

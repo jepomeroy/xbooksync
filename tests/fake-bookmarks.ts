@@ -21,6 +21,8 @@ export type FakeNode = {
     title: string
     url?: string
     folderType?: string
+    /** Firefox sets `'separator'` on separators; absent everywhere else. */
+    type?: 'separator'
     children?: FakeNode[]
 }
 
@@ -28,6 +30,7 @@ export type FakeNode = {
 export type TreeShape = {
     title: string
     url?: string
+    type?: 'separator'
     children?: TreeShape[]
 }
 
@@ -35,6 +38,8 @@ export type TreeShape = {
 export type SeedNode = {
     title: string
     url?: string
+    /** `'separator'` seeds a Firefox separator: no url, no children. */
+    type?: 'separator'
     children?: SeedNode[]
 }
 
@@ -102,7 +107,7 @@ export class FakeBookmarks {
     /** Arranges a starting tree under an existing node, bypassing the API. */
     seed(parentId: string, nodes: SeedNode[]): void {
         for (const spec of nodes) {
-            const created = this.create({ parentId, title: spec.title, url: spec.url })
+            const created = this.create({ parentId, title: spec.title, url: spec.url, type: spec.type })
             if (spec.children) this.seed(created.id, spec.children)
         }
     }
@@ -129,19 +134,30 @@ export class FakeBookmarks {
         return {
             title: node.title,
             ...(node.url ? { url: node.url } : {}),
+            ...(node.type ? { type: node.type } : {}),
             ...(node.children ? { children: node.children.map(child => this.toShape(child)) } : {}),
         }
     }
 
-    private create = (changes: { parentId?: string; title?: string; url?: string }): FakeNode => {
+    private create = (changes: {
+        parentId?: string
+        title?: string
+        url?: string
+        type?: 'separator'
+    }): FakeNode => {
         const parent = this.require(changes.parentId ?? '1')
         const node: FakeNode = {
             id: String(this.seq++),
             parentId: parent.id,
             title: changes.title ?? '',
             // A node with no url is a folder, which is how the real API decides
-            // too — and what `getBookmarkType` reads back out.
-            ...(changes.url ? { url: changes.url } : { children: [] }),
+            // too — and what `getBookmarkType` reads back out. Separators are
+            // neither, so they get no children array.
+            ...(changes.type === 'separator'
+                ? { type: changes.type }
+                : changes.url
+                  ? { url: changes.url }
+                  : { children: [] }),
         }
 
         parent.children ??= []
@@ -177,6 +193,32 @@ export class FakeBookmarks {
             }
             this.detach(node)
             this.byId.delete(id)
+        },
+
+        /**
+         * Chrome's semantics, deliberately: within the same parent, `index` is
+         * read *before* the node is taken out, so moving to a higher index lands
+         * one short. Code that only ever moves nodes towards the front — as the
+         * sort does — is unaffected, and code that doesn't fails here as it
+         * would in Chrome.
+         */
+        move: async (id: string, destination: { parentId?: string; index?: number }): Promise<FakeNode> => {
+            const node = this.require(id)
+            const parent = this.require(destination.parentId ?? node.parentId ?? '1')
+            const from = node.index ?? 0
+            const sameParent = parent.id === node.parentId
+
+            this.detach(node)
+            parent.children ??= []
+
+            let index = destination.index ?? parent.children.length
+            if (sameParent && index > from) index--
+            parent.children.splice(Math.min(index, parent.children.length), 0, node)
+
+            node.parentId = parent.id
+            this.reindex(parent)
+
+            return structuredClone(node)
         },
 
         removeTree: async (id: string): Promise<void> => {

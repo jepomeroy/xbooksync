@@ -231,6 +231,28 @@ describe('echo suppression', () => {
         expect(runSync).not.toHaveBeenCalled()
     })
 
+    it('ignores a move it caused itself, as the sort does', async () => {
+        const runSync = ok()
+        const service = new SyncService(runSync)
+
+        service.markSelfWrite({ event: BookmarkEvent.moved, id: '42' })
+        void service.onBookmarkEvent(BookmarkEvent.moved, '42')
+        await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+
+        expect(runSync).not.toHaveBeenCalled()
+    })
+
+    it('does not let a recorded move swallow a change to the same node', async () => {
+        const runSync = ok()
+        const service = new SyncService(runSync)
+
+        service.markSelfWrite({ event: BookmarkEvent.moved, id: '42' })
+        void service.onBookmarkEvent(BookmarkEvent.changed, '42')
+        await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+
+        expect(runSync).toHaveBeenCalledOnce()
+    })
+
     it('consumes the record, so a later event on the same node gets through', async () => {
         const runSync = ok()
         const service = new SyncService(runSync)
@@ -278,7 +300,7 @@ describe('echo suppression', () => {
         expect(runSync).toHaveBeenCalledOnce()
     })
 
-    it('never suppresses a move, which the apply pass cannot generate', async () => {
+    it('does not suppress a move nobody recorded, such as the user dragging a node', async () => {
         const runSync = ok()
         const service = new SyncService(runSync)
 

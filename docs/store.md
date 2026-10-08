@@ -28,6 +28,10 @@ WHAT IT DOES
 • Scheduled background sync at an interval you set, plus a "Sync now" button
 • Conditional writes — a sync based on stale data is rejected rather than
   silently overwriting a change another browser just made
+• Optional sorting, off by default — A–Z or Z–A, folders first or mixed in.
+  Once on, your bookmarks are re-sorted after every sync, including the one
+  that follows a bookmark you add or edit. It's set per browser, and replaces
+  any order you've arranged by hand
 • Clear failure signals: a toolbar badge on a failed sync, and an optional
   desktop notification on Chrome
 • Cleanup tools: find and delete duplicate bookmarks (same URL) and empty
@@ -67,9 +71,9 @@ installed — and point it at the same repository.
 BACK UP FIRST
 
 XBookSync writes to your real bookmarks: a sync pass creates, moves and deletes
-them, and where two browsers disagree, the repository wins. Take an export
-before you connect anything, in each browser, and keep it somewhere outside the
-browser:
+them, and where two browsers disagree, the repository wins. With sorting on, it
+also reorders every folder. Take an export before you connect anything, in each
+browser, and keep it somewhere outside the browser:
 
 • Chrome: chrome://bookmarks → the ⋮ menu inside the manager → Export bookmarks
 • Firefox: Ctrl+Shift+O → Import and Backup → Backup… (and/or Export Bookmarks
