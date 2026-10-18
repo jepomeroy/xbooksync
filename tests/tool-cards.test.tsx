@@ -1,10 +1,11 @@
 /**
- * The Tools tab result cards, `Duplicates` and `Empty`, rendered from props.
+ * The Tools tab result cards, `Duplicates`, `Empty` and `Merge`, rendered from props.
  */
 
 import { describe, expect, it, vi } from 'vitest'
 import Duplicates from '@/entrypoints/options/components/duplicate'
 import Empty from '@/entrypoints/options/components/empty'
+import Merge from '@/entrypoints/options/components/merge'
 import { BookmarkType, type LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { click, render } from './render'
 
@@ -73,5 +74,42 @@ describe('Empty', () => {
         await click(trashIn(container.querySelectorAll('.folder')[1]))
 
         expect(deleteFolder).toHaveBeenCalledExactlyOnceWith('f2')
+    })
+})
+
+describe('Merge', () => {
+    const sets = [
+        [emptyFolder('d1', 'Dev'), emptyFolder('d2', 'Dev')],
+        [emptyFolder('t1', 'Tools'), emptyFolder('t2', 'Tools'), emptyFolder('t3', 'Tools')],
+    ]
+
+    it('heads each set with a merge action named for the folder', async () => {
+        const container = await render(<Merge folders={sets} buildPath={buildPath} mergeFolders={vi.fn()} />)
+
+        const actions = [...container.querySelectorAll('.merge-folder')].map(el => el.textContent)
+        expect(actions).toEqual(['Merge Dev Folders', 'Merge Tools Folders'])
+    })
+
+    it('lists every folder by its path', async () => {
+        const container = await render(<Merge folders={sets} buildPath={buildPath} mergeFolders={vi.fn()} />)
+
+        const names = [...container.querySelectorAll('.bookmark-name')].map(el => el.textContent)
+        expect(names).toEqual(['path/to/d1', 'path/to/d2', 'path/to/t1', 'path/to/t2', 'path/to/t3'])
+    })
+
+    it('merges the rest of the clicked set into its first folder', async () => {
+        const mergeFolders = vi.fn()
+        const container = await render(<Merge folders={sets} buildPath={buildPath} mergeFolders={mergeFolders} />)
+
+        await click(container.querySelectorAll('.merge-folder')[1])
+
+        expect(mergeFolders).toHaveBeenCalledExactlyOnceWith('t1', ['t2', 't3'])
+    })
+
+    it('says so when there are no duplicate folders', async () => {
+        const container = await render(<Merge folders={[]} buildPath={buildPath} mergeFolders={vi.fn()} />)
+
+        expect(container.querySelector('.card')).toBeNull()
+        expect(container.textContent).toBe('No duplicate folders found.')
     })
 })

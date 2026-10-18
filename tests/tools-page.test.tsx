@@ -111,6 +111,54 @@ describe('Tools page', () => {
         expect(card(container, 'Empty Folders')).toBeUndefined()
     })
 
+    it('runs the folder merge scan when it is the only one enabled', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [{ title: 'Work', children: [] }])
+        const container = await render(<Tools />)
+        await click(toggle(container, 'Duplicate Bookmarks'))
+        await click(toggle(container, 'Merge Duplicate Folders'))
+
+        await run(container)
+
+        expect(card(container, 'Merge Folders')).toBeDefined()
+    })
+
+    it('merges duplicate folders in the browser and rescans, dropping nested sets', async () => {
+        fake.seed(fake.idAt(CHROME_BAR, 'Work'), [
+            { title: 'Tools', children: [{ title: 'Y', url: 'https://y.dev' }] },
+        ])
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Work', children: [{ title: 'Tools', children: [{ title: 'X', url: 'https://x.dev' }] }] },
+        ])
+        const container = await render(<Tools />)
+        await click(toggle(container, 'Duplicate Bookmarks'))
+        await click(toggle(container, 'Merge Duplicate Folders'))
+        await run(container)
+
+        // Work and Work/Tools are both duplicated; merging Work takes care of both.
+        expect(card(container, 'Merge Folders')?.querySelectorAll('.bookmark-set')).toHaveLength(2)
+        await click(card(container, 'Merge Folders')?.querySelector('.merge-folder'))
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            { title: 'First', url: 'https://a.dev' },
+            {
+                title: 'Work',
+                children: [
+                    { title: 'Second', url: 'https://a.dev' },
+                    {
+                        title: 'Tools',
+                        children: [
+                            { title: 'Y', url: 'https://y.dev' },
+                            { title: 'X', url: 'https://x.dev' },
+                        ],
+                    },
+                ],
+            },
+            { title: 'Old', children: [] },
+        ])
+        expect(card(container, 'Merge Folders')).toBeUndefined()
+        expect(container.textContent).toContain('No duplicate folders found.')
+    })
+
     it('picks up browser changes on the next run', async () => {
         const container = await render(<Tools />)
         await run(container)

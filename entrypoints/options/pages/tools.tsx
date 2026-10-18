@@ -1,9 +1,10 @@
 import { Bookmarks } from '@/entrypoints/bookmarks/bookmarks'
 import Toggle from '@/entrypoints/shared/components/toggle'
 import type { LocalBookmarkEntry } from '@/entrypoints/shared/types'
-import { findDuplicateBookmarks, findEmptyFolders } from '../tools/tools'
+import { findDuplicateBookmarks, findDuplicateFolders, findEmptyFolders, mergeDuplicateFolders } from '../tools/tools'
 import Empty from '../components/empty'
 import Duplicates from '../components/duplicate'
+import Merge from '../components/merge'
 
 /**
  * Tools tab: toggles for which cleanup scans to run, a Run button, and a result
@@ -18,24 +19,40 @@ export default function Tools() {
     const [local] = useState(() => new Bookmarks<LocalBookmarkEntry>())
     const [emptyEnabled, setEmptyEnabled] = useState(false)
     const [duplicateEnabled, setDuplicateEnabled] = useState(true)
+    const [mergeFolders, setMergeFolders] = useState(false)
+    const [hasRun, setHasRun] = useState(false)
+
+    // tool results state
     const [emptyFolders, setEmptyFolders] = useState<LocalBookmarkEntry[]>([])
     const [duplicateBookmarks, setDuplicateBookmarks] = useState<LocalBookmarkEntry[][]>([])
+    const [duplicateFolders, setDuplicateFolder] = useState<LocalBookmarkEntry[][]>([])
 
     const handleEmptyChange = (state: boolean) => {
+        setHasRun(false)
         setEmptyEnabled(state)
     }
 
     const handleDupChange = (state: boolean) => {
+        setHasRun(false)
         setDuplicateEnabled(state)
     }
 
+    const handleMergeFolders = (state: boolean) => {
+        setHasRun(false)
+        setMergeFolders(state)
+    }
+
+    const buildPath = (id: string): string => local.buildPath(id)
+
     const runTools = async () => {
-        if (emptyEnabled || duplicateEnabled) {
+        if (emptyEnabled || duplicateEnabled || mergeFolders) {
             // Reload from the browser's current bookmark tree so each run sees fresh data.
             const [root] = await browser.bookmarks.getTree()
             if (root) {
                 local.fromBrowser(root)
             }
+
+            setHasRun(true)
         }
 
         if (emptyEnabled) {
@@ -47,9 +64,12 @@ export default function Tools() {
             const dups = await findDuplicateBookmarks(local)
             setDuplicateBookmarks(dups)
         }
-    }
 
-    const buildPath = (id: string): string => local.buildPath(id)
+        if (mergeFolders) {
+            const merge = await findDuplicateFolders(local, buildPath)
+            setDuplicateFolder(merge)
+        }
+    }
 
     const deleteDuplicates = async (setIndex: number, id: string) => {
         await browser.bookmarks.remove(id)
@@ -70,12 +90,45 @@ export default function Tools() {
         setEmptyFolders(remainingFolders)
     }
 
-    const getDuplicateBookmarks = () => {
-        return <Duplicates bookmarkSets={duplicateBookmarks} buildPath={buildPath} deleteBookmark={deleteDuplicates} />
+    /**
+     * Collapses one set of duplicate folders into `id`, then rescans for
+     * duplicate folders.
+     *
+     * Rescans instead of filtering the old results because merging can remove
+     * folders listed in other sets (nested duplicates).
+     *
+     * @param id - Folder the others are merged into.
+     * @param merge - Folders merged into `id` and removed.
+     */
+    const mergeAllFolders = async (id: string, merge: string[]) => {
+        await mergeDuplicateFolders(id, merge)
+
+        const [root] = await browser.bookmarks.getTree()
+        if (root) {
+            local.fromBrowser(root)
+        }
+
+        setDuplicateFolder(await findDuplicateFolders(local, buildPath))
     }
 
-    const getEmptyFolder = () => {
-        return <Empty folders={emptyFolders} buildPath={buildPath} deleteFolder={deleteFolder} />
+    const getDuplicateBookmarks = () => {
+        if (duplicateEnabled) {
+            return (
+                <Duplicates bookmarkSets={duplicateBookmarks} buildPath={buildPath} deleteBookmark={deleteDuplicates} />
+            )
+        }
+    }
+
+    const getEmptyFolders = () => {
+        if (emptyEnabled) {
+            return <Empty folders={emptyFolders} buildPath={buildPath} deleteFolder={deleteFolder} />
+        }
+    }
+
+    const getMergeFolders = () => {
+        if (mergeFolders) {
+            return <Merge folders={duplicateFolders} buildPath={buildPath} mergeFolders={mergeAllFolders} />
+        }
     }
 
     return (
@@ -89,10 +142,15 @@ export default function Tools() {
                     <Toggle label='Duplicate Bookmarks' checked={duplicateEnabled} onToggle={handleDupChange} />
                 </div>
 
+                <div className='setting-group'>
+                    <Toggle label='Merge Duplicate Folders' checked={mergeFolders} onToggle={handleMergeFolders} />
+                </div>
+
                 <button onClick={runTools}>Run</button>
             </div>
-            {emptyFolders.length > 0 && getEmptyFolder()}
-            {duplicateBookmarks.length > 0 && getDuplicateBookmarks()}
+            {hasRun && getEmptyFolders()}
+            {hasRun && getDuplicateBookmarks()}
+            {hasRun && getMergeFolders()}
         </>
     )
 }
