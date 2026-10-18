@@ -17,27 +17,31 @@ export type EmptyProps = {
  * @param props - See {@link EmptyProps}.
  */
 export default function Empty({ folders, buildPath, deleteFolder }: EmptyProps) {
-    return (
-        <>
-            <div className='card'>
-                <h3>Empty Folders</h3>
-                <div className='empty-folders'>
-                    {folders.map(f => {
-                        return (
-                            <div className='folder' key={f.id}>
-                                <div className='folder-name'>
-                                    <FaFolder />
-                                    {f.title}
+    if (folders.length) {
+        return (
+            <>
+                <div className='card'>
+                    <h3>Empty Folders</h3>
+                    <div className='empty-folders'>
+                        {folders.map(f => {
+                            return (
+                                <div className='folder' key={f.id}>
+                                    <div className='folder-name'>
+                                        <FaFolder />
+                                        {f.title}
+                                    </div>
+                                    <div>{buildPath(f.id)}</div>
+                                    <div onClick={() => deleteFolder(f.id)}>
+                                        <FaTrashCan />
+                                    </div>
                                 </div>
-                                <div>{buildPath(f.id)}</div>
-                                <div onClick={() => deleteFolder(f.id)}>
-                                    <FaTrashCan />
-                                </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
                 </div>
-            </div>
-        </>
-    )
+            </>
+        )
+    } else {
+        return <div className='empty-folders'>No empty folders found.</div>
+    }
 }

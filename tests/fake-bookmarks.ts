@@ -174,6 +174,10 @@ export class FakeBookmarks {
 
         get: async (id: string): Promise<FakeNode[]> => [structuredClone(this.require(id))],
 
+        /** Like the real API, child folders come back without their own `children`. */
+        getChildren: async (id: string): Promise<FakeNode[]> =>
+            (this.require(id).children ?? []).map(({ children: _, ...child }) => structuredClone(child)),
+
         create: async (changes: { parentId?: string; title?: string; url?: string }): Promise<FakeNode> =>
             structuredClone(this.create(changes)),
 

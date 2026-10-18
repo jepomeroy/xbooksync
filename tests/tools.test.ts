@@ -1,14 +1,21 @@
 /**
- * The Tools tab scanners: `findDuplicateBookmarks` and `findEmptyFolders`.
+ * The Tools tab scanners (`findDuplicateBookmarks`, `findDuplicateFolders`,
+ * `findEmptyFolders`) and the folder merge, `mergeDuplicateFolders`.
  *
- * Both read a tree already loaded with `fromBrowser`, so these seed the fake
- * browser and load it the same way the Tools page does.
+ * The scanners read a tree already loaded with `fromBrowser`, so these seed the
+ * fake browser and load it the same way the Tools page does. The merge works
+ * on the live tree, so its tests assert on the fake's resulting shape.
  */
 
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Bookmarks } from '@/entrypoints/bookmarks/bookmarks'
 import { BookmarkType, type LocalBookmarkEntry } from '@/entrypoints/shared/types'
-import { findDuplicateBookmarks, findEmptyFolders } from '@/entrypoints/options/tools/tools'
+import {
+    findDuplicateBookmarks,
+    findDuplicateFolders,
+    findEmptyFolders,
+    mergeDuplicateFolders,
+} from '@/entrypoints/options/tools/tools'
 import { FakeBookmarks, installFakeBookmarks } from './fake-bookmarks'
 
 const CHROME_BAR = 'Bookmarks bar'
@@ -115,6 +122,261 @@ describe('findDuplicateBookmarks', () => {
         const groups = await findDuplicateBookmarks(local)
 
         expect(groups.map(ids)).toEqual([['x', 'y']])
+    })
+})
+
+describe('findDuplicateFolders', () => {
+    /** Scans the way the Tools page does, keyed on each folder's full path. */
+    const scan = async (): Promise<LocalBookmarkEntry[][]> => {
+        const local = await readLocal()
+        return findDuplicateFolders(local, id => local.buildPath(id))
+    }
+
+    it('returns nothing when no tree is loaded', async () => {
+        const local = new Bookmarks<LocalBookmarkEntry>()
+        expect(await findDuplicateFolders(local, id => id)).toEqual([])
+    })
+
+    it('groups same-titled folders under the same parent', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [] },
+            { title: 'Docs', children: [] },
+            { title: 'Dev', children: [] },
+        ])
+
+        const groups = await scan()
+
+        expect(groups.map(group => group.map(entry => entry.title))).toEqual([['Dev', 'Dev']])
+    })
+
+    it('ignores same-titled folders under different parents', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [{ title: 'Dev', children: [] }])
+        fake.seed(fake.idAt(CHROME_OTHER), [{ title: 'Dev', children: [] }])
+
+        expect(await scan()).toEqual([])
+    })
+
+    it('treats titles differing only by case as distinct', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [] },
+            { title: 'dev', children: [] },
+        ])
+
+        expect(await scan()).toEqual([])
+    })
+
+    it('reports nested duplicates as their own group', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'Tools', children: [] }] },
+            { title: 'Dev', children: [{ title: 'Tools', children: [] }] },
+        ])
+
+        const groups = await scan()
+
+        expect(groups.map(group => group.length)).toEqual([2, 2])
+        expect(groups[1]?.map(entry => entry.title)).toEqual(['Tools', 'Tools'])
+    })
+})
+
+describe('mergeDuplicateFolders', () => {
+    /** Ids of the bar's top-level folders titled `title`, in tree order. */
+    const folderIds = async (title: string): Promise<string[]> =>
+        (await browser.bookmarks.getChildren(fake.idAt(CHROME_BAR)))
+            .filter(child => child.title === title && child.url === undefined)
+            .map(child => child.id)
+
+    /** Merges every top-level `title` folder in the bar into the first one. */
+    const merge = async (title = 'Dev') => {
+        const [target, ...sources] = await folderIds(title)
+        await mergeDuplicateFolders(target!, sources)
+    }
+
+    it('moves the contents of each duplicate into the target and removes the duplicates', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'A', url: 'https://a.dev' }] },
+            { title: 'Docs', url: 'https://docs.dev' },
+            { title: 'Dev', children: [{ title: 'B', url: 'https://b.dev' }] },
+            { title: 'Dev', children: [{ title: 'C', url: 'https://c.dev' }] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A', url: 'https://a.dev' },
+                    { title: 'B', url: 'https://b.dev' },
+                    { title: 'C', url: 'https://c.dev' },
+                ],
+            },
+            { title: 'Docs', url: 'https://docs.dev' },
+        ])
+    })
+
+    it('drops a bookmark whose url the target already has', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'A', url: 'https://a.dev' }] },
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A again', url: 'https://a.dev' },
+                    { title: 'B', url: 'https://b.dev' },
+                ],
+            },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A', url: 'https://a.dev' },
+                    { title: 'B', url: 'https://b.dev' },
+                ],
+            },
+        ])
+    })
+
+    it('merges same-titled subfolders at every depth', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'Tools', children: [{ title: 'X', url: 'https://x.dev' }] }] },
+            {
+                title: 'Dev',
+                children: [
+                    {
+                        title: 'Tools',
+                        children: [
+                            { title: 'X again', url: 'https://x.dev' },
+                            { title: 'Deep', children: [{ title: 'Y', url: 'https://y.dev' }] },
+                        ],
+                    },
+                ],
+            },
+            {
+                title: 'Dev',
+                children: [{ title: 'Tools', children: [{ title: 'Deep', children: [{ title: 'Z', url: 'https://z.dev' }] }] }],
+            },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    {
+                        title: 'Tools',
+                        children: [
+                            { title: 'X', url: 'https://x.dev' },
+                            {
+                                title: 'Deep',
+                                children: [
+                                    { title: 'Y', url: 'https://y.dev' },
+                                    { title: 'Z', url: 'https://z.dev' },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ])
+    })
+
+    it('cleans up duplicates the target already held', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A', url: 'https://a.dev' },
+                    { title: 'A again', url: 'https://a.dev' },
+                    { title: 'Tools', children: [{ title: 'X', url: 'https://x.dev' }] },
+                    { title: 'Tools', children: [{ title: 'Y', url: 'https://y.dev' }] },
+                ],
+            },
+            { title: 'Dev', children: [] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A', url: 'https://a.dev' },
+                    {
+                        title: 'Tools',
+                        children: [
+                            { title: 'X', url: 'https://x.dev' },
+                            { title: 'Y', url: 'https://y.dev' },
+                        ],
+                    },
+                ],
+            },
+        ])
+    })
+
+    it('removes subfolders left empty, including chains of empty folders', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'A', url: 'https://a.dev' }, { title: 'Old', children: [] }] },
+            { title: 'Dev', children: [{ title: 'Outer', children: [{ title: 'Inner', children: [] }] }] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'Dev', children: [{ title: 'A', url: 'https://a.dev' }] }])
+    })
+
+    it('keeps the same url in different subfolders', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: 'A', url: 'https://a.dev' }] },
+            { title: 'Dev', children: [{ title: 'Tools', children: [{ title: 'A', url: 'https://a.dev' }] }] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    { title: 'A', url: 'https://a.dev' },
+                    { title: 'Tools', children: [{ title: 'A', url: 'https://a.dev' }] },
+                ],
+            },
+        ])
+    })
+
+    it('keeps the target itself even when the merge leaves it empty', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [] },
+            { title: 'Dev', children: [{ title: 'Old', children: [] }] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([{ title: 'Dev', children: [] }])
+    })
+
+    it('leaves Firefox separators in place', async () => {
+        fake.seed(fake.idAt(CHROME_BAR), [
+            { title: 'Dev', children: [{ title: '', type: 'separator' }, { title: 'A', url: 'https://a.dev' }] },
+            { title: 'Dev', children: [{ title: '', type: 'separator' }, { title: 'B', url: 'https://b.dev' }] },
+        ])
+
+        await merge()
+
+        expect(fake.shapeOf(CHROME_BAR)).toEqual([
+            {
+                title: 'Dev',
+                children: [
+                    { title: '', type: 'separator' },
+                    { title: 'A', url: 'https://a.dev' },
+                    { title: '', type: 'separator' },
+                    { title: 'B', url: 'https://b.dev' },
+                ],
+            },
+        ])
     })
 })
 

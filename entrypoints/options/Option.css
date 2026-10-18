@@ -87,6 +87,14 @@ body {
     color: var(--main-color);
 }
 
+.merge-folder {
+    cursor: pointer;
+}
+
+.merge-folder > span {
+    padding-left: 0.7em;
+}
+
 .folder-delete {
     cursor: pointer;
 }
