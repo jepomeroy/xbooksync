@@ -52,6 +52,46 @@ export class GitHubApiError extends Error {
     }
 }
 
+/**
+ * Supplies the bearer token for a request — `getGitHubToken` in
+ * `gh-app-auth.ts` outside of tests.
+ *
+ * Called with no argument before each request. Called with a token GitHub just
+ * rejected, it should return a replacement, or that same token when it has
+ * none, which is the signal not to retry.
+ */
+export type TokenProvider = (rejectedToken?: string) => Promise<string>
+
+/**
+ * `fetch` with a bearer token from `getToken`, retried once with a fresh token
+ * if GitHub answers 401.
+ *
+ * Asked for per request rather than captured once, because a refresh
+ * invalidates the previous access token immediately — a sync pass that started
+ * before one would otherwise carry a dead token for the rest of the pass.
+ *
+ * @param url      Request URL.
+ * @param init     Request options; its headers must be a plain object, which
+ *                 the `Authorization` header is merged into.
+ * @param getToken Token source, consulted again only after a 401.
+ * @returns The retried response if there was a retry, otherwise the first one —
+ * including a 401 that could not be recovered from.
+ */
+export const fetchWithToken = async (url: string, init: RequestInit, getToken: TokenProvider): Promise<Response> => {
+    const send = (token: string) =>
+        fetch(url, {
+            ...init,
+            headers: { ...(init.headers as Record<string, string>), Authorization: `Bearer ${token}` },
+        })
+
+    const token = await getToken()
+    const response = await send(token)
+    if (response.status !== 401) return response
+
+    const renewed = await getToken(token)
+    return renewed !== '' && renewed !== token ? await send(renewed) : response
+}
+
 /*
  * Both paginated endpoints used here wrap their results in an object — with a
  * `total_count` alongside — rather than returning a bare array, and each uses a
@@ -118,33 +158,40 @@ export const encodeBase64 = (content: string) => {
  * @typeParam Body - Shape of one page's JSON body.
  * @typeParam Item - Element type being collected.
  * @param url      Endpoint URL without a query string; `per_page` is appended here.
- * @param token    Bearer token for the request.
+ * @param getToken Token source for each request.
  * @param unwrap   Pulls the array out of one page's body; its parameter type
  *                 doubles as the assertion made about that body.
  * @returns Every item from every page, in the order GitHub returned them.
  * @throws On the first non-OK response, discarding any pages already collected.
  */
-const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: Body) => Item[]): Promise<Item[]> => {
+const paginate = async <Body, Item>(
+    url: string,
+    getToken: TokenProvider,
+    unwrap: (body: Body) => Item[],
+): Promise<Item[]> => {
     const items: Item[] = []
     let next: string | null = `${url}?per_page=100`
 
     while (next) {
-        const response: Response = await fetch(next, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.github+json',
-                'X-GitHub-Api-Version': '2022-11-28',
-                // Belt and braces with no-store below: an empty If-None-Match
-                // stops a conditional request even if something else primed the
-                // cache.
-                'If-None-Match': '',
+        const response: Response = await fetchWithToken(
+            next,
+            {
+                headers: {
+                    Accept: 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    // Belt and braces with no-store below: an empty If-None-Match
+                    // stops a conditional request even if something else primed the
+                    // cache.
+                    'If-None-Match': '',
+                },
+                // Chrome caches GitHub's ETag and revalidates on the next call,
+                // which can surface as a 304 with an empty body instead of the
+                // cached 200. no-store keeps the response out of the cache so
+                // there's nothing to revalidate against.
+                cache: 'no-store',
             },
-            // Chrome caches GitHub's ETag and revalidates on the next call,
-            // which can surface as a 304 with an empty body instead of the
-            // cached 200. no-store keeps the response out of the cache so
-            // there's nothing to revalidate against.
-            cache: 'no-store',
-        })
+            getToken,
+        )
 
         if (!response.ok) {
             throw new GitHubApiError(response.status, response.statusText, next)
@@ -167,7 +214,7 @@ const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: B
  * Doubles as the connectivity check the options page relies on: succeeding here
  * is the only proof the token both works and reaches something.
  *
- * @param token - User-to-server token from the device flow.
+ * @param getToken - Source of the user-to-server token from the device flow.
  * @returns Full names, deduplicated (a repo reachable through two
  * installations would otherwise appear twice) and sorted for stable display
  * in the repo picker.
@@ -175,11 +222,11 @@ const paginate = async <Body, Item>(url: string, token: string, unwrap: (body: B
  * installed nowhere — a distinct type because the fix is a visit to
  * {@link INSTALL_URL}, not a retry.
  */
-export const fetchGitHubRepos = async (token: string) => {
+export const fetchGitHubRepos = async (getToken: TokenProvider) => {
     // Where the app is installed — one entry per user or org account.
     const installations = await paginate(
         `${API_ROOT}/user/installations`,
-        token,
+        getToken,
         (body: InstallationsPage) => body.installations,
     )
 
@@ -192,7 +239,7 @@ export const fetchGitHubRepos = async (token: string) => {
         installations.map(installation =>
             paginate(
                 `${API_ROOT}/user/installations/${installation.id}/repositories`,
-                token,
+                getToken,
                 (body: RepositoriesPage) => body.repositories,
             ),
         ),

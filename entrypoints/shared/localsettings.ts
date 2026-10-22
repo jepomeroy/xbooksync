@@ -30,7 +30,7 @@ export const SettingsKeys = {
     sortFolders: 'local:sortFolders',
     syncEnabled: 'local:syncEnabled',
     notificationsEnabled: 'local:notificationsEnabled',
-    syncRate: 'local:syncrate',
+    syncRate: 'local:syncRate',
     syncLastError: 'local:syncLastError',
     lastSyncDate: 'local:lastSyncDateTime',
     lastSyncValue: 'local:lastSyncValue',
@@ -91,6 +91,15 @@ export const notificationsEnableSetting = storage.defineItem<boolean>(SettingsKe
  */
 export const syncRateSetting = storage.defineItem<number>(SettingsKeys.syncRate, {
     fallback: 900,
+    // Carries the value over from the pre-rename `local:syncrate` key. WXT's
+    // versioned `migrations` only run when this item's own key already holds a
+    // value, so they can't move one between keys; `init` runs exactly when the
+    // new key is empty. Idempotent, so it's safe for every context to run it.
+    init: async () => {
+        const legacy = await storage.getItem<number>('local:syncrate')
+        await storage.removeItem('local:syncrate')
+        return legacy ?? 900
+    },
 })
 
 /** Last Sync error encountered */
@@ -161,6 +170,9 @@ export const syncStateTargetSetting = storage.defineItem<string>(SettingsKeys.sy
 
 export const GitHubSettingsKeys = {
     ghAuthToken: 'local:ghAuthToken',
+    ghAuthTokenExpiresAt: 'local:ghAuthTokenExpiresAt',
+    ghRefreshToken: 'local:ghRefreshToken',
+    ghRefreshTokenExpiresAt: 'local:ghRefreshTokenExpiresAt',
     ghGist: 'local:ghGist',
     ghRepo: 'local:ghRepo',
 } as const satisfies Record<string, StorageItemKey>
@@ -177,6 +189,35 @@ export type GitHubSettingsKey = (typeof GitHubSettingsKeys)[keyof typeof GitHubS
  */
 export const ghAuthToken = storage.defineItem<string>(GitHubSettingsKeys.ghAuthToken, {
     fallback: '',
+})
+
+/**
+ * When {@link ghAuthToken} stops working, as epoch milliseconds.
+ *
+ * A number rather than a `Date` because extension storage round-trips through
+ * JSON, which would hand a `Date` back as a string. Null means the token does
+ * not expire — the app has token expiration turned off — or that it predates
+ * this key, in which case the first 401 is what triggers a refresh.
+ */
+export const ghAuthTokenExpiresAt = storage.defineItem<number | null>(GitHubSettingsKeys.ghAuthTokenExpiresAt, {
+    fallback: null,
+})
+
+/**
+ * Refresh token issued alongside {@link ghAuthToken}, used to replace it once
+ * it expires (8 hours for a GitHub App user token).
+ *
+ * Single use: each refresh returns a new one and invalidates both the old
+ * refresh token and the old access token. Empty when the app issues
+ * non-expiring tokens, since GitHub then sends no refresh token at all.
+ */
+export const ghRefreshToken = storage.defineItem<string>(GitHubSettingsKeys.ghRefreshToken, {
+    fallback: '',
+})
+
+/** When {@link ghRefreshToken} stops working, as epoch milliseconds (6 months after issue); null if unknown. */
+export const ghRefreshTokenExpiresAt = storage.defineItem<number | null>(GitHubSettingsKeys.ghRefreshTokenExpiresAt, {
+    fallback: null,
 })
 
 /** GitHub Gist ID used as the sync target, when the Gist storage type is selected. */
@@ -239,7 +280,7 @@ export const selectSyncRepo = async (repo: string) => {
 }
 
 /**
- * Clears the local GitHub connection: token, repo, and the sync state that
+ * Clears the local GitHub connection: tokens, repo, and the sync state that
  * described them.
  *
  * Local only — the grant on GitHub's side and the app installation both remain,
@@ -256,6 +297,9 @@ export const selectSyncRepo = async (repo: string) => {
 export const disconnectGitHub = async () => {
     await resetSyncState()
     await ghAuthToken.removeValue()
+    await ghAuthTokenExpiresAt.removeValue()
+    await ghRefreshToken.removeValue()
+    await ghRefreshTokenExpiresAt.removeValue()
     await ghRepo.removeValue()
 }
 
@@ -297,6 +341,9 @@ const debugGitHubSettings: Record<GitHubSettingsKey, unknown> = {
     // DO NOT COMMIT this with the ghAuthToken set!!!
     // Change it to a blank and paste it in from a locally stored location
     [GitHubSettingsKeys.ghAuthToken]: '',
+    [GitHubSettingsKeys.ghAuthTokenExpiresAt]: null,
+    [GitHubSettingsKeys.ghRefreshToken]: '',
+    [GitHubSettingsKeys.ghRefreshTokenExpiresAt]: null,
     [GitHubSettingsKeys.ghGist]: '',
     [GitHubSettingsKeys.ghRepo]: 'jepomeroy/bookmarks-testing',
 }

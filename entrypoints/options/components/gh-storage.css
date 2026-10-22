@@ -67,3 +67,20 @@
     margin: 0;
     overflow-wrap: anywhere;
 }
+
+/* Inline icon button beside the user code; reset so it sits in the text line. */
+.copy-code {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    vertical-align: middle;
+    user-select: none;
+}
+
+/* The shared button:focus ring would otherwise linger after a mouse click;
+   keyboard focus still shows it via :focus-visible. */
+.copy-code:focus:not(:focus-visible) {
+    outline: none;
+}

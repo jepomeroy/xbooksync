@@ -50,7 +50,7 @@ describe('fetchGitHubRepos', () => {
     it('throws its own error type when the app is installed nowhere', async () => {
         fetchMock.mockResolvedValueOnce(page({ installations: [] }))
 
-        await expect(fetchGitHubRepos('token')).rejects.toBeInstanceOf(AppNotInstalledError)
+        await expect(fetchGitHubRepos(async () => 'token')).rejects.toBeInstanceOf(AppNotInstalledError)
     })
 
     it('follows the Link header until there is no next page', async () => {
@@ -60,7 +60,7 @@ describe('fetchGitHubRepos', () => {
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'b/one' }] }))
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'a/two' }] }))
 
-        await expect(fetchGitHubRepos('token')).resolves.toEqual(['a/two', 'b/one'])
+        await expect(fetchGitHubRepos(async () => 'token')).resolves.toEqual(['a/two', 'b/one'])
         expect(fetchMock).toHaveBeenCalledTimes(4)
     })
 
@@ -70,7 +70,7 @@ describe('fetchGitHubRepos', () => {
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'zed/repo' }] }))
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'alpha/repo' }] }))
 
-        await expect(fetchGitHubRepos('token')).resolves.toEqual(['alpha/repo', 'zed/repo'])
+        await expect(fetchGitHubRepos(async () => 'token')).resolves.toEqual(['alpha/repo', 'zed/repo'])
     })
 
     it('deduplicates a repo reachable through two installations', async () => {
@@ -79,7 +79,7 @@ describe('fetchGitHubRepos', () => {
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'shared/repo' }] }))
             .mockResolvedValueOnce(page({ repositories: [{ full_name: 'shared/repo' }] }))
 
-        await expect(fetchGitHubRepos('token')).resolves.toEqual(['shared/repo'])
+        await expect(fetchGitHubRepos(async () => 'token')).resolves.toEqual(['shared/repo'])
     })
 
     it('throws when a page fails rather than returning a partial list', async () => {
@@ -91,6 +91,6 @@ describe('fetchGitHubRepos', () => {
             headers: new Headers(),
         })
 
-        await expect(fetchGitHubRepos('token')).rejects.toThrow(/403 Forbidden/)
+        await expect(fetchGitHubRepos(async () => 'token')).rejects.toThrow(/403 Forbidden/)
     })
 })

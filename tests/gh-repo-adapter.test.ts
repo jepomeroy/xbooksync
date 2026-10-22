@@ -45,7 +45,7 @@ afterEach(() => {
     vi.unstubAllGlobals()
 })
 
-const adapter = () => new GitHubRepoAdapter('token', REPO)
+const adapter = () => new GitHubRepoAdapter(async () => 'token', REPO)
 
 describe('read', () => {
     it('reports no change on a 304 without parsing a body', async () => {

@@ -14,7 +14,15 @@
 
 import { registerSettingsWatcher, GitHubSettingsKeys, unregisterSettingsWatcher } from '../shared/localsettings'
 import type { ReadData, StorageAdapter, SyncCallback } from '../shared/types'
-import { API_ROOT, decodeBase64, encodeBase64, GitHubApiError, RemoteFileMissingError } from './gh-utils'
+import {
+    API_ROOT,
+    decodeBase64,
+    encodeBase64,
+    fetchWithToken,
+    GitHubApiError,
+    RemoteFileMissingError,
+    type TokenProvider,
+} from './gh-utils'
 
 /**
  * Ceiling on what the Blobs API will return, per GitHub's documentation.
@@ -67,20 +75,22 @@ export class GitHubRepoAdapter implements StorageAdapter {
     }
 
     /**
-     * @param token - GitHub App user-to-server token, from {@link ghAuthToken}.
+     * @param getToken - Source of the GitHub App user-to-server token, asked
+     * per request so a token refreshed mid-pass is picked up — see
+     * `getGitHubToken`.
      * @param repo - Target repository as `owner/name`, from {@link ghRepo}.
      *
-     * Both are captured at construction, so the `Storage` singleton rebuilds
-     * this adapter rather than mutating it when either setting changes.
+     * The repo is captured at construction, so the `Storage` singleton rebuilds
+     * this adapter rather than mutating it when that setting changes.
      */
     constructor(
-        private token: string,
+        private getToken: TokenProvider,
         private repo: string,
     ) {}
 
     /**
-     * Builds fetch options carrying the auth and API-version headers, plus a
-     * conditional-request ETag.
+     * Builds fetch options carrying the API-version headers, plus a
+     * conditional-request ETag. The auth header is added by `fetchWithToken`.
      *
      * @param knownVersion - Blob SHA to make the request conditional on. Omit
      * for writes, and for any read that should always return a body.
@@ -88,7 +98,6 @@ export class GitHubRepoAdapter implements StorageAdapter {
     private getRequestInit = (knownVersion?: string): RequestInit => {
         return {
             headers: {
-                Authorization: `Bearer ${this.token}`,
                 Accept: 'application/vnd.github+json',
                 'X-GitHub-Api-Version': '2022-11-28',
                 // Belt and braces with no-store below: an empty If-None-Match
@@ -145,7 +154,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
      */
     async read(knownVersion: string): Promise<ReadData> {
         const url = `${API_ROOT}/repos/${this.repo}/contents/${this.bookmarkFilename}`
-        const response: Response = await fetch(url, this.getRequestInit(knownVersion))
+        const response: Response = await fetchWithToken(url, this.getRequestInit(knownVersion), this.getToken)
 
         // GitHub itself confirms nothing changed, with no body to parse.
         if (response.status === 304) {
@@ -235,7 +244,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
      */
     private readBlob = async (sha: string): Promise<string> => {
         const url = `${API_ROOT}/repos/${this.repo}/git/blobs/${sha}`
-        const response: Response = await fetch(url, this.getRequestInit())
+        const response: Response = await fetchWithToken(url, this.getRequestInit(), this.getToken)
 
         if (!response.ok) {
             throw new GitHubApiError(response.status, response.statusText, response.url)
@@ -272,7 +281,7 @@ export class GitHubRepoAdapter implements StorageAdapter {
         reqInit.method = 'PUT'
         reqInit.body = this.getPayload(content, previousBlobVersion)
 
-        const response: Response = await fetch(url, reqInit)
+        const response: Response = await fetchWithToken(url, reqInit, this.getToken)
 
         if (!response.ok) {
             throw new GitHubApiError(response.status, response.statusText, response.url)
