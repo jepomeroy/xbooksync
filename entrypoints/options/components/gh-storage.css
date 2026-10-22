@@ -76,4 +76,11 @@
     color: inherit;
     cursor: pointer;
     vertical-align: middle;
+    user-select: none;
+}
+
+/* The shared button:focus ring would otherwise linger after a mouse click;
+   keyboard focus still shows it via :focus-visible. */
+.copy-code:focus:not(:focus-visible) {
+    outline: none;
 }
