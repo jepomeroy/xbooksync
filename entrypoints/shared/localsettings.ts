@@ -91,6 +91,15 @@ export const notificationsEnableSetting = storage.defineItem<boolean>(SettingsKe
  */
 export const syncRateSetting = storage.defineItem<number>(SettingsKeys.syncRate, {
     fallback: 900,
+    // Carries the value over from the pre-rename `local:syncrate` key. WXT's
+    // versioned `migrations` only run when this item's own key already holds a
+    // value, so they can't move one between keys; `init` runs exactly when the
+    // new key is empty. Idempotent, so it's safe for every context to run it.
+    init: async () => {
+        const legacy = await storage.getItem<number>('local:syncrate')
+        await storage.removeItem('local:syncrate')
+        return legacy ?? 900
+    },
 })
 
 /** Last Sync error encountered */
