@@ -7,6 +7,7 @@ import {
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { StorageBackend, type StorageAdapter } from '@/entrypoints/shared/types'
+import { getGitHubToken } from './gh-app-auth'
 import { GitHubRepoAdapter } from './gh-repo-adapter'
 import { NilStorageAdapter } from './nil-adapter'
 
@@ -166,8 +167,13 @@ export class Storage {
     }
 
     /**
-     * Builds a {@link GitHubRepoAdapter} from the currently stored token and
-     * repo, and wires up its watchers.
+     * Builds a {@link GitHubRepoAdapter} for the currently stored repo, and
+     * wires up its watchers.
+     *
+     * The adapter asks {@link getGitHubToken} for the token on every request,
+     * which is what lets it ride through a refresh. The token is still read here
+     * so a sign-in or sign-out caught in the window below queues a rebuild like
+     * any other credential change.
      *
      * Token and repo may both still be empty here — nothing blocks construction
      * before the user has signed in, and the resulting requests simply fail.
@@ -186,7 +192,7 @@ export class Storage {
         const token = await ghAuthToken.getValue()
         const repo = await ghRepo.getValue()
 
-        const ghAdapter = new GitHubRepoAdapter(token, repo)
+        const ghAdapter = new GitHubRepoAdapter(getGitHubToken, repo)
         ghAdapter.registerWatchers(this.handleStorageChange)
 
         if ((await ghAuthToken.getValue()) !== token || (await ghRepo.getValue()) !== repo) {

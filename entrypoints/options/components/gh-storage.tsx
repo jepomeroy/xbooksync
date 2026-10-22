@@ -1,5 +1,5 @@
-import { loginWithGitHubApp, INSTALL_URL, type DeviceCodePrompt } from '@/entrypoints/bookmarks/gh-app-auth'
-import { FaGithub } from 'react-icons/fa6'
+import { getGitHubToken, loginWithGitHubApp, INSTALL_URL, type DeviceCodePrompt } from '@/entrypoints/bookmarks/gh-app-auth'
+import { FaGithub, FaRegCopy } from 'react-icons/fa6'
 
 import './gh-storage.css'
 import { disconnectGitHub, ghAuthToken, ghRepo, selectSyncRepo } from '@/entrypoints/shared/localsettings'
@@ -43,7 +43,9 @@ export default function GitHubSettings() {
 
         let cancelled = false
 
-        fetchGitHubRepos(token)
+        // The token state only says whether we're signed in; the request takes
+        // its token from storage so an expired one is refreshed first.
+        fetchGitHubRepos(getGitHubToken)
             .then(names => {
                 if (cancelled) return
 
@@ -90,6 +92,15 @@ export default function GitHubSettings() {
 
         return () => document.removeEventListener('visibilitychange', recheck)
     }, [needsInstall])
+
+    /** Copies the device-flow user code, so it can be pasted on GitHub's verification page. */
+    const copyToClipboard = async (userCode: string) => {
+        try {
+            await navigator.clipboard.writeText(userCode)
+        } catch (err) {
+            console.error('Failed to copy text: ', err)
+        }
+    }
 
     /** Starts the login flow if signed out, or revokes the current token if signed in. */
     const handleButtonClick = async () => {
@@ -138,7 +149,7 @@ export default function GitHubSettings() {
             const token = await loginWithGitHubApp(next => {
                 setPrompt(next)
                 // The user has to enter the code on GitHub, so send them there.
-                browser.tabs.create({ url: next.verificationUri })
+                browser.tabs.create({ url: next.verificationUri, active: false })
             })
             setToken(token)
             setPrompt(null)
@@ -188,7 +199,17 @@ export default function GitHubSettings() {
             <div className='gh-messages'>
                 {prompt && (
                     <p className='prompt'>
-                        Enter code <strong>{prompt.userCode}</strong> at{' '}
+                        Enter code <strong>{prompt.userCode}</strong>{' '}
+                        <button
+                            type='button'
+                            className='copy-code'
+                            onClick={() => copyToClipboard(prompt.userCode)}
+                            aria-label='Copy code'
+                            title='Copy code'
+                        >
+                            <FaRegCopy />
+                        </button>{' '}
+                        at{' '}
                         <a href={prompt.verificationUri} target='_blank' rel='noreferrer'>
                             {prompt.verificationUri}
                         </a>
