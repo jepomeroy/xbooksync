@@ -1,0 +1,159 @@
+{
+    "extName": { "message": "XBookSync", "description": "Extension name. Product name; normally left untranslated." },
+    "extDescription": {
+        "message": "Bookmark sync utility for Chrome and Firefox",
+        "description": "Extension description shown in the browser's extension list and store."
+    },
+    "appLogoAlt": { "message": "App logo", "description": "Alt text for the logo in the page header." },
+    "optionsTitle": { "message": "XBookSync Options", "description": "Options page heading and tab title." },
+
+    "enableSyncing": { "message": "Enable Syncing", "description": "Toggle that turns automatic syncing on or off." },
+    "enableNotifications": {
+        "message": "Enable Notification",
+        "description": "Toggle that turns desktop notifications for sync failures on or off."
+    },
+    "lastSynced": {
+        "message": "Last synced: $1",
+        "description": "Time of the last successful sync. $1 is a formatted date and time."
+    },
+    "syncNow": { "message": "Sync now", "description": "Button that starts a sync immediately." },
+    "openSettings": { "message": "Settings", "description": "Button in the popup that opens the options page." },
+    "version": { "message": "version: $1", "description": "Extension version. $1 is the version number, e.g. 0.5.2." },
+
+    "tabSettings": { "message": "Settings", "description": "Options page tab name." },
+    "tabTools": { "message": "Tools", "description": "Options page tab name for the bookmark cleanup tools." },
+    "settingsHeading": { "message": "Settings", "description": "Heading of the general settings card." },
+    "syncStorageHeading": {
+        "message": "Sync Storage",
+        "description": "Heading of the card where the user picks where bookmarks are stored."
+    },
+    "helpHeading": { "message": "Help", "description": "Heading of the help links card." },
+    "helpSetup": {
+        "message": "Get help on setup and use of XBookSync.",
+        "description": "Link to the README / user guide."
+    },
+    "helpIssues": {
+        "message": "For issues or feature requests in XBookSync.",
+        "description": "Link to the GitHub issue tracker."
+    },
+
+    "sortBookmarks": { "message": "Sort Bookmarks", "description": "Toggle that turns automatic sorting on or off." },
+    "sortOrder": { "message": "Sort Order", "description": "Label for the sort direction dropdown." },
+    "sortAscending": { "message": "Ascending (A-Z)", "description": "Sort direction option." },
+    "sortDescending": { "message": "Descending (Z-A)", "description": "Sort direction option." },
+    "sortFolders": {
+        "message": "Sort Folders",
+        "description": "Label for the dropdown choosing how folders are sorted relative to bookmarks."
+    },
+    "sortFoldersFirst": { "message": "Sort Folders First", "description": "Folders are placed before bookmarks." },
+    "sortTogether": {
+        "message": "Sort Bookmarks and Folders Together",
+        "description": "Folders and bookmarks are sorted in one list."
+    },
+
+    "syncRate": { "message": "Sync Rate", "description": "Label for how often automatic syncs run." },
+    "durationDays": { "message": "Days", "description": "Column label in the sync interval picker." },
+    "durationHours": { "message": "Hours", "description": "Column label in the sync interval picker." },
+    "durationMinutes": { "message": "Minutes", "description": "Column label in the sync interval picker." },
+    "durationSeconds": { "message": "Seconds", "description": "Column label in the sync interval picker." },
+    "durationDecrease": {
+        "message": "Decrease $1",
+        "description": "Accessible label for a minus button. $1 is a unit name such as Days or Minutes."
+    },
+    "durationIncrease": {
+        "message": "Increase $1",
+        "description": "Accessible label for a plus button. $1 is a unit name such as Days or Minutes."
+    },
+    "durationSummary": {
+        "message": "Every $1",
+        "description": "Summary of the sync interval. $1 is a localized duration such as '15 minutes' or '1 hour and 30 minutes'. Use a phrasing that works for any unit (avoid gender/number agreement with $1)."
+    },
+
+    "storageType": { "message": "Storage Type", "description": "Label for the storage target dropdown." },
+    "storageSelect": {
+        "message": "Select a Storage Type",
+        "description": "Placeholder option in the storage dropdown."
+    },
+    "storageGitHubRepo": { "message": "GitHub Repo", "description": "Storage option: a GitHub repository." },
+    "storageGitHubGist": { "message": "GitHub Gist", "description": "Storage option: a GitHub Gist." },
+    "storageGitLabRepo": { "message": "GitLab Repo", "description": "Storage option: a GitLab repository." },
+    "storageS3": { "message": "S3 Bucket", "description": "Storage option: an Amazon S3 bucket." },
+    "noStorageSelected": {
+        "message": "No storage type selected",
+        "description": "Shown when no storage target is chosen."
+    },
+    "notImplemented": {
+        "message": "This feature is not implemented yet",
+        "description": "Shown for storage targets that are not available yet."
+    },
+
+    "ghLogin": { "message": "Login With GitHub", "description": "Button that starts signing in to GitHub." },
+    "ghRemoveToken": { "message": "Remove Token", "description": "Button that signs out of GitHub locally." },
+    "ghEnterCode": {
+        "message": "Enter code $1 at $2",
+        "description": "Device login instructions. $1 is the one-time code (with a copy button), $2 is the GitHub URL to enter it at."
+    },
+    "ghCopyCode": { "message": "Copy code", "description": "Button that copies the one-time login code." },
+    "ghNotInstalled": {
+        "message": "Connected, but the app isn't installed on any account yet — that's what grants access to your repos.",
+        "description": "Shown after login when the GitHub App still needs to be installed."
+    },
+    "ghInstall": { "message": "Install on GitHub", "description": "Button that opens the GitHub App install page." },
+    "ghInstalled": {
+        "message": "I've installed it",
+        "description": "Button the user clicks after installing the GitHub App, to check again."
+    },
+    "ghRepo": { "message": "GitHub Repo", "description": "Label for the repository dropdown." },
+    "ghLoadingRepos": { "message": "Loading repos…", "description": "Placeholder while repositories load." },
+    "ghSelectRepo": { "message": "Select a repo", "description": "Placeholder option in the repository dropdown." },
+    "ghConnected": { "message": "Connected to GitHub.", "description": "Status after a successful GitHub connection." },
+    "ghCodeExpired": {
+        "message": "The device code expired before it was authorized.",
+        "description": "Login error: the one-time code timed out."
+    },
+    "ghAuthDenied": { "message": "GitHub authorization was denied.", "description": "Login error: the user declined." },
+
+    "syncFailedTitle": { "message": "XBookSync sync failed", "description": "Title of the sync failure notification." },
+    "errRemoteMissing": {
+        "message": "The remote bookmarks file was deleted.",
+        "description": "Sync error: the bookmarks file in the repository is gone."
+    },
+    "errNotConfigured": {
+        "message": "No sync target is configured yet.",
+        "description": "Sync error: no storage target set up."
+    },
+    "errAuthRequired": {
+        "message": "GitHub connection needs attention — reconnect in settings.",
+        "description": "Sync error: GitHub login expired or was revoked. Clicking it opens settings."
+    },
+    "errConflict": {
+        "message": "Sync conflict — retrying automatically.",
+        "description": "Sync error: another device changed the file at the same time."
+    },
+    "errNetwork": { "message": "Couldn't reach GitHub — will retry.", "description": "Sync error: network failure." },
+    "errServer": {
+        "message": "GitHub is having issues — will retry.",
+        "description": "Sync error: GitHub returned a server error."
+    },
+    "errUnknown": { "message": "Sync failed — will retry.", "description": "Sync error: anything else." },
+
+    "toolsSearchFor": {
+        "message": "Search For",
+        "description": "Heading of the card that picks which cleanup scans to run."
+    },
+    "toolsEmptyFolders": { "message": "Empty Folders", "description": "Scan toggle and result card heading." },
+    "toolsDuplicateBookmarks": {
+        "message": "Duplicate Bookmarks",
+        "description": "Scan toggle and result card heading."
+    },
+    "toolsMergeDuplicateFolders": { "message": "Merge Duplicate Folders", "description": "Scan toggle." },
+    "toolsRun": { "message": "Run", "description": "Button that runs the selected scans." },
+    "toolsNoEmptyFolders": { "message": "No empty folders found.", "description": "Scan result." },
+    "toolsNoDuplicateBookmarks": { "message": "No duplicate bookmarks found.", "description": "Scan result." },
+    "toolsNoDuplicateFolders": { "message": "No duplicate folders found.", "description": "Scan result." },
+    "toolsMergeFolders": { "message": "Merge Folders", "description": "Result card heading for duplicate folders." },
+    "toolsMergeFolderSet": {
+        "message": "Merge $1 Folders",
+        "description": "Action that merges a set of same-named folders. $1 is the folder name."
+    }
+}

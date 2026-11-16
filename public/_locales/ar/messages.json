@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "أداة مزامنة الإشارات المرجعية لمتصفحي Chrome وFirefox"
+    },
+    "appLogoAlt": {
+        "message": "شعار التطبيق"
+    },
+    "optionsTitle": {
+        "message": "خيارات XBookSync"
+    },
+    "enableSyncing": {
+        "message": "تفعيل المزامنة"
+    },
+    "enableNotifications": {
+        "message": "تفعيل الإشعارات"
+    },
+    "lastSynced": {
+        "message": "آخر مزامنة: $1"
+    },
+    "syncNow": {
+        "message": "مزامنة الآن"
+    },
+    "openSettings": {
+        "message": "الإعدادات"
+    },
+    "version": {
+        "message": "الإصدار: $1"
+    },
+    "tabSettings": {
+        "message": "الإعدادات"
+    },
+    "tabTools": {
+        "message": "الأدوات"
+    },
+    "settingsHeading": {
+        "message": "الإعدادات"
+    },
+    "syncStorageHeading": {
+        "message": "تخزين المزامنة"
+    },
+    "helpHeading": {
+        "message": "المساعدة"
+    },
+    "helpSetup": {
+        "message": "احصل على مساعدة في إعداد XBookSync واستخدامه."
+    },
+    "helpIssues": {
+        "message": "للإبلاغ عن المشكلات أو طلب ميزات في XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "ترتيب الإشارات المرجعية"
+    },
+    "sortOrder": {
+        "message": "ترتيب الفرز"
+    },
+    "sortAscending": {
+        "message": "تصاعدي (A-Z)"
+    },
+    "sortDescending": {
+        "message": "تنازلي (Z-A)"
+    },
+    "sortFolders": {
+        "message": "ترتيب المجلدات"
+    },
+    "sortFoldersFirst": {
+        "message": "المجلدات أولًا"
+    },
+    "sortTogether": {
+        "message": "ترتيب الإشارات المرجعية والمجلدات معًا"
+    },
+    "syncRate": {
+        "message": "معدل المزامنة"
+    },
+    "durationDays": {
+        "message": "أيام"
+    },
+    "durationHours": {
+        "message": "ساعات"
+    },
+    "durationMinutes": {
+        "message": "دقائق"
+    },
+    "durationSeconds": {
+        "message": "ثوانٍ"
+    },
+    "durationDecrease": {
+        "message": "إنقاص $1"
+    },
+    "durationIncrease": {
+        "message": "زيادة $1"
+    },
+    "durationSummary": {
+        "message": "كل $1"
+    },
+    "storageType": {
+        "message": "نوع التخزين"
+    },
+    "storageSelect": {
+        "message": "اختر نوع التخزين"
+    },
+    "storageGitHubRepo": {
+        "message": "مستودع GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "مستودع GitLab"
+    },
+    "storageS3": {
+        "message": "حاوية S3"
+    },
+    "noStorageSelected": {
+        "message": "لم يتم اختيار نوع تخزين"
+    },
+    "notImplemented": {
+        "message": "هذه الميزة غير متاحة بعد"
+    },
+    "ghLogin": {
+        "message": "تسجيل الدخول باستخدام GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "إزالة الرمز المميز"
+    },
+    "ghEnterCode": {
+        "message": "أدخل الرمز $1 في $2"
+    },
+    "ghCopyCode": {
+        "message": "نسخ الرمز"
+    },
+    "ghNotInstalled": {
+        "message": "تم الاتصال، لكن التطبيق غير مثبت على أي حساب بعد — والتثبيت هو ما يمنح الوصول إلى مستودعاتك."
+    },
+    "ghInstall": {
+        "message": "التثبيت على GitHub"
+    },
+    "ghInstalled": {
+        "message": "لقد ثبّته"
+    },
+    "ghRepo": {
+        "message": "مستودع GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "جارٍ تحميل المستودعات…"
+    },
+    "ghSelectRepo": {
+        "message": "اختر مستودعًا"
+    },
+    "ghConnected": {
+        "message": "تم الاتصال بـ GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "انتهت صلاحية رمز الجهاز قبل الموافقة عليه."
+    },
+    "ghAuthDenied": {
+        "message": "تم رفض تفويض GitHub."
+    },
+    "syncFailedTitle": {
+        "message": "فشلت مزامنة XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "تم حذف ملف الإشارات المرجعية البعيد."
+    },
+    "errNotConfigured": {
+        "message": "لم يتم إعداد وجهة مزامنة بعد."
+    },
+    "errAuthRequired": {
+        "message": "يحتاج الاتصال بـ GitHub إلى انتباهك — أعد الاتصال من الإعدادات."
+    },
+    "errConflict": {
+        "message": "تعارض في المزامنة — ستتم إعادة المحاولة تلقائيًا."
+    },
+    "errNetwork": {
+        "message": "تعذّر الوصول إلى GitHub — ستتم إعادة المحاولة."
+    },
+    "errServer": {
+        "message": "يواجه GitHub مشكلات — ستتم إعادة المحاولة."
+    },
+    "errUnknown": {
+        "message": "فشلت المزامنة — ستتم إعادة المحاولة."
+    },
+    "toolsSearchFor": {
+        "message": "البحث عن"
+    },
+    "toolsEmptyFolders": {
+        "message": "المجلدات الفارغة"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "الإشارات المرجعية المكررة"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "دمج المجلدات المكررة"
+    },
+    "toolsRun": {
+        "message": "تشغيل"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "لم يتم العثور على مجلدات فارغة."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "لم يتم العثور على إشارات مرجعية مكررة."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "لم يتم العثور على مجلدات مكررة."
+    },
+    "toolsMergeFolders": {
+        "message": "دمج المجلدات"
+    },
+    "toolsMergeFolderSet": {
+        "message": "دمج مجلدات \"$1\""
+    }
+}

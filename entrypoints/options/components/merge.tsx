@@ -1,5 +1,6 @@
 import type { LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { FaFolder, FaCodeMerge } from 'react-icons/fa6'
+import { t } from '@/entrypoints/shared/i18n'
 
 export type MergeProps = {
     /** Sets of folders sharing a full path, each with two or more folders. */
@@ -31,7 +32,7 @@ export default function Merge({ folders, buildPath, mergeFolders }: MergeProps) 
         return (
             <>
                 <div className='card'>
-                    <h3>Merge Folders</h3>
+                    <h3>{t('toolsMergeFolders')}</h3>
                     {folders.map((bookmarkSet: LocalBookmarkEntry[], index: number) => {
                         return (
                             <div className='bookmark-set' key={index}>
@@ -42,7 +43,7 @@ export default function Merge({ folders, buildPath, mergeFolders }: MergeProps) 
                                     }
                                 >
                                     <FaCodeMerge />
-                                    <span>Merge {bookmarkSet[0]?.title} Folders</span>
+                                    <span>{t('toolsMergeFolderSet', bookmarkSet[0]?.title ?? '')}</span>
                                 </div>
                                 {bookmarkSet.map(f => {
                                     return (
@@ -61,6 +62,6 @@ export default function Merge({ folders, buildPath, mergeFolders }: MergeProps) 
             </>
         )
     } else {
-        return <div className='empty-folders'>No duplicate folders found.</div>
+        return <div className='empty-folders'>{t('toolsNoDuplicateFolders')}</div>
     }
 }

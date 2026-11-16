@@ -1,5 +1,6 @@
 import type { LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { FaBookmark, FaTrashCan } from 'react-icons/fa6'
+import { t } from '@/entrypoints/shared/i18n'
 
 export type DupicateProps = {
     /** Groups of bookmarks sharing a URL; each group holds two or more entries. */
@@ -27,7 +28,7 @@ export default function Duplicates({
         return (
             <>
                 <div className='card'>
-                    <h3>Duplicate Bookmarks</h3>
+                    <h3>{t('toolsDuplicateBookmarks')}</h3>
                     {bookmarks.map((bookmarkSet: LocalBookmarkEntry[], index: number) => {
                         return (
                             <div className='bookmark-set' key={index}>
@@ -54,6 +55,6 @@ export default function Duplicates({
             </>
         )
     } else {
-        return <div className='bookmark-set'>No duplicate bookmarks found.</div>
+        return <div className='bookmark-set'>{t('toolsNoDuplicateBookmarks')}</div>
     }
 }

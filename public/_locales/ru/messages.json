@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Синхронизация закладок для Chrome и Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Логотип приложения"
+    },
+    "optionsTitle": {
+        "message": "Параметры XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Включить синхронизацию"
+    },
+    "enableNotifications": {
+        "message": "Включить уведомления"
+    },
+    "lastSynced": {
+        "message": "Последняя синхронизация: $1"
+    },
+    "syncNow": {
+        "message": "Синхронизировать сейчас"
+    },
+    "openSettings": {
+        "message": "Настройки"
+    },
+    "version": {
+        "message": "версия: $1"
+    },
+    "tabSettings": {
+        "message": "Настройки"
+    },
+    "tabTools": {
+        "message": "Инструменты"
+    },
+    "settingsHeading": {
+        "message": "Настройки"
+    },
+    "syncStorageHeading": {
+        "message": "Хранилище синхронизации"
+    },
+    "helpHeading": {
+        "message": "Справка"
+    },
+    "helpSetup": {
+        "message": "Справка по настройке и использованию XBookSync."
+    },
+    "helpIssues": {
+        "message": "Сообщить о проблеме или предложить функцию для XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Сортировать закладки"
+    },
+    "sortOrder": {
+        "message": "Порядок сортировки"
+    },
+    "sortAscending": {
+        "message": "По возрастанию (А–Я)"
+    },
+    "sortDescending": {
+        "message": "По убыванию (Я–А)"
+    },
+    "sortFolders": {
+        "message": "Сортировка папок"
+    },
+    "sortFoldersFirst": {
+        "message": "Сначала папки"
+    },
+    "sortTogether": {
+        "message": "Сортировать закладки и папки вместе"
+    },
+    "syncRate": {
+        "message": "Частота синхронизации"
+    },
+    "durationDays": {
+        "message": "Дни"
+    },
+    "durationHours": {
+        "message": "Часы"
+    },
+    "durationMinutes": {
+        "message": "Минуты"
+    },
+    "durationSeconds": {
+        "message": "Секунды"
+    },
+    "durationDecrease": {
+        "message": "Уменьшить: $1"
+    },
+    "durationIncrease": {
+        "message": "Увеличить: $1"
+    },
+    "durationSummary": {
+        "message": "Интервал: $1"
+    },
+    "storageType": {
+        "message": "Тип хранилища"
+    },
+    "storageSelect": {
+        "message": "Выберите тип хранилища"
+    },
+    "storageGitHubRepo": {
+        "message": "Репозиторий GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Репозиторий GitLab"
+    },
+    "storageS3": {
+        "message": "Бакет S3"
+    },
+    "noStorageSelected": {
+        "message": "Тип хранилища не выбран"
+    },
+    "notImplemented": {
+        "message": "Эта функция пока недоступна"
+    },
+    "ghLogin": {
+        "message": "Войти через GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Удалить токен"
+    },
+    "ghEnterCode": {
+        "message": "Введите код $1 на странице $2"
+    },
+    "ghCopyCode": {
+        "message": "Копировать код"
+    },
+    "ghNotInstalled": {
+        "message": "Подключено, но приложение ещё не установлено ни в одном аккаунте — именно установка даёт доступ к вашим репозиториям."
+    },
+    "ghInstall": {
+        "message": "Установить на GitHub"
+    },
+    "ghInstalled": {
+        "message": "Я установил(а)"
+    },
+    "ghRepo": {
+        "message": "Репозиторий GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Загрузка репозиториев…"
+    },
+    "ghSelectRepo": {
+        "message": "Выберите репозиторий"
+    },
+    "ghConnected": {
+        "message": "Подключено к GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Срок действия кода устройства истёк до подтверждения."
+    },
+    "ghAuthDenied": {
+        "message": "В авторизации GitHub отказано."
+    },
+    "syncFailedTitle": {
+        "message": "Ошибка синхронизации XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "Удалённый файл закладок был удалён."
+    },
+    "errNotConfigured": {
+        "message": "Место синхронизации ещё не настроено."
+    },
+    "errAuthRequired": {
+        "message": "Подключение к GitHub требует внимания — переподключитесь в настройках."
+    },
+    "errConflict": {
+        "message": "Конфликт синхронизации — повтор будет выполнен автоматически."
+    },
+    "errNetwork": {
+        "message": "Не удалось связаться с GitHub — попытка будет повторена."
+    },
+    "errServer": {
+        "message": "У GitHub проблемы — попытка будет повторена."
+    },
+    "errUnknown": {
+        "message": "Ошибка синхронизации — попытка будет повторена."
+    },
+    "toolsSearchFor": {
+        "message": "Искать"
+    },
+    "toolsEmptyFolders": {
+        "message": "Пустые папки"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Повторяющиеся закладки"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Объединить повторяющиеся папки"
+    },
+    "toolsRun": {
+        "message": "Запустить"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Пустые папки не найдены."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Повторяющиеся закладки не найдены."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Повторяющиеся папки не найдены."
+    },
+    "toolsMergeFolders": {
+        "message": "Объединение папок"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Объединить папки «$1»"
+    }
+}

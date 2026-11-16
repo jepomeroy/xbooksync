@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Синхронізація закладок для Chrome і Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Логотип застосунку"
+    },
+    "optionsTitle": {
+        "message": "Параметри XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Увімкнути синхронізацію"
+    },
+    "enableNotifications": {
+        "message": "Увімкнути сповіщення"
+    },
+    "lastSynced": {
+        "message": "Остання синхронізація: $1"
+    },
+    "syncNow": {
+        "message": "Синхронізувати зараз"
+    },
+    "openSettings": {
+        "message": "Налаштування"
+    },
+    "version": {
+        "message": "версія: $1"
+    },
+    "tabSettings": {
+        "message": "Налаштування"
+    },
+    "tabTools": {
+        "message": "Інструменти"
+    },
+    "settingsHeading": {
+        "message": "Налаштування"
+    },
+    "syncStorageHeading": {
+        "message": "Сховище синхронізації"
+    },
+    "helpHeading": {
+        "message": "Довідка"
+    },
+    "helpSetup": {
+        "message": "Довідка з налаштування та використання XBookSync."
+    },
+    "helpIssues": {
+        "message": "Повідомити про проблему або запропонувати функцію для XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Сортувати закладки"
+    },
+    "sortOrder": {
+        "message": "Порядок сортування"
+    },
+    "sortAscending": {
+        "message": "За зростанням (А–Я)"
+    },
+    "sortDescending": {
+        "message": "За спаданням (Я–А)"
+    },
+    "sortFolders": {
+        "message": "Сортування тек"
+    },
+    "sortFoldersFirst": {
+        "message": "Спочатку теки"
+    },
+    "sortTogether": {
+        "message": "Сортувати закладки й теки разом"
+    },
+    "syncRate": {
+        "message": "Частота синхронізації"
+    },
+    "durationDays": {
+        "message": "Дні"
+    },
+    "durationHours": {
+        "message": "Години"
+    },
+    "durationMinutes": {
+        "message": "Хвилини"
+    },
+    "durationSeconds": {
+        "message": "Секунди"
+    },
+    "durationDecrease": {
+        "message": "Зменшити: $1"
+    },
+    "durationIncrease": {
+        "message": "Збільшити: $1"
+    },
+    "durationSummary": {
+        "message": "Інтервал: $1"
+    },
+    "storageType": {
+        "message": "Тип сховища"
+    },
+    "storageSelect": {
+        "message": "Виберіть тип сховища"
+    },
+    "storageGitHubRepo": {
+        "message": "Репозиторій GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Репозиторій GitLab"
+    },
+    "storageS3": {
+        "message": "Бакет S3"
+    },
+    "noStorageSelected": {
+        "message": "Тип сховища не вибрано"
+    },
+    "notImplemented": {
+        "message": "Ця функція поки недоступна"
+    },
+    "ghLogin": {
+        "message": "Увійти через GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Видалити токен"
+    },
+    "ghEnterCode": {
+        "message": "Введіть код $1 на сторінці $2"
+    },
+    "ghCopyCode": {
+        "message": "Копіювати код"
+    },
+    "ghNotInstalled": {
+        "message": "Підключено, але застосунок ще не встановлено в жодному обліковому записі — саме це надає доступ до ваших репозиторіїв."
+    },
+    "ghInstall": {
+        "message": "Встановити на GitHub"
+    },
+    "ghInstalled": {
+        "message": "Я встановив(-ла)"
+    },
+    "ghRepo": {
+        "message": "Репозиторій GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Завантаження репозиторіїв…"
+    },
+    "ghSelectRepo": {
+        "message": "Виберіть репозиторій"
+    },
+    "ghConnected": {
+        "message": "Підключено до GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Термін дії коду пристрою минув до підтвердження."
+    },
+    "ghAuthDenied": {
+        "message": "В авторизації GitHub відмовлено."
+    },
+    "syncFailedTitle": {
+        "message": "Помилка синхронізації XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "Віддалений файл закладок було видалено."
+    },
+    "errNotConfigured": {
+        "message": "Місце синхронізації ще не налаштовано."
+    },
+    "errAuthRequired": {
+        "message": "Підключення до GitHub потребує уваги — перепідключіться в налаштуваннях."
+    },
+    "errConflict": {
+        "message": "Конфлікт синхронізації — повтор буде виконано автоматично."
+    },
+    "errNetwork": {
+        "message": "Не вдалося зв'язатися з GitHub — спробу буде повторено."
+    },
+    "errServer": {
+        "message": "GitHub має проблеми — спробу буде повторено."
+    },
+    "errUnknown": {
+        "message": "Помилка синхронізації — спробу буде повторено."
+    },
+    "toolsSearchFor": {
+        "message": "Шукати"
+    },
+    "toolsEmptyFolders": {
+        "message": "Порожні теки"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Повторювані закладки"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Об'єднати повторювані теки"
+    },
+    "toolsRun": {
+        "message": "Запустити"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Порожніх тек не знайдено."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Повторюваних закладок не знайдено."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Повторюваних тек не знайдено."
+    },
+    "toolsMergeFolders": {
+        "message": "Об'єднання тек"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Об'єднати теки «$1»"
+    }
+}

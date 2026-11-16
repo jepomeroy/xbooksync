@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Utilidad de sincronización de marcadores para Chrome y Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Logotipo de la aplicación"
+    },
+    "optionsTitle": {
+        "message": "Opciones de XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Activar sincronización"
+    },
+    "enableNotifications": {
+        "message": "Activar notificaciones"
+    },
+    "lastSynced": {
+        "message": "Última sincronización: $1"
+    },
+    "syncNow": {
+        "message": "Sincronizar ahora"
+    },
+    "openSettings": {
+        "message": "Configuración"
+    },
+    "version": {
+        "message": "versión: $1"
+    },
+    "tabSettings": {
+        "message": "Configuración"
+    },
+    "tabTools": {
+        "message": "Herramientas"
+    },
+    "settingsHeading": {
+        "message": "Configuración"
+    },
+    "syncStorageHeading": {
+        "message": "Almacenamiento de sincronización"
+    },
+    "helpHeading": {
+        "message": "Ayuda"
+    },
+    "helpSetup": {
+        "message": "Obtén ayuda sobre la configuración y el uso de XBookSync."
+    },
+    "helpIssues": {
+        "message": "Para problemas o solicitudes de funciones en XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Ordenar marcadores"
+    },
+    "sortOrder": {
+        "message": "Orden"
+    },
+    "sortAscending": {
+        "message": "Ascendente (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Descendente (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Ordenar carpetas"
+    },
+    "sortFoldersFirst": {
+        "message": "Carpetas primero"
+    },
+    "sortTogether": {
+        "message": "Ordenar marcadores y carpetas juntos"
+    },
+    "syncRate": {
+        "message": "Frecuencia de sincronización"
+    },
+    "durationDays": {
+        "message": "Días"
+    },
+    "durationHours": {
+        "message": "Horas"
+    },
+    "durationMinutes": {
+        "message": "Minutos"
+    },
+    "durationSeconds": {
+        "message": "Segundos"
+    },
+    "durationDecrease": {
+        "message": "Reducir $1"
+    },
+    "durationIncrease": {
+        "message": "Aumentar $1"
+    },
+    "durationSummary": {
+        "message": "Cada $1"
+    },
+    "storageType": {
+        "message": "Tipo de almacenamiento"
+    },
+    "storageSelect": {
+        "message": "Selecciona un tipo de almacenamiento"
+    },
+    "storageGitHubRepo": {
+        "message": "Repositorio de GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Repositorio de GitLab"
+    },
+    "storageS3": {
+        "message": "Bucket de S3"
+    },
+    "noStorageSelected": {
+        "message": "No se ha seleccionado ningún tipo de almacenamiento"
+    },
+    "notImplemented": {
+        "message": "Esta función aún no está disponible"
+    },
+    "ghLogin": {
+        "message": "Iniciar sesión con GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Eliminar token"
+    },
+    "ghEnterCode": {
+        "message": "Introduce el código $1 en $2"
+    },
+    "ghCopyCode": {
+        "message": "Copiar código"
+    },
+    "ghNotInstalled": {
+        "message": "Conectado, pero la aplicación aún no está instalada en ninguna cuenta; eso es lo que da acceso a tus repositorios."
+    },
+    "ghInstall": {
+        "message": "Instalar en GitHub"
+    },
+    "ghInstalled": {
+        "message": "Ya la he instalado"
+    },
+    "ghRepo": {
+        "message": "Repositorio de GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Cargando repositorios…"
+    },
+    "ghSelectRepo": {
+        "message": "Selecciona un repositorio"
+    },
+    "ghConnected": {
+        "message": "Conectado a GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "El código del dispositivo caducó antes de ser autorizado."
+    },
+    "ghAuthDenied": {
+        "message": "Se denegó la autorización de GitHub."
+    },
+    "syncFailedTitle": {
+        "message": "Error de sincronización de XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "Se eliminó el archivo remoto de marcadores."
+    },
+    "errNotConfigured": {
+        "message": "Aún no hay ningún destino de sincronización configurado."
+    },
+    "errAuthRequired": {
+        "message": "La conexión con GitHub requiere atención: vuelve a conectarte en la configuración."
+    },
+    "errConflict": {
+        "message": "Conflicto de sincronización: se reintentará automáticamente."
+    },
+    "errNetwork": {
+        "message": "No se pudo conectar con GitHub: se reintentará."
+    },
+    "errServer": {
+        "message": "GitHub tiene problemas: se reintentará."
+    },
+    "errUnknown": {
+        "message": "Error de sincronización: se reintentará."
+    },
+    "toolsSearchFor": {
+        "message": "Buscar"
+    },
+    "toolsEmptyFolders": {
+        "message": "Carpetas vacías"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Marcadores duplicados"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Combinar carpetas duplicadas"
+    },
+    "toolsRun": {
+        "message": "Ejecutar"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "No se encontraron carpetas vacías."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "No se encontraron marcadores duplicados."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "No se encontraron carpetas duplicadas."
+    },
+    "toolsMergeFolders": {
+        "message": "Combinar carpetas"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Combinar carpetas «$1»"
+    }
+}

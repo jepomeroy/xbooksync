@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "适用于 Chrome 和 Firefox 的书签同步工具"
+    },
+    "appLogoAlt": {
+        "message": "应用徽标"
+    },
+    "optionsTitle": {
+        "message": "XBookSync 选项"
+    },
+    "enableSyncing": {
+        "message": "启用同步"
+    },
+    "enableNotifications": {
+        "message": "启用通知"
+    },
+    "lastSynced": {
+        "message": "上次同步：$1"
+    },
+    "syncNow": {
+        "message": "立即同步"
+    },
+    "openSettings": {
+        "message": "设置"
+    },
+    "version": {
+        "message": "版本：$1"
+    },
+    "tabSettings": {
+        "message": "设置"
+    },
+    "tabTools": {
+        "message": "工具"
+    },
+    "settingsHeading": {
+        "message": "设置"
+    },
+    "syncStorageHeading": {
+        "message": "同步存储"
+    },
+    "helpHeading": {
+        "message": "帮助"
+    },
+    "helpSetup": {
+        "message": "获取 XBookSync 设置和使用方面的帮助。"
+    },
+    "helpIssues": {
+        "message": "反馈 XBookSync 的问题或功能请求。"
+    },
+    "sortBookmarks": {
+        "message": "排序书签"
+    },
+    "sortOrder": {
+        "message": "排序方式"
+    },
+    "sortAscending": {
+        "message": "升序 (A-Z)"
+    },
+    "sortDescending": {
+        "message": "降序 (Z-A)"
+    },
+    "sortFolders": {
+        "message": "文件夹排序"
+    },
+    "sortFoldersFirst": {
+        "message": "文件夹优先"
+    },
+    "sortTogether": {
+        "message": "书签和文件夹一起排序"
+    },
+    "syncRate": {
+        "message": "同步频率"
+    },
+    "durationDays": {
+        "message": "天"
+    },
+    "durationHours": {
+        "message": "小时"
+    },
+    "durationMinutes": {
+        "message": "分钟"
+    },
+    "durationSeconds": {
+        "message": "秒"
+    },
+    "durationDecrease": {
+        "message": "减少$1"
+    },
+    "durationIncrease": {
+        "message": "增加$1"
+    },
+    "durationSummary": {
+        "message": "每 $1"
+    },
+    "storageType": {
+        "message": "存储类型"
+    },
+    "storageSelect": {
+        "message": "选择存储类型"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub 仓库"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab 仓库"
+    },
+    "storageS3": {
+        "message": "S3 存储桶"
+    },
+    "noStorageSelected": {
+        "message": "未选择存储类型"
+    },
+    "notImplemented": {
+        "message": "此功能尚未推出"
+    },
+    "ghLogin": {
+        "message": "使用 GitHub 登录"
+    },
+    "ghRemoveToken": {
+        "message": "移除令牌"
+    },
+    "ghEnterCode": {
+        "message": "请在 $2 输入代码 $1"
+    },
+    "ghCopyCode": {
+        "message": "复制代码"
+    },
+    "ghNotInstalled": {
+        "message": "已连接，但该应用尚未安装到任何账户——安装后才能访问你的仓库。"
+    },
+    "ghInstall": {
+        "message": "在 GitHub 上安装"
+    },
+    "ghInstalled": {
+        "message": "我已安装"
+    },
+    "ghRepo": {
+        "message": "GitHub 仓库"
+    },
+    "ghLoadingRepos": {
+        "message": "正在加载仓库…"
+    },
+    "ghSelectRepo": {
+        "message": "选择仓库"
+    },
+    "ghConnected": {
+        "message": "已连接到 GitHub。"
+    },
+    "ghCodeExpired": {
+        "message": "设备代码在授权前已过期。"
+    },
+    "ghAuthDenied": {
+        "message": "GitHub 授权被拒绝。"
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync 同步失败"
+    },
+    "errRemoteMissing": {
+        "message": "远程书签文件已被删除。"
+    },
+    "errNotConfigured": {
+        "message": "尚未配置同步目标。"
+    },
+    "errAuthRequired": {
+        "message": "GitHub 连接需要处理——请在设置中重新连接。"
+    },
+    "errConflict": {
+        "message": "同步冲突——将自动重试。"
+    },
+    "errNetwork": {
+        "message": "无法连接到 GitHub——将重试。"
+    },
+    "errServer": {
+        "message": "GitHub 出现问题——将重试。"
+    },
+    "errUnknown": {
+        "message": "同步失败——将重试。"
+    },
+    "toolsSearchFor": {
+        "message": "搜索内容"
+    },
+    "toolsEmptyFolders": {
+        "message": "空文件夹"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "重复书签"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "合并重复文件夹"
+    },
+    "toolsRun": {
+        "message": "运行"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "未找到空文件夹。"
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "未找到重复书签。"
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "未找到重复文件夹。"
+    },
+    "toolsMergeFolders": {
+        "message": "合并文件夹"
+    },
+    "toolsMergeFolderSet": {
+        "message": "合并“$1”文件夹"
+    }
+}

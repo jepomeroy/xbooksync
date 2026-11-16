@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Narzędzie do synchronizacji zakładek dla Chrome i Firefoksa"
+    },
+    "appLogoAlt": {
+        "message": "Logo aplikacji"
+    },
+    "optionsTitle": {
+        "message": "Opcje XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Włącz synchronizację"
+    },
+    "enableNotifications": {
+        "message": "Włącz powiadomienia"
+    },
+    "lastSynced": {
+        "message": "Ostatnia synchronizacja: $1"
+    },
+    "syncNow": {
+        "message": "Synchronizuj teraz"
+    },
+    "openSettings": {
+        "message": "Ustawienia"
+    },
+    "version": {
+        "message": "wersja: $1"
+    },
+    "tabSettings": {
+        "message": "Ustawienia"
+    },
+    "tabTools": {
+        "message": "Narzędzia"
+    },
+    "settingsHeading": {
+        "message": "Ustawienia"
+    },
+    "syncStorageHeading": {
+        "message": "Miejsce synchronizacji"
+    },
+    "helpHeading": {
+        "message": "Pomoc"
+    },
+    "helpSetup": {
+        "message": "Pomoc dotycząca konfiguracji i korzystania z XBookSync."
+    },
+    "helpIssues": {
+        "message": "Zgłoś problem lub zaproponuj funkcję w XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Sortuj zakładki"
+    },
+    "sortOrder": {
+        "message": "Kolejność sortowania"
+    },
+    "sortAscending": {
+        "message": "Rosnąco (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Malejąco (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Sortowanie folderów"
+    },
+    "sortFoldersFirst": {
+        "message": "Najpierw foldery"
+    },
+    "sortTogether": {
+        "message": "Sortuj zakładki i foldery razem"
+    },
+    "syncRate": {
+        "message": "Częstotliwość synchronizacji"
+    },
+    "durationDays": {
+        "message": "Dni"
+    },
+    "durationHours": {
+        "message": "Godziny"
+    },
+    "durationMinutes": {
+        "message": "Minuty"
+    },
+    "durationSeconds": {
+        "message": "Sekundy"
+    },
+    "durationDecrease": {
+        "message": "Zmniejsz: $1"
+    },
+    "durationIncrease": {
+        "message": "Zwiększ: $1"
+    },
+    "durationSummary": {
+        "message": "Interwał: $1"
+    },
+    "storageType": {
+        "message": "Typ magazynu"
+    },
+    "storageSelect": {
+        "message": "Wybierz typ magazynu"
+    },
+    "storageGitHubRepo": {
+        "message": "Repozytorium GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Repozytorium GitLab"
+    },
+    "storageS3": {
+        "message": "Zasobnik S3"
+    },
+    "noStorageSelected": {
+        "message": "Nie wybrano typu magazynu"
+    },
+    "notImplemented": {
+        "message": "Ta funkcja nie jest jeszcze dostępna"
+    },
+    "ghLogin": {
+        "message": "Zaloguj się przez GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Usuń token"
+    },
+    "ghEnterCode": {
+        "message": "Wprowadź kod $1 na stronie $2"
+    },
+    "ghCopyCode": {
+        "message": "Kopiuj kod"
+    },
+    "ghNotInstalled": {
+        "message": "Połączono, ale aplikacja nie jest jeszcze zainstalowana na żadnym koncie — to ona daje dostęp do Twoich repozytoriów."
+    },
+    "ghInstall": {
+        "message": "Zainstaluj w GitHub"
+    },
+    "ghInstalled": {
+        "message": "Zainstalowałem(-am)"
+    },
+    "ghRepo": {
+        "message": "Repozytorium GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Wczytywanie repozytoriów…"
+    },
+    "ghSelectRepo": {
+        "message": "Wybierz repozytorium"
+    },
+    "ghConnected": {
+        "message": "Połączono z GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Kod urządzenia wygasł przed autoryzacją."
+    },
+    "ghAuthDenied": {
+        "message": "Odmówiono autoryzacji GitHub."
+    },
+    "syncFailedTitle": {
+        "message": "Synchronizacja XBookSync nie powiodła się"
+    },
+    "errRemoteMissing": {
+        "message": "Zdalny plik zakładek został usunięty."
+    },
+    "errNotConfigured": {
+        "message": "Nie skonfigurowano jeszcze miejsca synchronizacji."
+    },
+    "errAuthRequired": {
+        "message": "Połączenie z GitHub wymaga uwagi — połącz ponownie w ustawieniach."
+    },
+    "errConflict": {
+        "message": "Konflikt synchronizacji — ponowna próba nastąpi automatycznie."
+    },
+    "errNetwork": {
+        "message": "Nie można połączyć się z GitHub — ponowna próba wkrótce."
+    },
+    "errServer": {
+        "message": "GitHub ma problemy — ponowna próba wkrótce."
+    },
+    "errUnknown": {
+        "message": "Synchronizacja nie powiodła się — ponowna próba wkrótce."
+    },
+    "toolsSearchFor": {
+        "message": "Wyszukaj"
+    },
+    "toolsEmptyFolders": {
+        "message": "Puste foldery"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Zduplikowane zakładki"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Scal zduplikowane foldery"
+    },
+    "toolsRun": {
+        "message": "Uruchom"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Nie znaleziono pustych folderów."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Nie znaleziono zduplikowanych zakładek."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Nie znaleziono zduplikowanych folderów."
+    },
+    "toolsMergeFolders": {
+        "message": "Scal foldery"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Scal foldery „$1”"
+    }
+}

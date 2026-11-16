@@ -15,6 +15,7 @@ import {
     ghRefreshTokenExpiresAt,
     GitHubSettingsKeys,
 } from '../shared/localsettings'
+import { t } from '../shared/i18n'
 
 const CLIENT_ID = 'Iv23li5nB1ImpNBqC3wl'
 /** The app's URL slug — the `github.com/apps/<slug>` segment on its public page. */
@@ -289,13 +290,13 @@ export async function loginWithGitHubApp(onPrompt: (prompt: DeviceCodePrompt) =>
                 pollInterval = tokenData.interval ?? pollInterval + 5
                 break
             case 'expired_token':
-                throw new Error('The device code expired before it was authorized.')
+                throw new Error(t('ghCodeExpired'))
             case 'access_denied':
-                throw new Error('GitHub authorization was denied.')
+                throw new Error(t('ghAuthDenied'))
             default:
                 throw new Error(`OAuth error: ${tokenData.error_description ?? tokenData.error}`)
         }
     }
 
-    throw new Error('The device code expired before it was authorized.')
+    throw new Error(t('ghCodeExpired'))
 }

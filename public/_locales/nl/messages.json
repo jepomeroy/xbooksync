@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Hulpprogramma voor het synchroniseren van bladwijzers in Chrome en Firefox"
+    },
+    "appLogoAlt": {
+        "message": "App-logo"
+    },
+    "optionsTitle": {
+        "message": "XBookSync-opties"
+    },
+    "enableSyncing": {
+        "message": "Synchronisatie inschakelen"
+    },
+    "enableNotifications": {
+        "message": "Meldingen inschakelen"
+    },
+    "lastSynced": {
+        "message": "Laatst gesynchroniseerd: $1"
+    },
+    "syncNow": {
+        "message": "Nu synchroniseren"
+    },
+    "openSettings": {
+        "message": "Instellingen"
+    },
+    "version": {
+        "message": "versie: $1"
+    },
+    "tabSettings": {
+        "message": "Instellingen"
+    },
+    "tabTools": {
+        "message": "Hulpmiddelen"
+    },
+    "settingsHeading": {
+        "message": "Instellingen"
+    },
+    "syncStorageHeading": {
+        "message": "Synchronisatieopslag"
+    },
+    "helpHeading": {
+        "message": "Help"
+    },
+    "helpSetup": {
+        "message": "Hulp bij het instellen en gebruiken van XBookSync."
+    },
+    "helpIssues": {
+        "message": "Voor problemen of functieverzoeken voor XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Bladwijzers sorteren"
+    },
+    "sortOrder": {
+        "message": "Sorteervolgorde"
+    },
+    "sortAscending": {
+        "message": "Oplopend (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Aflopend (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Mappen sorteren"
+    },
+    "sortFoldersFirst": {
+        "message": "Mappen eerst"
+    },
+    "sortTogether": {
+        "message": "Bladwijzers en mappen samen sorteren"
+    },
+    "syncRate": {
+        "message": "Synchronisatie-interval"
+    },
+    "durationDays": {
+        "message": "Dagen"
+    },
+    "durationHours": {
+        "message": "Uren"
+    },
+    "durationMinutes": {
+        "message": "Minuten"
+    },
+    "durationSeconds": {
+        "message": "Seconden"
+    },
+    "durationDecrease": {
+        "message": "$1 verlagen"
+    },
+    "durationIncrease": {
+        "message": "$1 verhogen"
+    },
+    "durationSummary": {
+        "message": "Elke $1"
+    },
+    "storageType": {
+        "message": "Opslagtype"
+    },
+    "storageSelect": {
+        "message": "Kies een opslagtype"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub-repository"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab-repository"
+    },
+    "storageS3": {
+        "message": "S3-bucket"
+    },
+    "noStorageSelected": {
+        "message": "Geen opslagtype geselecteerd"
+    },
+    "notImplemented": {
+        "message": "Deze functie is nog niet beschikbaar"
+    },
+    "ghLogin": {
+        "message": "Inloggen met GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Token verwijderen"
+    },
+    "ghEnterCode": {
+        "message": "Voer code $1 in op $2"
+    },
+    "ghCopyCode": {
+        "message": "Code kopiëren"
+    },
+    "ghNotInstalled": {
+        "message": "Verbonden, maar de app is nog op geen enkel account geïnstalleerd — dat geeft toegang tot je repository’s."
+    },
+    "ghInstall": {
+        "message": "Installeren op GitHub"
+    },
+    "ghInstalled": {
+        "message": "Ik heb hem geïnstalleerd"
+    },
+    "ghRepo": {
+        "message": "GitHub-repository"
+    },
+    "ghLoadingRepos": {
+        "message": "Repository’s laden…"
+    },
+    "ghSelectRepo": {
+        "message": "Kies een repository"
+    },
+    "ghConnected": {
+        "message": "Verbonden met GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "De apparaatcode is verlopen voordat deze werd goedgekeurd."
+    },
+    "ghAuthDenied": {
+        "message": "De GitHub-autorisatie is geweigerd."
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync-synchronisatie mislukt"
+    },
+    "errRemoteMissing": {
+        "message": "Het externe bladwijzerbestand is verwijderd."
+    },
+    "errNotConfigured": {
+        "message": "Er is nog geen synchronisatiedoel ingesteld."
+    },
+    "errAuthRequired": {
+        "message": "De GitHub-verbinding vraagt aandacht — maak opnieuw verbinding in de instellingen."
+    },
+    "errConflict": {
+        "message": "Synchronisatieconflict — wordt automatisch opnieuw geprobeerd."
+    },
+    "errNetwork": {
+        "message": "GitHub is niet bereikbaar — wordt opnieuw geprobeerd."
+    },
+    "errServer": {
+        "message": "GitHub heeft problemen — wordt opnieuw geprobeerd."
+    },
+    "errUnknown": {
+        "message": "Synchronisatie mislukt — wordt opnieuw geprobeerd."
+    },
+    "toolsSearchFor": {
+        "message": "Zoeken naar"
+    },
+    "toolsEmptyFolders": {
+        "message": "Lege mappen"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Dubbele bladwijzers"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Dubbele mappen samenvoegen"
+    },
+    "toolsRun": {
+        "message": "Uitvoeren"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Geen lege mappen gevonden."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Geen dubbele bladwijzers gevonden."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Geen dubbele mappen gevonden."
+    },
+    "toolsMergeFolders": {
+        "message": "Mappen samenvoegen"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Mappen \"$1\" samenvoegen"
+    }
+}

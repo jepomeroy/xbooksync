@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from '#imports'
 import { FaMinus, FaPlus } from 'react-icons/fa6'
 
 import './duration-input.css'
+import { formatDuration, t } from '@/entrypoints/shared/i18n'
 
 const SECONDS_PER_DAY = 86400
 const SECONDS_PER_HOUR = 3600
@@ -12,9 +13,6 @@ const DEFAULT_DEBOUNCE_MS = 400
 const HOLD_DELAY_MS = 400
 /** Repeat rate once press-and-hold kicks in. */
 const HOLD_INTERVAL_MS = 80
-
-/** `1 day` / `2 days` — the singular/plural split every unit below needs. */
-const pluralize = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`
 
 type DurationInputProps = {
     /** Text shown beside the field group; omitted for an unlabelled group. */
@@ -145,33 +143,32 @@ export default function DurationInput({
     const seconds = total % SECONDS_PER_MINUTE
 
     const fields = [
-        { abbr: 'Days', display: days, unitSeconds: SECONDS_PER_DAY },
-        { abbr: 'Hours', display: hours, unitSeconds: SECONDS_PER_HOUR },
-        { abbr: 'Minutes', display: minutes, unitSeconds: SECONDS_PER_MINUTE },
-        { abbr: 'Seconds', display: seconds, unitSeconds: step },
+        { id: 'days', abbr: t('durationDays'), display: days, unitSeconds: SECONDS_PER_DAY },
+        { id: 'hours', abbr: t('durationHours'), display: hours, unitSeconds: SECONDS_PER_HOUR },
+        { id: 'minutes', abbr: t('durationMinutes'), display: minutes, unitSeconds: SECONDS_PER_MINUTE },
+        { id: 'seconds', abbr: t('durationSeconds'), display: seconds, unitSeconds: step },
     ]
 
     // Reads off `total`, not the debounced `value` prop, so it updates on every
     // click instead of lagging a beat behind the fields it's summarizing.
-    const parts = [
-        days > 0 && pluralize(days, 'day'),
-        hours > 0 && pluralize(hours, 'hour'),
-        minutes > 0 && pluralize(minutes, 'minute'),
-        seconds > 0 && pluralize(seconds, 'second'),
-    ].filter((part): part is string => Boolean(part))
-    const humanDuration =
-        parts.length === 0
-            ? pluralize(0, 'second')
-            : parts.length === 1
-              ? parts[0]
-              : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`
+    // Intl supplies the plural forms and list conjunction for the UI locale.
+    const humanDuration = formatDuration(
+        (
+            [
+                [days, 'day'],
+                [hours, 'hour'],
+                [minutes, 'minute'],
+                [seconds, 'second'],
+            ] as const
+        ).filter(([n]) => n > 0) as [number, 'day' | 'hour' | 'minute' | 'second'][],
+    )
 
     return (
         <div className='duration-input'>
             {label && <span className='duration-input-label'>{label}</span>}
             <div className='duration-input-fields'>
                 {fields.map(f => (
-                    <div className='duration-field' key={f.abbr}>
+                    <div className='duration-field' key={f.id}>
                         <button
                             type='button'
                             className='duration-field-btn'
@@ -182,7 +179,7 @@ export default function DurationInput({
                                 heldViaMouseRef.current = false
                             }}
                             onClick={() => handleClick(-f.unitSeconds)}
-                            aria-label={`Decrease ${f.abbr}`}
+                            aria-label={t('durationDecrease', f.abbr)}
                         >
                             <FaMinus />
                         </button>
@@ -197,14 +194,14 @@ export default function DurationInput({
                                 heldViaMouseRef.current = false
                             }}
                             onClick={() => handleClick(f.unitSeconds)}
-                            aria-label={`Increase ${f.abbr}`}
+                            aria-label={t('durationIncrease', f.abbr)}
                         >
                             <FaPlus />
                         </button>
                         <span className='duration-field-unit'>{f.abbr}</span>
                     </div>
                 ))}
-                <p className='duration-input-summary'>Every {humanDuration}</p>
+                <p className='duration-input-summary'>{t('durationSummary', humanDuration)}</p>
             </div>
         </div>
     )

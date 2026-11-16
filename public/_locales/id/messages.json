@@ -1,0 +1,209 @@
+{
+    "extDescription": {
+        "message": "Utilitas sinkronisasi bookmark untuk Chrome dan Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Logo aplikasi"
+    },
+    "optionsTitle": {
+        "message": "Opsi XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Aktifkan sinkronisasi"
+    },
+    "enableNotifications": {
+        "message": "Aktifkan notifikasi"
+    },
+    "lastSynced": {
+        "message": "Terakhir disinkronkan: $1"
+    },
+    "syncNow": {
+        "message": "Sinkronkan sekarang"
+    },
+    "openSettings": {
+        "message": "Setelan"
+    },
+    "version": {
+        "message": "versi: $1"
+    },
+    "tabSettings": {
+        "message": "Setelan"
+    },
+    "tabTools": {
+        "message": "Alat"
+    },
+    "settingsHeading": {
+        "message": "Setelan"
+    },
+    "syncStorageHeading": {
+        "message": "Penyimpanan Sinkronisasi"
+    },
+    "helpHeading": {
+        "message": "Bantuan"
+    },
+    "helpSetup": {
+        "message": "Dapatkan bantuan tentang penyiapan dan penggunaan XBookSync."
+    },
+    "helpIssues": {
+        "message": "Untuk masalah atau permintaan fitur di XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Urutkan bookmark"
+    },
+    "sortOrder": {
+        "message": "Urutan"
+    },
+    "sortAscending": {
+        "message": "Naik (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Turun (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Urutkan folder"
+    },
+    "sortFoldersFirst": {
+        "message": "Folder terlebih dahulu"
+    },
+    "sortTogether": {
+        "message": "Urutkan bookmark dan folder bersama"
+    },
+    "syncRate": {
+        "message": "Frekuensi sinkronisasi"
+    },
+    "durationDays": {
+        "message": "Hari"
+    },
+    "durationHours": {
+        "message": "Jam"
+    },
+    "durationMinutes": {
+        "message": "Menit"
+    },
+    "durationSeconds": {
+        "message": "Detik"
+    },
+    "durationDecrease": {
+        "message": "Kurangi $1"
+    },
+    "durationIncrease": {
+        "message": "Tambah $1"
+    },
+    "durationSummary": {
+        "message": "Setiap $1"
+    },
+    "storageType": {
+        "message": "Jenis penyimpanan"
+    },
+    "storageSelect": {
+        "message": "Pilih jenis penyimpanan"
+    },
+    "storageGitHubRepo": {
+        "message": "Repositori GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Repositori GitLab"
+    },
+    "storageS3": {
+        "message": "Bucket S3"
+    },
+    "noStorageSelected": {
+        "message": "Belum ada jenis penyimpanan yang dipilih"
+    },
+    "notImplemented": {
+        "message": "Fitur ini belum tersedia"
+    },
+    "ghLogin": {
+        "message": "Masuk dengan GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Hapus token"
+    },
+    "ghEnterCode": {
+        "message": "Masukkan kode $1 di $2"
+    },
+    "ghCopyCode": {
+        "message": "Salin kode"
+    },
+    "ghNotInstalled": {
+        "message": "Terhubung, tetapi aplikasi belum dipasang di akun mana pun — pemasangan itulah yang memberi akses ke repositori Anda."
+    },
+    "ghInstall": {
+        "message": "Pasang di GitHub"
+    },
+    "ghInstalled": {
+        "message": "Saya sudah memasangnya"
+    },
+    "ghRepo": {
+        "message": "Repositori GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Memuat repositori…"
+    },
+    "ghSelectRepo": {
+        "message": "Pilih repositori"
+    },
+    "ghConnected": {
+        "message": "Terhubung ke GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Kode perangkat kedaluwarsa sebelum diotorisasi."
+    },
+    "ghAuthDenied": {
+        "message": "Otorisasi GitHub ditolak."
+    },
+    "syncFailedTitle": {
+        "message": "Sinkronisasi XBookSync gagal"
+    },
+    "errRemoteMissing": {
+        "message": "File bookmark jarak jauh telah dihapus."
+    },
+    "errNotConfigured": {
+        "message": "Belum ada target sinkronisasi yang dikonfigurasi."
+    },
+    "errAuthRequired": {
+        "message": "Koneksi GitHub perlu diperiksa — hubungkan ulang di setelan."
+    },
+    "errConflict": {
+        "message": "Konflik sinkronisasi — akan dicoba ulang secara otomatis."
+    },
+    "errNetwork": {
+        "message": "Tidak dapat menjangkau GitHub — akan dicoba ulang."
+    },
+    "errServer": {
+        "message": "GitHub sedang bermasalah — akan dicoba ulang."
+    },
+    "errUnknown": {
+        "message": "Sinkronisasi gagal — akan dicoba ulang."
+    },
+    "toolsSearchFor": {
+        "message": "Cari"
+    },
+    "toolsEmptyFolders": {
+        "message": "Folder kosong"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Bookmark duplikat"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Gabungkan folder duplikat"
+    },
+    "toolsRun": {
+        "message": "Jalankan"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Tidak ada folder kosong."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Tidak ada bookmark duplikat."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Tidak ada folder duplikat."
+    },
+    "toolsMergeFolders": {
+        "message": "Gabungkan Folder"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Gabungkan folder \"$1\""
+    }
+}

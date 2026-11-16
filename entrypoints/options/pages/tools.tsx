@@ -5,6 +5,7 @@ import { findDuplicateBookmarks, findDuplicateFolders, findEmptyFolders, mergeDu
 import Empty from '../components/empty'
 import Duplicates from '../components/duplicate'
 import Merge from '../components/merge'
+import { t } from '@/entrypoints/shared/i18n'
 
 /**
  * Tools tab: toggles for which cleanup scans to run, a Run button, and a result
@@ -134,19 +135,27 @@ export default function Tools() {
     return (
         <>
             <div className='card'>
-                <h3>Search For</h3>
+                <h3>{t('toolsSearchFor')}</h3>
                 <div className='setting-group'>
-                    <Toggle label='Empty Folders' checked={emptyEnabled} onToggle={handleEmptyChange} />
+                    <Toggle label={t('toolsEmptyFolders')} checked={emptyEnabled} onToggle={handleEmptyChange} />
                 </div>
                 <div className='setting-group'>
-                    <Toggle label='Duplicate Bookmarks' checked={duplicateEnabled} onToggle={handleDupChange} />
+                    <Toggle
+                        label={t('toolsDuplicateBookmarks')}
+                        checked={duplicateEnabled}
+                        onToggle={handleDupChange}
+                    />
                 </div>
 
                 <div className='setting-group'>
-                    <Toggle label='Merge Duplicate Folders' checked={mergeFolders} onToggle={handleMergeFolders} />
+                    <Toggle
+                        label={t('toolsMergeDuplicateFolders')}
+                        checked={mergeFolders}
+                        onToggle={handleMergeFolders}
+                    />
                 </div>
 
-                <button onClick={runTools}>Run</button>
+                <button onClick={runTools}>{t('toolsRun')}</button>
             </div>
             {hasRun && getEmptyFolders()}
             {hasRun && getDuplicateBookmarks()}

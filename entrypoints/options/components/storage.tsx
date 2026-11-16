@@ -5,6 +5,7 @@ import { getStorageBackend, StorageBackend } from '@/entrypoints/shared/types'
 import GitHubSettings from './gh-storage'
 import Unimplemented from './unimplemented'
 import NoSelection from './no-selection'
+import { t } from '@/entrypoints/shared/i18n'
 
 /**
  * Storage-target picker plus the settings for whichever target is selected.
@@ -50,18 +51,18 @@ export default function Storage() {
     return (
         <div className='setting-group'>
             <div className='setting'>
-                <label htmlFor='location'>Storage Type</label>
+                <label htmlFor='location'>{t('storageType')}</label>
                 <select
                     id='location'
                     value={selectedOption}
                     onChange={handleStorageChange}
                     style={{ width: '100%', padding: '6px', borderRadius: '4px' }}
                 >
-                    <option value={StorageBackend.None}>Select a Storage Type</option>
-                    <option value={StorageBackend.GitHubRepo}>GitHub Repo</option>
-                    <option value={StorageBackend.GitHubGist}>GitHub Gist</option>
-                    <option value={StorageBackend.GitLabRepo}>GitLab Repo</option>
-                    <option value={StorageBackend.S3}>S3 Bucket</option>
+                    <option value={StorageBackend.None}>{t('storageSelect')}</option>
+                    <option value={StorageBackend.GitHubRepo}>{t('storageGitHubRepo')}</option>
+                    <option value={StorageBackend.GitHubGist}>{t('storageGitHubGist')}</option>
+                    <option value={StorageBackend.GitLabRepo}>{t('storageGitLabRepo')}</option>
+                    <option value={StorageBackend.S3}>{t('storageS3')}</option>
                 </select>
             </div>
             <div className='storage-setting'>{renderLocationSettings()}</div>
