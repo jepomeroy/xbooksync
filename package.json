@@ -24,7 +24,7 @@
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
         "react-icons": "^5.7.0",
-        "typescript-eslint": "^8.72.2"
+        "typescript-eslint": "^8.73.0"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
@@ -32,12 +32,12 @@
         "@types/react-dom": "^19.3.0",
         "@wxt-dev/auto-icons": "^1.1.2",
         "@wxt-dev/module-react": "^1.2.2",
-        "eslint": "^10.14.0",
+        "eslint": "^10.15.0",
         "eslint-plugin-react-hooks": "^7.1.1",
         "typescript": "^5.9.3",
         "globals": "^17.14.0",
         "happy-dom": "^21.0.4",
-        "vitest": "^5.0.5",
+        "vitest": "^5.1.0",
         "web-ext": "^10.8.0",
         "wxt": "^0.21.5"
     }
