@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Синхронизация закладок для Chrome и Firefox"
     },

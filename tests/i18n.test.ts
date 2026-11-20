@@ -10,6 +10,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { fakeBrowser } from 'wxt/testing/fake-browser'
 import { applyDocumentLocale, formatDuration, t, tParts } from '@/entrypoints/shared/i18n'
+import wxtConfig from '../wxt.config'
 
 const LOCALES_DIR = join(__dirname, '..', 'public', '_locales')
 
@@ -40,6 +41,11 @@ const placeholders = (message: string) => (message.match(/\$[1-9]/g) ?? []).sort
 const en = load('en')
 const locales = readdirSync(LOCALES_DIR).filter(locale => locale !== 'en')
 
+/** The `__MSG_key__` references in the manifest's top-level string fields. */
+const manifestKeys = Object.values(wxtConfig.manifest as Record<string, unknown>)
+    .filter((value): value is string => typeof value === 'string')
+    .flatMap(value => [...value.matchAll(/__MSG_(\w+)__/g)].map(match => match[1]!))
+
 describe('locale catalogs', () => {
     it('has translations', () => {
         expect(locales.length).toBeGreaterThan(0)
@@ -54,6 +60,19 @@ describe('locale catalogs', () => {
         const catalog = load(locale)
         expect(catalog.localeTag?.message).toBe(locale.replace('_', '-'))
         expect(['ltr', 'rtl']).toContain(catalog.textDirection?.message)
+    })
+
+    it('localizes the manifest', () => {
+        expect(manifestKeys).toContain('extName')
+    })
+
+    it.each([...locales, 'en'])('%s defines every message the manifest uses', locale => {
+        // Unlike UI strings, these get no English fallback from the Chrome Web
+        // Store: it rejects the upload with PKG_MANIFEST_MISSING_NAME for any
+        // locale without its own `extName`.
+        const catalog = load(locale)
+        const missing = manifestKeys.filter(key => !catalog[key]?.message)
+        expect(missing).toEqual([])
     })
 
     it.each(locales)('%s keeps the English placeholders', locale => {

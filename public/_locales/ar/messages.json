@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "rtl"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "أداة مزامنة الإشارات المرجعية لمتصفحي Chrome وFirefox"
     },

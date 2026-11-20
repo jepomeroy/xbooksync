@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Tiện ích đồng bộ dấu trang cho Chrome và Firefox"
     },

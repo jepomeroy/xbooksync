@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Chrome と Firefox 向けのブックマーク同期ツール"
     },

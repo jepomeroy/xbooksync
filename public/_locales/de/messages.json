@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Lesezeichen-Synchronisierung für Chrome und Firefox"
     },

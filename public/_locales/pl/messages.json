@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Narzędzie do synchronizacji zakładek dla Chrome i Firefoksa"
     },
