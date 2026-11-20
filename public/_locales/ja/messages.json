@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "ja"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Chrome と Firefox 向けのブックマーク同期ツール"
+    },
+    "appLogoAlt": {
+        "message": "アプリのロゴ"
+    },
+    "optionsTitle": {
+        "message": "XBookSync のオプション"
+    },
+    "enableSyncing": {
+        "message": "同期を有効にする"
+    },
+    "enableNotifications": {
+        "message": "通知を有効にする"
+    },
+    "lastSynced": {
+        "message": "最終同期: $1"
+    },
+    "syncNow": {
+        "message": "今すぐ同期"
+    },
+    "openSettings": {
+        "message": "設定"
+    },
+    "version": {
+        "message": "バージョン: $1"
+    },
+    "tabSettings": {
+        "message": "設定"
+    },
+    "tabTools": {
+        "message": "ツール"
+    },
+    "settingsHeading": {
+        "message": "設定"
+    },
+    "syncStorageHeading": {
+        "message": "同期先ストレージ"
+    },
+    "helpHeading": {
+        "message": "ヘルプ"
+    },
+    "helpSetup": {
+        "message": "XBookSync の設定と使い方のヘルプ。"
+    },
+    "helpIssues": {
+        "message": "XBookSync の不具合報告や機能リクエストはこちら。"
+    },
+    "sortBookmarks": {
+        "message": "ブックマークを並べ替える"
+    },
+    "sortOrder": {
+        "message": "並び順"
+    },
+    "sortAscending": {
+        "message": "昇順 (A-Z)"
+    },
+    "sortDescending": {
+        "message": "降順 (Z-A)"
+    },
+    "sortFolders": {
+        "message": "フォルダの並べ替え"
+    },
+    "sortFoldersFirst": {
+        "message": "フォルダを先に表示"
+    },
+    "sortTogether": {
+        "message": "ブックマークとフォルダをまとめて並べ替え"
+    },
+    "syncRate": {
+        "message": "同期間隔"
+    },
+    "durationDays": {
+        "message": "日"
+    },
+    "durationHours": {
+        "message": "時間"
+    },
+    "durationMinutes": {
+        "message": "分"
+    },
+    "durationSeconds": {
+        "message": "秒"
+    },
+    "durationDecrease": {
+        "message": "$1を減らす"
+    },
+    "durationIncrease": {
+        "message": "$1を増やす"
+    },
+    "durationSummary": {
+        "message": "$1ごと"
+    },
+    "storageType": {
+        "message": "ストレージの種類"
+    },
+    "storageSelect": {
+        "message": "ストレージの種類を選択"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub リポジトリ"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab リポジトリ"
+    },
+    "storageS3": {
+        "message": "S3 バケット"
+    },
+    "noStorageSelected": {
+        "message": "ストレージの種類が選択されていません"
+    },
+    "notImplemented": {
+        "message": "この機能はまだ利用できません"
+    },
+    "ghLogin": {
+        "message": "GitHub でログイン"
+    },
+    "ghRemoveToken": {
+        "message": "トークンを削除"
+    },
+    "ghEnterCode": {
+        "message": "$2 でコード $1 を入力してください"
+    },
+    "ghCopyCode": {
+        "message": "コードをコピー"
+    },
+    "ghNotInstalled": {
+        "message": "接続済みですが、アプリがまだどのアカウントにもインストールされていません。リポジトリへのアクセスにはインストールが必要です。"
+    },
+    "ghInstall": {
+        "message": "GitHub にインストール"
+    },
+    "ghInstalled": {
+        "message": "インストールしました"
+    },
+    "ghRepo": {
+        "message": "GitHub リポジトリ"
+    },
+    "ghLoadingRepos": {
+        "message": "リポジトリを読み込み中…"
+    },
+    "ghSelectRepo": {
+        "message": "リポジトリを選択"
+    },
+    "ghConnected": {
+        "message": "GitHub に接続しました。"
+    },
+    "ghCodeExpired": {
+        "message": "承認される前にデバイスコードの有効期限が切れました。"
+    },
+    "ghAuthDenied": {
+        "message": "GitHub の承認が拒否されました。"
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync の同期に失敗しました"
+    },
+    "errRemoteMissing": {
+        "message": "リモートのブックマークファイルが削除されました。"
+    },
+    "errNotConfigured": {
+        "message": "同期先がまだ設定されていません。"
+    },
+    "errAuthRequired": {
+        "message": "GitHub との接続に問題があります。設定から再接続してください。"
+    },
+    "errConflict": {
+        "message": "同期の競合が発生しました。自動的に再試行します。"
+    },
+    "errNetwork": {
+        "message": "GitHub に接続できません。再試行します。"
+    },
+    "errServer": {
+        "message": "GitHub で問題が発生しています。再試行します。"
+    },
+    "errUnknown": {
+        "message": "同期に失敗しました。再試行します。"
+    },
+    "toolsSearchFor": {
+        "message": "検索対象"
+    },
+    "toolsEmptyFolders": {
+        "message": "空のフォルダ"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "重複したブックマーク"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "重複したフォルダを統合"
+    },
+    "toolsRun": {
+        "message": "実行"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "空のフォルダは見つかりませんでした。"
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "重複したブックマークは見つかりませんでした。"
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "重複したフォルダは見つかりませんでした。"
+    },
+    "toolsMergeFolders": {
+        "message": "フォルダの統合"
+    },
+    "toolsMergeFolderSet": {
+        "message": "「$1」フォルダを統合"
+    }
+}

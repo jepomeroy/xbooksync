@@ -8,6 +8,11 @@ export default defineConfig({
         developmentIndicator: false,
     },
     manifest: {
+        // Catalogs are in public/_locales; English is the fallback for any
+        // locale or key without a translation.
+        default_locale: 'en',
+        name: '__MSG_extName__',
+        description: '__MSG_extDescription__',
         // storage: persisted settings; bookmarks: read/write the bookmark tree;
         // alarms: schedule periodic syncs; notifications: alert the user when a
         // sync fails and the icon isn't pinned to the toolbar, where the badge

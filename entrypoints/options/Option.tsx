@@ -4,11 +4,12 @@ import './Option.css'
 import Tabs from './components/tabs'
 import Settings from './pages/settings'
 import Tools from './pages/tools'
+import { t } from '@/entrypoints/shared/i18n'
 
 /** Options page tabs, in display order. The first entry is selected on load. */
 const tabData = [
-    { id: 'settings', title: 'Settings', content: <Settings /> },
-    { id: 'tools', title: 'Tools', content: <Tools /> },
+    { id: 'settings', title: t('tabSettings'), content: <Settings /> },
+    { id: 'tools', title: t('tabTools'), content: <Tools /> },
 ]
 
 /** Options page: header, followed by the Settings and Tools tabs from {@link tabData}. */
@@ -18,11 +19,11 @@ function Option() {
             <div className='header'>
                 <div>
                     <a href='https://github.com/jepomeroy/xbooksync' target='_blank'>
-                        <img src={appLogo} className='logo' alt='App logo' />
+                        <img src={appLogo} className='logo' alt={t('appLogoAlt')} />
                     </a>
                 </div>
                 <div>
-                    <h1>XBookSync Options</h1>
+                    <h1>{t('optionsTitle')}</h1>
                 </div>
             </div>
             <div className='tabs-wrapper'>

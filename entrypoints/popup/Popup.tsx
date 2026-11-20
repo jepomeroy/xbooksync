@@ -15,6 +15,7 @@ import {
     unregisterSettingsWatcher,
 } from '../shared/localsettings'
 import { getLastSynced, parseLastSynced, syncErrorMessage } from '@/entrypoints/shared/syncutils'
+import { t } from '@/entrypoints/shared/i18n'
 import { type MessageResponse, type SyncErrorType, SyncErrorKind, SyncNowMessage } from '@/entrypoints/shared/types'
 
 /**
@@ -128,24 +129,24 @@ function Popup() {
             <div className='header'>
                 <div>
                     <a href='https://github.com/jepomeroy/xbooksync' target='_blank'>
-                        <img src={appLogo} className='logo' alt='App logo' />
+                        <img src={appLogo} className='logo' alt={t('appLogoAlt')} />
                     </a>
                 </div>
                 <div>
-                    <h1>XBookSync</h1>
+                    <h1>{t('extName')}</h1>
                 </div>
             </div>
             <div className='setting-group'>
-                <Toggle label='Enable Syncing' checked={syncEnabled} onToggle={handleSyncChange} />
+                <Toggle label={t('enableSyncing')} checked={syncEnabled} onToggle={handleSyncChange} />
                 {import.meta.env.BROWSER === 'chrome' && (
                     <Toggle
-                        label='Enable Notification'
+                        label={t('enableNotifications')}
                         checked={notificationsEnabled}
                         onToggle={handleNotificationsChange}
                     />
                 )}
                 <div className='last-synced'>
-                    <p>Last synced: {getLastSynced(lastSynced)}</p>
+                    <p>{t('lastSynced', getLastSynced(lastSynced))}</p>
                 </div>
                 {syncError && (
                     <p
@@ -161,16 +162,16 @@ function Popup() {
                 )}
             </div>
             <div className='button-group'>
-                <button onClick={syncNow} aria-label='Sync now' title='Sync now'>
+                <button onClick={syncNow} aria-label={t('syncNow')} title={t('syncNow')}>
                     <FaSync />
                 </button>
-                <button onClick={openOptions} aria-label='Settings' title='Settings'>
+                <button onClick={openOptions} aria-label={t('openSettings')} title={t('openSettings')}>
                     <FaGear />
                 </button>
             </div>
             {/* Extension version from the manifest, useful in bug reports. */}
             <div className='version'>
-                <p>version: {browser.runtime.getManifest().version}</p>
+                <p>{t('version', browser.runtime.getManifest().version)}</p>
             </div>
         </div>
     )

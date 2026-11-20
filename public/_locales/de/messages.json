@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "de"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Lesezeichen-Synchronisierung für Chrome und Firefox"
+    },
+    "appLogoAlt": {
+        "message": "App-Logo"
+    },
+    "optionsTitle": {
+        "message": "XBookSync-Optionen"
+    },
+    "enableSyncing": {
+        "message": "Synchronisierung aktivieren"
+    },
+    "enableNotifications": {
+        "message": "Benachrichtigungen aktivieren"
+    },
+    "lastSynced": {
+        "message": "Zuletzt synchronisiert: $1"
+    },
+    "syncNow": {
+        "message": "Jetzt synchronisieren"
+    },
+    "openSettings": {
+        "message": "Einstellungen"
+    },
+    "version": {
+        "message": "Version: $1"
+    },
+    "tabSettings": {
+        "message": "Einstellungen"
+    },
+    "tabTools": {
+        "message": "Werkzeuge"
+    },
+    "settingsHeading": {
+        "message": "Einstellungen"
+    },
+    "syncStorageHeading": {
+        "message": "Synchronisierungsspeicher"
+    },
+    "helpHeading": {
+        "message": "Hilfe"
+    },
+    "helpSetup": {
+        "message": "Hilfe zur Einrichtung und Nutzung von XBookSync."
+    },
+    "helpIssues": {
+        "message": "Fehler melden oder Funktionen für XBookSync vorschlagen."
+    },
+    "sortBookmarks": {
+        "message": "Lesezeichen sortieren"
+    },
+    "sortOrder": {
+        "message": "Sortierreihenfolge"
+    },
+    "sortAscending": {
+        "message": "Aufsteigend (A–Z)"
+    },
+    "sortDescending": {
+        "message": "Absteigend (Z–A)"
+    },
+    "sortFolders": {
+        "message": "Ordner sortieren"
+    },
+    "sortFoldersFirst": {
+        "message": "Ordner zuerst"
+    },
+    "sortTogether": {
+        "message": "Lesezeichen und Ordner gemeinsam sortieren"
+    },
+    "syncRate": {
+        "message": "Synchronisierungsintervall"
+    },
+    "durationDays": {
+        "message": "Tage"
+    },
+    "durationHours": {
+        "message": "Stunden"
+    },
+    "durationMinutes": {
+        "message": "Minuten"
+    },
+    "durationSeconds": {
+        "message": "Sekunden"
+    },
+    "durationDecrease": {
+        "message": "$1 verringern"
+    },
+    "durationIncrease": {
+        "message": "$1 erhöhen"
+    },
+    "durationSummary": {
+        "message": "Intervall: $1"
+    },
+    "storageType": {
+        "message": "Speichertyp"
+    },
+    "storageSelect": {
+        "message": "Speichertyp auswählen"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub-Repository"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab-Repository"
+    },
+    "storageS3": {
+        "message": "S3-Bucket"
+    },
+    "noStorageSelected": {
+        "message": "Kein Speichertyp ausgewählt"
+    },
+    "notImplemented": {
+        "message": "Diese Funktion ist noch nicht verfügbar"
+    },
+    "ghLogin": {
+        "message": "Mit GitHub anmelden"
+    },
+    "ghRemoveToken": {
+        "message": "Token entfernen"
+    },
+    "ghEnterCode": {
+        "message": "Code $1 unter $2 eingeben"
+    },
+    "ghCopyCode": {
+        "message": "Code kopieren"
+    },
+    "ghNotInstalled": {
+        "message": "Verbunden, aber die App ist noch in keinem Konto installiert – erst dadurch erhält sie Zugriff auf deine Repositorys."
+    },
+    "ghInstall": {
+        "message": "Auf GitHub installieren"
+    },
+    "ghInstalled": {
+        "message": "Ich habe sie installiert"
+    },
+    "ghRepo": {
+        "message": "GitHub-Repository"
+    },
+    "ghLoadingRepos": {
+        "message": "Repositorys werden geladen…"
+    },
+    "ghSelectRepo": {
+        "message": "Repository auswählen"
+    },
+    "ghConnected": {
+        "message": "Mit GitHub verbunden."
+    },
+    "ghCodeExpired": {
+        "message": "Der Gerätecode ist abgelaufen, bevor er bestätigt wurde."
+    },
+    "ghAuthDenied": {
+        "message": "Die Autorisierung bei GitHub wurde abgelehnt."
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync: Synchronisierung fehlgeschlagen"
+    },
+    "errRemoteMissing": {
+        "message": "Die entfernte Lesezeichendatei wurde gelöscht."
+    },
+    "errNotConfigured": {
+        "message": "Es ist noch kein Synchronisierungsziel eingerichtet."
+    },
+    "errAuthRequired": {
+        "message": "Die GitHub-Verbindung erfordert Aufmerksamkeit – in den Einstellungen neu verbinden."
+    },
+    "errConflict": {
+        "message": "Synchronisierungskonflikt – wird automatisch erneut versucht."
+    },
+    "errNetwork": {
+        "message": "GitHub nicht erreichbar – wird erneut versucht."
+    },
+    "errServer": {
+        "message": "GitHub hat Probleme – wird erneut versucht."
+    },
+    "errUnknown": {
+        "message": "Synchronisierung fehlgeschlagen – wird erneut versucht."
+    },
+    "toolsSearchFor": {
+        "message": "Suchen nach"
+    },
+    "toolsEmptyFolders": {
+        "message": "Leere Ordner"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Doppelte Lesezeichen"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Doppelte Ordner zusammenführen"
+    },
+    "toolsRun": {
+        "message": "Ausführen"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Keine leeren Ordner gefunden."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Keine doppelten Lesezeichen gefunden."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Keine doppelten Ordner gefunden."
+    },
+    "toolsMergeFolders": {
+        "message": "Ordner zusammenführen"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Ordner „$1“ zusammenführen"
+    }
+}

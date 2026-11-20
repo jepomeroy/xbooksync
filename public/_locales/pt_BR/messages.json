@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "pt-BR"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Utilitário de sincronização de favoritos para Chrome e Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Logotipo do aplicativo"
+    },
+    "optionsTitle": {
+        "message": "Opções do XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Ativar sincronização"
+    },
+    "enableNotifications": {
+        "message": "Ativar notificações"
+    },
+    "lastSynced": {
+        "message": "Última sincronização: $1"
+    },
+    "syncNow": {
+        "message": "Sincronizar agora"
+    },
+    "openSettings": {
+        "message": "Configurações"
+    },
+    "version": {
+        "message": "versão: $1"
+    },
+    "tabSettings": {
+        "message": "Configurações"
+    },
+    "tabTools": {
+        "message": "Ferramentas"
+    },
+    "settingsHeading": {
+        "message": "Configurações"
+    },
+    "syncStorageHeading": {
+        "message": "Armazenamento da sincronização"
+    },
+    "helpHeading": {
+        "message": "Ajuda"
+    },
+    "helpSetup": {
+        "message": "Obtenha ajuda sobre a configuração e o uso do XBookSync."
+    },
+    "helpIssues": {
+        "message": "Para problemas ou pedidos de recursos no XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Ordenar favoritos"
+    },
+    "sortOrder": {
+        "message": "Ordem"
+    },
+    "sortAscending": {
+        "message": "Crescente (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Decrescente (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Ordenar pastas"
+    },
+    "sortFoldersFirst": {
+        "message": "Pastas primeiro"
+    },
+    "sortTogether": {
+        "message": "Ordenar favoritos e pastas juntos"
+    },
+    "syncRate": {
+        "message": "Frequência de sincronização"
+    },
+    "durationDays": {
+        "message": "Dias"
+    },
+    "durationHours": {
+        "message": "Horas"
+    },
+    "durationMinutes": {
+        "message": "Minutos"
+    },
+    "durationSeconds": {
+        "message": "Segundos"
+    },
+    "durationDecrease": {
+        "message": "Diminuir $1"
+    },
+    "durationIncrease": {
+        "message": "Aumentar $1"
+    },
+    "durationSummary": {
+        "message": "A cada $1"
+    },
+    "storageType": {
+        "message": "Tipo de armazenamento"
+    },
+    "storageSelect": {
+        "message": "Selecione um tipo de armazenamento"
+    },
+    "storageGitHubRepo": {
+        "message": "Repositório do GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Repositório do GitLab"
+    },
+    "storageS3": {
+        "message": "Bucket do S3"
+    },
+    "noStorageSelected": {
+        "message": "Nenhum tipo de armazenamento selecionado"
+    },
+    "notImplemented": {
+        "message": "Este recurso ainda não está disponível"
+    },
+    "ghLogin": {
+        "message": "Entrar com o GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Remover token"
+    },
+    "ghEnterCode": {
+        "message": "Digite o código $1 em $2"
+    },
+    "ghCopyCode": {
+        "message": "Copiar código"
+    },
+    "ghNotInstalled": {
+        "message": "Conectado, mas o aplicativo ainda não está instalado em nenhuma conta — é isso que dá acesso aos seus repositórios."
+    },
+    "ghInstall": {
+        "message": "Instalar no GitHub"
+    },
+    "ghInstalled": {
+        "message": "Já instalei"
+    },
+    "ghRepo": {
+        "message": "Repositório do GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Carregando repositórios…"
+    },
+    "ghSelectRepo": {
+        "message": "Selecione um repositório"
+    },
+    "ghConnected": {
+        "message": "Conectado ao GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "O código do dispositivo expirou antes de ser autorizado."
+    },
+    "ghAuthDenied": {
+        "message": "A autorização do GitHub foi negada."
+    },
+    "syncFailedTitle": {
+        "message": "Falha na sincronização do XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "O arquivo remoto de favoritos foi excluído."
+    },
+    "errNotConfigured": {
+        "message": "Nenhum destino de sincronização foi configurado ainda."
+    },
+    "errAuthRequired": {
+        "message": "A conexão com o GitHub precisa de atenção — reconecte nas configurações."
+    },
+    "errConflict": {
+        "message": "Conflito de sincronização — tentando novamente automaticamente."
+    },
+    "errNetwork": {
+        "message": "Não foi possível acessar o GitHub — nova tentativa em breve."
+    },
+    "errServer": {
+        "message": "O GitHub está com problemas — nova tentativa em breve."
+    },
+    "errUnknown": {
+        "message": "Falha na sincronização — nova tentativa em breve."
+    },
+    "toolsSearchFor": {
+        "message": "Procurar"
+    },
+    "toolsEmptyFolders": {
+        "message": "Pastas vazias"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Favoritos duplicados"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Mesclar pastas duplicadas"
+    },
+    "toolsRun": {
+        "message": "Executar"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Nenhuma pasta vazia encontrada."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Nenhum favorito duplicado encontrado."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Nenhuma pasta duplicada encontrada."
+    },
+    "toolsMergeFolders": {
+        "message": "Mesclar pastas"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Mesclar pastas \"$1\""
+    }
+}

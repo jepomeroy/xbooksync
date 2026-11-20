@@ -1,9 +1,16 @@
-import { getGitHubToken, loginWithGitHubApp, INSTALL_URL, type DeviceCodePrompt } from '@/entrypoints/bookmarks/gh-app-auth'
+import {
+    getGitHubToken,
+    loginWithGitHubApp,
+    INSTALL_URL,
+    type DeviceCodePrompt,
+} from '@/entrypoints/bookmarks/gh-app-auth'
+import { Fragment } from 'react'
 import { FaGithub, FaRegCopy } from 'react-icons/fa6'
 
 import './gh-storage.css'
 import { disconnectGitHub, ghAuthToken, ghRepo, selectSyncRepo } from '@/entrypoints/shared/localsettings'
 import { AppNotInstalledError, fetchGitHubRepos } from '@/entrypoints/bookmarks/gh-utils'
+import { t, tParts } from '@/entrypoints/shared/i18n'
 
 /**
  * Settings for the GitHub Repo sync target: GitHub App login via the device
@@ -56,7 +63,7 @@ export default function GitHubSettings() {
                 // Reaching here means the token works *and* the app is installed,
                 // which is the only point at which "connected" is honest. Set on
                 // every load, not just at login, so it survives a reload.
-                setStatus('Connected to GitHub.')
+                setStatus(t('ghConnected'))
             })
             .catch(error => {
                 if (cancelled) return
@@ -188,42 +195,47 @@ export default function GitHubSettings() {
             <button
                 className='gh-login'
                 onClick={handleButtonClick}
-                aria-label='Login with GitHub'
-                title='Login with GitHub'
+                aria-label={token === '' ? t('ghLogin') : t('ghRemoveToken')}
+                title={token === '' ? t('ghLogin') : t('ghRemoveToken')}
             >
                 <div className='button-text'>
                     <FaGithub />
-                    {token === '' ? 'Login With GitHub' : 'Remove Token'}
+                    {token === '' ? t('ghLogin') : t('ghRemoveToken')}
                 </div>
             </button>
             <div className='gh-messages'>
                 {prompt && (
                     <p className='prompt'>
-                        Enter code <strong>{prompt.userCode}</strong>{' '}
-                        <button
-                            type='button'
-                            className='copy-code'
-                            onClick={() => copyToClipboard(prompt.userCode)}
-                            aria-label='Copy code'
-                            title='Copy code'
-                        >
-                            <FaRegCopy />
-                        </button>{' '}
-                        at{' '}
-                        <a href={prompt.verificationUri} target='_blank' rel='noreferrer'>
-                            {prompt.verificationUri}
-                        </a>
+                        {/* Split around the placeholders so each translation can
+                            put the code and the link wherever its grammar wants. */}
+                        {tParts(
+                            'ghEnterCode',
+                            <>
+                                <strong>{prompt.userCode}</strong>{' '}
+                                <button
+                                    type='button'
+                                    className='copy-code'
+                                    onClick={() => copyToClipboard(prompt.userCode)}
+                                    aria-label={t('ghCopyCode')}
+                                    title={t('ghCopyCode')}
+                                >
+                                    <FaRegCopy />
+                                </button>
+                            </>,
+                            <a href={prompt.verificationUri} target='_blank' rel='noreferrer'>
+                                {prompt.verificationUri}
+                            </a>,
+                        ).map((part, i) => (
+                            <Fragment key={i}>{part}</Fragment>
+                        ))}
                     </p>
                 )}
                 {needsInstall && (
                     <div className='needs-install' role='status'>
-                        <p>
-                            Connected, but the app isn&apos;t installed on any account yet — that&apos;s what grants
-                            access to your repos.
-                        </p>
+                        <p>{t('ghNotInstalled')}</p>
                         <div className='needs-install-actions'>
-                            <button onClick={handleInstallClick}>Install on GitHub</button>
-                            <button onClick={handleRecheckClick}>I&apos;ve installed it</button>
+                            <button onClick={handleInstallClick}>{t('ghInstall')}</button>
+                            <button onClick={handleRecheckClick}>{t('ghInstalled')}</button>
                         </div>
                     </div>
                 )}
@@ -235,14 +247,14 @@ export default function GitHubSettings() {
             </div>
             {token && (
                 <div className='setting gh-repo-setting'>
-                    <label htmlFor='gh-repo'>GitHub Repo</label>
+                    <label htmlFor='gh-repo'>{t('ghRepo')}</label>
                     <select
                         id='gh-repo'
                         value={repo}
                         onChange={handleRepoChange}
                         style={{ width: '100%', padding: '6px', borderRadius: '4px' }}
                     >
-                        <option value=''>{repos.length === 0 ? 'Loading repos…' : 'Select a repo'}</option>
+                        <option value=''>{repos.length === 0 ? t('ghLoadingRepos') : t('ghSelectRepo')}</option>
                         {repos.map(name => (
                             <option key={name} value={name}>
                                 {name}

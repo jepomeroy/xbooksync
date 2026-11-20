@@ -2,7 +2,7 @@
     "name": "XBookSync",
     "description": "Bookmark sync utility for Chrome and Firefox",
     "private": true,
-    "version": "0.5.2",
+    "version": "0.6.0",
     "type": "module",
     "scripts": {
         "dev": "wxt",
@@ -34,9 +34,9 @@
         "@wxt-dev/module-react": "^1.2.2",
         "eslint": "^10.15.0",
         "eslint-plugin-react-hooks": "^7.1.1",
-        "typescript": "^5.9.3",
         "globals": "^17.14.0",
         "happy-dom": "^21.0.4",
+        "typescript": "~6.0.3",
         "vitest": "^5.1.0",
         "web-ext": "^10.8.0",
         "wxt": "^0.21.5"

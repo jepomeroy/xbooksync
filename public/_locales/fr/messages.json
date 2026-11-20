@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "fr"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Utilitaire de synchronisation des favoris pour Chrome et Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Logo de l'application"
+    },
+    "optionsTitle": {
+        "message": "Options de XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Activer la synchronisation"
+    },
+    "enableNotifications": {
+        "message": "Activer les notifications"
+    },
+    "lastSynced": {
+        "message": "Dernière synchronisation : $1"
+    },
+    "syncNow": {
+        "message": "Synchroniser maintenant"
+    },
+    "openSettings": {
+        "message": "Paramètres"
+    },
+    "version": {
+        "message": "version : $1"
+    },
+    "tabSettings": {
+        "message": "Paramètres"
+    },
+    "tabTools": {
+        "message": "Outils"
+    },
+    "settingsHeading": {
+        "message": "Paramètres"
+    },
+    "syncStorageHeading": {
+        "message": "Stockage de synchronisation"
+    },
+    "helpHeading": {
+        "message": "Aide"
+    },
+    "helpSetup": {
+        "message": "Obtenir de l'aide sur la configuration et l'utilisation de XBookSync."
+    },
+    "helpIssues": {
+        "message": "Signaler un problème ou proposer une fonctionnalité pour XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Trier les favoris"
+    },
+    "sortOrder": {
+        "message": "Ordre de tri"
+    },
+    "sortAscending": {
+        "message": "Croissant (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Décroissant (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Tri des dossiers"
+    },
+    "sortFoldersFirst": {
+        "message": "Dossiers en premier"
+    },
+    "sortTogether": {
+        "message": "Trier favoris et dossiers ensemble"
+    },
+    "syncRate": {
+        "message": "Fréquence de synchronisation"
+    },
+    "durationDays": {
+        "message": "Jours"
+    },
+    "durationHours": {
+        "message": "Heures"
+    },
+    "durationMinutes": {
+        "message": "Minutes"
+    },
+    "durationSeconds": {
+        "message": "Secondes"
+    },
+    "durationDecrease": {
+        "message": "Diminuer : $1"
+    },
+    "durationIncrease": {
+        "message": "Augmenter : $1"
+    },
+    "durationSummary": {
+        "message": "Intervalle : $1"
+    },
+    "storageType": {
+        "message": "Type de stockage"
+    },
+    "storageSelect": {
+        "message": "Choisir un type de stockage"
+    },
+    "storageGitHubRepo": {
+        "message": "Dépôt GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Dépôt GitLab"
+    },
+    "storageS3": {
+        "message": "Bucket S3"
+    },
+    "noStorageSelected": {
+        "message": "Aucun type de stockage sélectionné"
+    },
+    "notImplemented": {
+        "message": "Cette fonctionnalité n'est pas encore disponible"
+    },
+    "ghLogin": {
+        "message": "Se connecter avec GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Supprimer le jeton"
+    },
+    "ghEnterCode": {
+        "message": "Saisissez le code $1 sur $2"
+    },
+    "ghCopyCode": {
+        "message": "Copier le code"
+    },
+    "ghNotInstalled": {
+        "message": "Connecté, mais l'application n'est encore installée sur aucun compte ; c'est ce qui donne accès à vos dépôts."
+    },
+    "ghInstall": {
+        "message": "Installer sur GitHub"
+    },
+    "ghInstalled": {
+        "message": "Je l'ai installée"
+    },
+    "ghRepo": {
+        "message": "Dépôt GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Chargement des dépôts…"
+    },
+    "ghSelectRepo": {
+        "message": "Choisir un dépôt"
+    },
+    "ghConnected": {
+        "message": "Connecté à GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Le code de l'appareil a expiré avant d'être autorisé."
+    },
+    "ghAuthDenied": {
+        "message": "L'autorisation GitHub a été refusée."
+    },
+    "syncFailedTitle": {
+        "message": "Échec de la synchronisation XBookSync"
+    },
+    "errRemoteMissing": {
+        "message": "Le fichier de favoris distant a été supprimé."
+    },
+    "errNotConfigured": {
+        "message": "Aucune cible de synchronisation n'est encore configurée."
+    },
+    "errAuthRequired": {
+        "message": "La connexion GitHub nécessite votre attention — reconnectez-vous dans les paramètres."
+    },
+    "errConflict": {
+        "message": "Conflit de synchronisation — nouvelle tentative automatique."
+    },
+    "errNetwork": {
+        "message": "Impossible de joindre GitHub — nouvelle tentative prévue."
+    },
+    "errServer": {
+        "message": "GitHub rencontre des problèmes — nouvelle tentative prévue."
+    },
+    "errUnknown": {
+        "message": "Échec de la synchronisation — nouvelle tentative prévue."
+    },
+    "toolsSearchFor": {
+        "message": "Rechercher"
+    },
+    "toolsEmptyFolders": {
+        "message": "Dossiers vides"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Favoris en double"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Fusionner les dossiers en double"
+    },
+    "toolsRun": {
+        "message": "Lancer"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Aucun dossier vide trouvé."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Aucun favori en double trouvé."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Aucun dossier en double trouvé."
+    },
+    "toolsMergeFolders": {
+        "message": "Fusionner les dossiers"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Fusionner les dossiers « $1 »"
+    }
+}

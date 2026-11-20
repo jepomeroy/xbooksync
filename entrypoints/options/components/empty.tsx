@@ -1,5 +1,6 @@
 import type { LocalBookmarkEntry } from '@/entrypoints/shared/types'
 import { FaFolder, FaTrashCan } from 'react-icons/fa6'
+import { t } from '@/entrypoints/shared/i18n'
 
 export type EmptyProps = {
     /** Folders with no children. */
@@ -21,7 +22,7 @@ export default function Empty({ folders, buildPath, deleteFolder }: EmptyProps) 
         return (
             <>
                 <div className='card'>
-                    <h3>Empty Folders</h3>
+                    <h3>{t('toolsEmptyFolders')}</h3>
                     <div className='empty-folders'>
                         {folders.map(f => {
                             return (
@@ -42,6 +43,6 @@ export default function Empty({ folders, buildPath, deleteFolder }: EmptyProps) 
             </>
         )
     } else {
-        return <div className='empty-folders'>No empty folders found.</div>
+        return <div className='empty-folders'>{t('toolsNoEmptyFolders')}</div>
     }
 }

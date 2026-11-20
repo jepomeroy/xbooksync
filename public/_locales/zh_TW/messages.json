@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "zh-TW"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "適用於 Chrome 與 Firefox 的書籤同步工具"
+    },
+    "appLogoAlt": {
+        "message": "應用程式標誌"
+    },
+    "optionsTitle": {
+        "message": "XBookSync 選項"
+    },
+    "enableSyncing": {
+        "message": "啟用同步"
+    },
+    "enableNotifications": {
+        "message": "啟用通知"
+    },
+    "lastSynced": {
+        "message": "上次同步：$1"
+    },
+    "syncNow": {
+        "message": "立即同步"
+    },
+    "openSettings": {
+        "message": "設定"
+    },
+    "version": {
+        "message": "版本：$1"
+    },
+    "tabSettings": {
+        "message": "設定"
+    },
+    "tabTools": {
+        "message": "工具"
+    },
+    "settingsHeading": {
+        "message": "設定"
+    },
+    "syncStorageHeading": {
+        "message": "同步儲存空間"
+    },
+    "helpHeading": {
+        "message": "說明"
+    },
+    "helpSetup": {
+        "message": "取得 XBookSync 設定與使用方面的說明。"
+    },
+    "helpIssues": {
+        "message": "回報 XBookSync 的問題或功能需求。"
+    },
+    "sortBookmarks": {
+        "message": "排序書籤"
+    },
+    "sortOrder": {
+        "message": "排序方式"
+    },
+    "sortAscending": {
+        "message": "遞增 (A-Z)"
+    },
+    "sortDescending": {
+        "message": "遞減 (Z-A)"
+    },
+    "sortFolders": {
+        "message": "資料夾排序"
+    },
+    "sortFoldersFirst": {
+        "message": "資料夾優先"
+    },
+    "sortTogether": {
+        "message": "書籤與資料夾一起排序"
+    },
+    "syncRate": {
+        "message": "同步頻率"
+    },
+    "durationDays": {
+        "message": "天"
+    },
+    "durationHours": {
+        "message": "小時"
+    },
+    "durationMinutes": {
+        "message": "分鐘"
+    },
+    "durationSeconds": {
+        "message": "秒"
+    },
+    "durationDecrease": {
+        "message": "減少$1"
+    },
+    "durationIncrease": {
+        "message": "增加$1"
+    },
+    "durationSummary": {
+        "message": "每 $1"
+    },
+    "storageType": {
+        "message": "儲存類型"
+    },
+    "storageSelect": {
+        "message": "選擇儲存類型"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub 儲存庫"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab 儲存庫"
+    },
+    "storageS3": {
+        "message": "S3 儲存貯體"
+    },
+    "noStorageSelected": {
+        "message": "未選擇儲存類型"
+    },
+    "notImplemented": {
+        "message": "此功能尚未推出"
+    },
+    "ghLogin": {
+        "message": "使用 GitHub 登入"
+    },
+    "ghRemoveToken": {
+        "message": "移除權杖"
+    },
+    "ghEnterCode": {
+        "message": "請在 $2 輸入代碼 $1"
+    },
+    "ghCopyCode": {
+        "message": "複製代碼"
+    },
+    "ghNotInstalled": {
+        "message": "已連線，但此應用程式尚未安裝到任何帳戶，安裝後才能存取你的儲存庫。"
+    },
+    "ghInstall": {
+        "message": "在 GitHub 上安裝"
+    },
+    "ghInstalled": {
+        "message": "我已安裝"
+    },
+    "ghRepo": {
+        "message": "GitHub 儲存庫"
+    },
+    "ghLoadingRepos": {
+        "message": "正在載入儲存庫…"
+    },
+    "ghSelectRepo": {
+        "message": "選擇儲存庫"
+    },
+    "ghConnected": {
+        "message": "已連線到 GitHub。"
+    },
+    "ghCodeExpired": {
+        "message": "裝置代碼在授權前已過期。"
+    },
+    "ghAuthDenied": {
+        "message": "GitHub 授權遭到拒絕。"
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync 同步失敗"
+    },
+    "errRemoteMissing": {
+        "message": "遠端書籤檔案已遭刪除。"
+    },
+    "errNotConfigured": {
+        "message": "尚未設定同步目標。"
+    },
+    "errAuthRequired": {
+        "message": "GitHub 連線需要處理，請在設定中重新連線。"
+    },
+    "errConflict": {
+        "message": "同步衝突，將自動重試。"
+    },
+    "errNetwork": {
+        "message": "無法連線到 GitHub，將重試。"
+    },
+    "errServer": {
+        "message": "GitHub 發生問題，將重試。"
+    },
+    "errUnknown": {
+        "message": "同步失敗，將重試。"
+    },
+    "toolsSearchFor": {
+        "message": "搜尋項目"
+    },
+    "toolsEmptyFolders": {
+        "message": "空資料夾"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "重複書籤"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "合併重複資料夾"
+    },
+    "toolsRun": {
+        "message": "執行"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "找不到空資料夾。"
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "找不到重複書籤。"
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "找不到重複資料夾。"
+    },
+    "toolsMergeFolders": {
+        "message": "合併資料夾"
+    },
+    "toolsMergeFolderSet": {
+        "message": "合併「$1」資料夾"
+    }
+}

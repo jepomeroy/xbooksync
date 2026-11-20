@@ -1,4 +1,5 @@
 import { SyncErrorKind } from './types'
+import { t, uiLocale } from './i18n'
 
 /**
  * Parses a stored {@link syncLastSyncDateSetting} value into a Date, mapping
@@ -30,26 +31,25 @@ export const parseLastSynced = (iso: string | null): Date | null => {
  * the stored value is still loading.
  *
  * Shared by the popup and the options page so both render the timestamp
- * identically. Locale and 12-hour clock are hardcoded to `en-US` rather than
- * following the browser's.
+ * identically. Follows the locale of the served catalog (see `uiLocale`), including its
+ * 12/24-hour clock.
  *
  * @param lastSynced - Output of {@link parseLastSynced}, or null before the
  * stored value resolves. Null renders blank rather than a date.
- * @returns e.g. `Fri, Aug 22, 2026 @ 03:45:30 PM`, or `''`.
+ * @returns e.g. `Sat, Aug 22, 2026 @ 03:45:30 PM` in `en-US`, or `''`.
  */
 export const getLastSynced = (lastSynced: Date | null): string => {
     if (lastSynced) {
-        // Fri, Aug 22, 2026 @ 03:45:30 PM
-        return `${lastSynced.toLocaleDateString('en-US', {
+        const locale = uiLocale()
+        return `${lastSynced.toLocaleDateString(locale, {
             weekday: 'short',
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-        })} @ ${lastSynced.toLocaleTimeString('en-US', {
+        })} @ ${lastSynced.toLocaleTimeString(locale, {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: true,
         })}`
     } else {
         return ''
@@ -68,18 +68,18 @@ export const getLastSynced = (lastSynced: Date | null): string => {
 export const syncErrorMessage = (kind: SyncErrorKind): string => {
     switch (kind) {
         case SyncErrorKind.RemoteMissing:
-            return 'The remote bookmarks file was deleted.'
+            return t('errRemoteMissing')
         case SyncErrorKind.NotConfigured:
-            return 'No sync target is configured yet.'
+            return t('errNotConfigured')
         case SyncErrorKind.AuthRequired:
-            return 'GitHub connection needs attention — reconnect in settings.'
+            return t('errAuthRequired')
         case SyncErrorKind.Conflict:
-            return 'Sync conflict — retrying automatically.'
+            return t('errConflict')
         case SyncErrorKind.Network:
-            return "Couldn't reach GitHub — will retry."
+            return t('errNetwork')
         case SyncErrorKind.ServerError:
-            return 'GitHub is having issues — will retry.'
+            return t('errServer')
         case SyncErrorKind.Unknown:
-            return 'Sync failed — will retry.'
+            return t('errUnknown')
     }
 }

@@ -2,6 +2,10 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import Popup from './Popup.tsx'
 import '../shared/style.css'
+import { applyDocumentLocale, t } from '../shared/i18n'
+
+applyDocumentLocale()
+document.title = t('extName')
 
 // Popup entry point. StrictMode double-invokes effects in development, which is
 // deliberate here: the settings components load from extension storage on mount,

@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "tr"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Chrome ve Firefox için yer imi senkronizasyon aracı"
+    },
+    "appLogoAlt": {
+        "message": "Uygulama logosu"
+    },
+    "optionsTitle": {
+        "message": "XBookSync Seçenekleri"
+    },
+    "enableSyncing": {
+        "message": "Senkronizasyonu etkinleştir"
+    },
+    "enableNotifications": {
+        "message": "Bildirimleri etkinleştir"
+    },
+    "lastSynced": {
+        "message": "Son senkronizasyon: $1"
+    },
+    "syncNow": {
+        "message": "Şimdi senkronize et"
+    },
+    "openSettings": {
+        "message": "Ayarlar"
+    },
+    "version": {
+        "message": "sürüm: $1"
+    },
+    "tabSettings": {
+        "message": "Ayarlar"
+    },
+    "tabTools": {
+        "message": "Araçlar"
+    },
+    "settingsHeading": {
+        "message": "Ayarlar"
+    },
+    "syncStorageHeading": {
+        "message": "Senkronizasyon Depolaması"
+    },
+    "helpHeading": {
+        "message": "Yardım"
+    },
+    "helpSetup": {
+        "message": "XBookSync kurulumu ve kullanımı hakkında yardım alın."
+    },
+    "helpIssues": {
+        "message": "XBookSync ile ilgili sorunlar veya özellik istekleri için."
+    },
+    "sortBookmarks": {
+        "message": "Yer imlerini sırala"
+    },
+    "sortOrder": {
+        "message": "Sıralama düzeni"
+    },
+    "sortAscending": {
+        "message": "Artan (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Azalan (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Klasör sıralaması"
+    },
+    "sortFoldersFirst": {
+        "message": "Önce klasörler"
+    },
+    "sortTogether": {
+        "message": "Yer imlerini ve klasörleri birlikte sırala"
+    },
+    "syncRate": {
+        "message": "Senkronizasyon sıklığı"
+    },
+    "durationDays": {
+        "message": "Gün"
+    },
+    "durationHours": {
+        "message": "Saat"
+    },
+    "durationMinutes": {
+        "message": "Dakika"
+    },
+    "durationSeconds": {
+        "message": "Saniye"
+    },
+    "durationDecrease": {
+        "message": "Azalt: $1"
+    },
+    "durationIncrease": {
+        "message": "Artır: $1"
+    },
+    "durationSummary": {
+        "message": "Her $1"
+    },
+    "storageType": {
+        "message": "Depolama türü"
+    },
+    "storageSelect": {
+        "message": "Bir depolama türü seçin"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub deposu"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab deposu"
+    },
+    "storageS3": {
+        "message": "S3 Bucket"
+    },
+    "noStorageSelected": {
+        "message": "Depolama türü seçilmedi"
+    },
+    "notImplemented": {
+        "message": "Bu özellik henüz kullanılamıyor"
+    },
+    "ghLogin": {
+        "message": "GitHub ile giriş yap"
+    },
+    "ghRemoveToken": {
+        "message": "Belirteci kaldır"
+    },
+    "ghEnterCode": {
+        "message": "$1 kodunu $2 adresinde girin"
+    },
+    "ghCopyCode": {
+        "message": "Kodu kopyala"
+    },
+    "ghNotInstalled": {
+        "message": "Bağlandı, ancak uygulama henüz hiçbir hesaba yüklenmedi — depolarınıza erişimi sağlayan budur."
+    },
+    "ghInstall": {
+        "message": "GitHub'a yükle"
+    },
+    "ghInstalled": {
+        "message": "Yükledim"
+    },
+    "ghRepo": {
+        "message": "GitHub deposu"
+    },
+    "ghLoadingRepos": {
+        "message": "Depolar yükleniyor…"
+    },
+    "ghSelectRepo": {
+        "message": "Bir depo seçin"
+    },
+    "ghConnected": {
+        "message": "GitHub'a bağlandı."
+    },
+    "ghCodeExpired": {
+        "message": "Cihaz kodunun süresi onaylanmadan doldu."
+    },
+    "ghAuthDenied": {
+        "message": "GitHub yetkilendirmesi reddedildi."
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync senkronizasyonu başarısız oldu"
+    },
+    "errRemoteMissing": {
+        "message": "Uzak yer imi dosyası silindi."
+    },
+    "errNotConfigured": {
+        "message": "Henüz bir senkronizasyon hedefi yapılandırılmadı."
+    },
+    "errAuthRequired": {
+        "message": "GitHub bağlantısı dikkat gerektiriyor — ayarlardan yeniden bağlanın."
+    },
+    "errConflict": {
+        "message": "Senkronizasyon çakışması — otomatik olarak yeniden denenecek."
+    },
+    "errNetwork": {
+        "message": "GitHub'a ulaşılamadı — yeniden denenecek."
+    },
+    "errServer": {
+        "message": "GitHub sorun yaşıyor — yeniden denenecek."
+    },
+    "errUnknown": {
+        "message": "Senkronizasyon başarısız oldu — yeniden denenecek."
+    },
+    "toolsSearchFor": {
+        "message": "Ara"
+    },
+    "toolsEmptyFolders": {
+        "message": "Boş klasörler"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Yinelenen yer imleri"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Yinelenen klasörleri birleştir"
+    },
+    "toolsRun": {
+        "message": "Çalıştır"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Boş klasör bulunamadı."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Yinelenen yer imi bulunamadı."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Yinelenen klasör bulunamadı."
+    },
+    "toolsMergeFolders": {
+        "message": "Klasörleri birleştir"
+    },
+    "toolsMergeFolderSet": {
+        "message": "\"$1\" klasörlerini birleştir"
+    }
+}

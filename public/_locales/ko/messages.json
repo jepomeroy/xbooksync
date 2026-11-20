@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "ko"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Chrome 및 Firefox용 북마크 동기화 도구"
+    },
+    "appLogoAlt": {
+        "message": "앱 로고"
+    },
+    "optionsTitle": {
+        "message": "XBookSync 옵션"
+    },
+    "enableSyncing": {
+        "message": "동기화 사용"
+    },
+    "enableNotifications": {
+        "message": "알림 사용"
+    },
+    "lastSynced": {
+        "message": "마지막 동기화: $1"
+    },
+    "syncNow": {
+        "message": "지금 동기화"
+    },
+    "openSettings": {
+        "message": "설정"
+    },
+    "version": {
+        "message": "버전: $1"
+    },
+    "tabSettings": {
+        "message": "설정"
+    },
+    "tabTools": {
+        "message": "도구"
+    },
+    "settingsHeading": {
+        "message": "설정"
+    },
+    "syncStorageHeading": {
+        "message": "동기화 저장소"
+    },
+    "helpHeading": {
+        "message": "도움말"
+    },
+    "helpSetup": {
+        "message": "XBookSync 설정 및 사용에 대한 도움말."
+    },
+    "helpIssues": {
+        "message": "XBookSync 문제 신고 또는 기능 요청."
+    },
+    "sortBookmarks": {
+        "message": "북마크 정렬"
+    },
+    "sortOrder": {
+        "message": "정렬 순서"
+    },
+    "sortAscending": {
+        "message": "오름차순 (A-Z)"
+    },
+    "sortDescending": {
+        "message": "내림차순 (Z-A)"
+    },
+    "sortFolders": {
+        "message": "폴더 정렬"
+    },
+    "sortFoldersFirst": {
+        "message": "폴더 먼저"
+    },
+    "sortTogether": {
+        "message": "북마크와 폴더를 함께 정렬"
+    },
+    "syncRate": {
+        "message": "동기화 주기"
+    },
+    "durationDays": {
+        "message": "일"
+    },
+    "durationHours": {
+        "message": "시간"
+    },
+    "durationMinutes": {
+        "message": "분"
+    },
+    "durationSeconds": {
+        "message": "초"
+    },
+    "durationDecrease": {
+        "message": "$1 줄이기"
+    },
+    "durationIncrease": {
+        "message": "$1 늘리기"
+    },
+    "durationSummary": {
+        "message": "$1마다"
+    },
+    "storageType": {
+        "message": "저장소 유형"
+    },
+    "storageSelect": {
+        "message": "저장소 유형 선택"
+    },
+    "storageGitHubRepo": {
+        "message": "GitHub 저장소"
+    },
+    "storageGitLabRepo": {
+        "message": "GitLab 저장소"
+    },
+    "storageS3": {
+        "message": "S3 버킷"
+    },
+    "noStorageSelected": {
+        "message": "선택된 저장소 유형이 없습니다"
+    },
+    "notImplemented": {
+        "message": "이 기능은 아직 사용할 수 없습니다"
+    },
+    "ghLogin": {
+        "message": "GitHub로 로그인"
+    },
+    "ghRemoveToken": {
+        "message": "토큰 삭제"
+    },
+    "ghEnterCode": {
+        "message": "$2에서 코드 $1을(를) 입력하세요"
+    },
+    "ghCopyCode": {
+        "message": "코드 복사"
+    },
+    "ghNotInstalled": {
+        "message": "연결되었지만 앱이 아직 어떤 계정에도 설치되지 않았습니다. 저장소에 접근하려면 설치가 필요합니다."
+    },
+    "ghInstall": {
+        "message": "GitHub에 설치"
+    },
+    "ghInstalled": {
+        "message": "설치했습니다"
+    },
+    "ghRepo": {
+        "message": "GitHub 저장소"
+    },
+    "ghLoadingRepos": {
+        "message": "저장소 불러오는 중…"
+    },
+    "ghSelectRepo": {
+        "message": "저장소 선택"
+    },
+    "ghConnected": {
+        "message": "GitHub에 연결되었습니다."
+    },
+    "ghCodeExpired": {
+        "message": "승인되기 전에 기기 코드가 만료되었습니다."
+    },
+    "ghAuthDenied": {
+        "message": "GitHub 권한 부여가 거부되었습니다."
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync 동기화 실패"
+    },
+    "errRemoteMissing": {
+        "message": "원격 북마크 파일이 삭제되었습니다."
+    },
+    "errNotConfigured": {
+        "message": "아직 동기화 대상이 설정되지 않았습니다."
+    },
+    "errAuthRequired": {
+        "message": "GitHub 연결을 확인해야 합니다. 설정에서 다시 연결하세요."
+    },
+    "errConflict": {
+        "message": "동기화 충돌이 발생했습니다. 자동으로 다시 시도합니다."
+    },
+    "errNetwork": {
+        "message": "GitHub에 연결할 수 없습니다. 다시 시도합니다."
+    },
+    "errServer": {
+        "message": "GitHub에 문제가 있습니다. 다시 시도합니다."
+    },
+    "errUnknown": {
+        "message": "동기화에 실패했습니다. 다시 시도합니다."
+    },
+    "toolsSearchFor": {
+        "message": "검색 대상"
+    },
+    "toolsEmptyFolders": {
+        "message": "빈 폴더"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "중복 북마크"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "중복 폴더 병합"
+    },
+    "toolsRun": {
+        "message": "실행"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "빈 폴더가 없습니다."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "중복 북마크가 없습니다."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "중복 폴더가 없습니다."
+    },
+    "toolsMergeFolders": {
+        "message": "폴더 병합"
+    },
+    "toolsMergeFolderSet": {
+        "message": "\"$1\" 폴더 병합"
+    }
+}

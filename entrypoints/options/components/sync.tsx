@@ -11,6 +11,7 @@ import {
 import Toggle from '@/entrypoints/shared/components/toggle'
 import { getLastSynced, parseLastSynced } from '@/entrypoints/shared/syncutils'
 import DurationInput from '@/entrypoints/shared/components/duration-input'
+import { t } from '@/entrypoints/shared/i18n'
 
 /**
  * Sync preferences: the master enable toggle, the interval between automatic
@@ -109,19 +110,25 @@ export default function Sync() {
 
     return (
         <div className='setting-group'>
-            <Toggle label='Enable Syncing' checked={syncEnabled} onToggle={handleSyncChange} />
+            <Toggle label={t('enableSyncing')} checked={syncEnabled} onToggle={handleSyncChange} />
             {import.meta.env.BROWSER === 'chrome' && (
                 <Toggle
-                    label='Enable Notification'
+                    label={t('enableNotifications')}
                     checked={notificationsEnabled}
                     onToggle={handleNotificationsChange}
                 />
             )}
             <div className='setting'>
-                <DurationInput value={syncRate} label='Sync Rate' min={30} step={5} onChange={handleSyncRateChange} />
+                <DurationInput
+                    value={syncRate}
+                    label={t('syncRate')}
+                    min={30}
+                    step={5}
+                    onChange={handleSyncRateChange}
+                />
             </div>
             <div className='last-synced'>
-                <p>Last synced: {getLastSynced(lastSynced)}</p>
+                <p>{t('lastSynced', getLastSynced(lastSynced))}</p>
             </div>
         </div>
     )

@@ -33,6 +33,7 @@ import { applyRemote, diffBase, emptyDiffResult, hasModifications } from './book
 import { AppNotInstalledError, GitHubApiError, RemoteFileMissingError } from './bookmarks/gh-utils'
 import { EmptyRemoteError, NotConfiguredError } from '@/entrypoints/shared/types'
 import { syncErrorMessage } from '@/entrypoints/shared/syncutils'
+import { t } from '@/entrypoints/shared/i18n'
 import { SyncService } from './bookmarks/sync-service'
 import { sortIfEnabled } from './bookmarks/sort'
 
@@ -490,7 +491,7 @@ const reportSyncOutcome = async (error: unknown): Promise<void> => {
     browser.notifications.create({
         type: 'basic',
         iconUrl: browser.runtime.getURL('/icons/128.png'),
-        title: 'XBookSync sync failed',
+        title: t('syncFailedTitle'),
         message: syncErrorMessage(kind),
     })
 }

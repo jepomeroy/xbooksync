@@ -1,0 +1,215 @@
+{
+    "localeTag": {
+        "message": "vi"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
+    "extDescription": {
+        "message": "Tiện ích đồng bộ dấu trang cho Chrome và Firefox"
+    },
+    "appLogoAlt": {
+        "message": "Biểu trưng ứng dụng"
+    },
+    "optionsTitle": {
+        "message": "Tùy chọn XBookSync"
+    },
+    "enableSyncing": {
+        "message": "Bật đồng bộ"
+    },
+    "enableNotifications": {
+        "message": "Bật thông báo"
+    },
+    "lastSynced": {
+        "message": "Lần đồng bộ gần nhất: $1"
+    },
+    "syncNow": {
+        "message": "Đồng bộ ngay"
+    },
+    "openSettings": {
+        "message": "Cài đặt"
+    },
+    "version": {
+        "message": "phiên bản: $1"
+    },
+    "tabSettings": {
+        "message": "Cài đặt"
+    },
+    "tabTools": {
+        "message": "Công cụ"
+    },
+    "settingsHeading": {
+        "message": "Cài đặt"
+    },
+    "syncStorageHeading": {
+        "message": "Nơi lưu trữ đồng bộ"
+    },
+    "helpHeading": {
+        "message": "Trợ giúp"
+    },
+    "helpSetup": {
+        "message": "Trợ giúp về cách thiết lập và sử dụng XBookSync."
+    },
+    "helpIssues": {
+        "message": "Báo lỗi hoặc đề xuất tính năng cho XBookSync."
+    },
+    "sortBookmarks": {
+        "message": "Sắp xếp dấu trang"
+    },
+    "sortOrder": {
+        "message": "Thứ tự sắp xếp"
+    },
+    "sortAscending": {
+        "message": "Tăng dần (A-Z)"
+    },
+    "sortDescending": {
+        "message": "Giảm dần (Z-A)"
+    },
+    "sortFolders": {
+        "message": "Sắp xếp thư mục"
+    },
+    "sortFoldersFirst": {
+        "message": "Thư mục trước"
+    },
+    "sortTogether": {
+        "message": "Sắp xếp dấu trang và thư mục cùng nhau"
+    },
+    "syncRate": {
+        "message": "Tần suất đồng bộ"
+    },
+    "durationDays": {
+        "message": "Ngày"
+    },
+    "durationHours": {
+        "message": "Giờ"
+    },
+    "durationMinutes": {
+        "message": "Phút"
+    },
+    "durationSeconds": {
+        "message": "Giây"
+    },
+    "durationDecrease": {
+        "message": "Giảm $1"
+    },
+    "durationIncrease": {
+        "message": "Tăng $1"
+    },
+    "durationSummary": {
+        "message": "Mỗi $1"
+    },
+    "storageType": {
+        "message": "Loại lưu trữ"
+    },
+    "storageSelect": {
+        "message": "Chọn loại lưu trữ"
+    },
+    "storageGitHubRepo": {
+        "message": "Kho GitHub"
+    },
+    "storageGitLabRepo": {
+        "message": "Kho GitLab"
+    },
+    "storageS3": {
+        "message": "Bucket S3"
+    },
+    "noStorageSelected": {
+        "message": "Chưa chọn loại lưu trữ"
+    },
+    "notImplemented": {
+        "message": "Tính năng này chưa khả dụng"
+    },
+    "ghLogin": {
+        "message": "Đăng nhập bằng GitHub"
+    },
+    "ghRemoveToken": {
+        "message": "Xóa token"
+    },
+    "ghEnterCode": {
+        "message": "Nhập mã $1 tại $2"
+    },
+    "ghCopyCode": {
+        "message": "Sao chép mã"
+    },
+    "ghNotInstalled": {
+        "message": "Đã kết nối, nhưng ứng dụng chưa được cài trên tài khoản nào — việc cài đặt mới cấp quyền truy cập vào các kho của bạn."
+    },
+    "ghInstall": {
+        "message": "Cài trên GitHub"
+    },
+    "ghInstalled": {
+        "message": "Tôi đã cài"
+    },
+    "ghRepo": {
+        "message": "Kho GitHub"
+    },
+    "ghLoadingRepos": {
+        "message": "Đang tải danh sách kho…"
+    },
+    "ghSelectRepo": {
+        "message": "Chọn một kho"
+    },
+    "ghConnected": {
+        "message": "Đã kết nối với GitHub."
+    },
+    "ghCodeExpired": {
+        "message": "Mã thiết bị đã hết hạn trước khi được cấp quyền."
+    },
+    "ghAuthDenied": {
+        "message": "Yêu cầu cấp quyền GitHub đã bị từ chối."
+    },
+    "syncFailedTitle": {
+        "message": "XBookSync đồng bộ thất bại"
+    },
+    "errRemoteMissing": {
+        "message": "Tệp dấu trang từ xa đã bị xóa."
+    },
+    "errNotConfigured": {
+        "message": "Chưa cấu hình đích đồng bộ."
+    },
+    "errAuthRequired": {
+        "message": "Kết nối GitHub cần được xử lý — hãy kết nối lại trong cài đặt."
+    },
+    "errConflict": {
+        "message": "Xung đột đồng bộ — sẽ tự động thử lại."
+    },
+    "errNetwork": {
+        "message": "Không thể kết nối tới GitHub — sẽ thử lại."
+    },
+    "errServer": {
+        "message": "GitHub đang gặp sự cố — sẽ thử lại."
+    },
+    "errUnknown": {
+        "message": "Đồng bộ thất bại — sẽ thử lại."
+    },
+    "toolsSearchFor": {
+        "message": "Tìm kiếm"
+    },
+    "toolsEmptyFolders": {
+        "message": "Thư mục trống"
+    },
+    "toolsDuplicateBookmarks": {
+        "message": "Dấu trang trùng lặp"
+    },
+    "toolsMergeDuplicateFolders": {
+        "message": "Gộp thư mục trùng lặp"
+    },
+    "toolsRun": {
+        "message": "Chạy"
+    },
+    "toolsNoEmptyFolders": {
+        "message": "Không tìm thấy thư mục trống."
+    },
+    "toolsNoDuplicateBookmarks": {
+        "message": "Không tìm thấy dấu trang trùng lặp."
+    },
+    "toolsNoDuplicateFolders": {
+        "message": "Không tìm thấy thư mục trùng lặp."
+    },
+    "toolsMergeFolders": {
+        "message": "Gộp thư mục"
+    },
+    "toolsMergeFolderSet": {
+        "message": "Gộp các thư mục \"$1\""
+    }
+}

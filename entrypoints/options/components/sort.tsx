@@ -2,6 +2,7 @@ import { useState, useEffect } from '#imports'
 import { getSortFolders, getSortOrder, SortFolders, SortOrder } from '@/entrypoints/shared/types'
 import { sortedSetting, sortFoldersSetting, sortOrderSetting } from '@/entrypoints/shared/localsettings'
 import Toggle from '@/entrypoints/shared/components/toggle'
+import { t } from '@/entrypoints/shared/i18n'
 
 /**
  * Sorting preferences: an on/off toggle, plus the direction and folder-grouping
@@ -63,15 +64,15 @@ export default function Sort() {
         if (showSort) {
             return (
                 <div className='setting'>
-                    <label htmlFor='Sort Order'>Sort Order</label>
+                    <label htmlFor='Sort Order'>{t('sortOrder')}</label>
                     <select id='Sort Order' value={sortOrder} onChange={handleSortOrderChange}>
-                        <option value={SortOrder.Ascending}>Ascending (A-Z)</option>
-                        <option value={SortOrder.Descending}>Descending (Z-A)</option>
+                        <option value={SortOrder.Ascending}>{t('sortAscending')}</option>
+                        <option value={SortOrder.Descending}>{t('sortDescending')}</option>
                     </select>
-                    <label htmlFor='Sort Folders'>Sort Folders</label>
+                    <label htmlFor='Sort Folders'>{t('sortFolders')}</label>
                     <select id='Sort Folders' value={sortFolders} onChange={handleSortFoldersChange}>
-                        <option value={SortFolders.FoldersFirst}>Sort Folders First</option>
-                        <option value={SortFolders.BookmarksAndFolders}>Sort Bookmarks and Folders Together</option>
+                        <option value={SortFolders.FoldersFirst}>{t('sortFoldersFirst')}</option>
+                        <option value={SortFolders.BookmarksAndFolders}>{t('sortTogether')}</option>
                     </select>
                 </div>
             )
@@ -80,7 +81,7 @@ export default function Sort() {
 
     return (
         <div className='setting-group'>
-            <Toggle label='Sort Bookmarks' checked={sort} onToggle={handleSortChange} />
+            <Toggle label={t('sortBookmarks')} checked={sort} onToggle={handleSortChange} />
             {showSortOrder(sort)}
         </div>
     )
