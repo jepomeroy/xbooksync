@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "hi"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Chrome और Firefox के लिए बुकमार्क सिंक टूल"
     },

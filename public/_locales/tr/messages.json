@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "tr"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Chrome ve Firefox için yer imi senkronizasyon aracı"
     },
@@ -162,7 +168,7 @@
         "message": "Henüz bir senkronizasyon hedefi yapılandırılmadı."
     },
     "errAuthRequired": {
-        "message": "GitHub bağlantısı ilgi gerektiriyor — ayarlardan yeniden bağlanın."
+        "message": "GitHub bağlantısı dikkat gerektiriyor — ayarlardan yeniden bağlanın."
     },
     "errConflict": {
         "message": "Senkronizasyon çakışması — otomatik olarak yeniden denenecek."

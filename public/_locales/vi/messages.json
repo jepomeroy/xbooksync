@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "vi"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Tiện ích đồng bộ dấu trang cho Chrome và Firefox"
     },

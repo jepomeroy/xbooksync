@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "it"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Strumento di sincronizzazione dei segnalibri per Chrome e Firefox"
     },

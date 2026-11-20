@@ -31,7 +31,8 @@ export const parseLastSynced = (iso: string | null): Date | null => {
  * the stored value is still loading.
  *
  * Shared by the popup and the options page so both render the timestamp
- * identically. Follows the browser UI locale, including its 12/24-hour clock.
+ * identically. Follows the locale of the served catalog (see `uiLocale`), including its
+ * 12/24-hour clock.
  *
  * @param lastSynced - Output of {@link parseLastSynced}, or null before the
  * stored value resolves. Null renders blank rather than a date.

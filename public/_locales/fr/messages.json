@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "fr"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Utilitaire de synchronisation des favoris pour Chrome et Firefox"
     },
@@ -15,7 +21,7 @@
         "message": "Activer les notifications"
     },
     "lastSynced": {
-        "message": "Dernière synchronisation : $1"
+        "message": "Dernière synchronisation : $1"
     },
     "syncNow": {
         "message": "Synchroniser maintenant"
@@ -24,7 +30,7 @@
         "message": "Paramètres"
     },
     "version": {
-        "message": "version : $1"
+        "message": "version : $1"
     },
     "tabSettings": {
         "message": "Paramètres"
@@ -84,13 +90,13 @@
         "message": "Secondes"
     },
     "durationDecrease": {
-        "message": "Diminuer : $1"
+        "message": "Diminuer : $1"
     },
     "durationIncrease": {
-        "message": "Augmenter : $1"
+        "message": "Augmenter : $1"
     },
     "durationSummary": {
-        "message": "Intervalle : $1"
+        "message": "Intervalle : $1"
     },
     "storageType": {
         "message": "Type de stockage"
@@ -204,6 +210,6 @@
         "message": "Fusionner les dossiers"
     },
     "toolsMergeFolderSet": {
-        "message": "Fusionner les dossiers « $1 »"
+        "message": "Fusionner les dossiers « $1 »"
     }
 }

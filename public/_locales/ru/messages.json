@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "ru"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Синхронизация закладок для Chrome и Firefox"
     },
@@ -156,7 +162,7 @@
         "message": "Ошибка синхронизации XBookSync"
     },
     "errRemoteMissing": {
-        "message": "Удалённый файл закладок был удалён."
+        "message": "Файл закладок в хранилище был удалён."
     },
     "errNotConfigured": {
         "message": "Место синхронизации ещё не настроено."

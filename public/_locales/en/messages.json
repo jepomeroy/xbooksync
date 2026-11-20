@@ -1,4 +1,12 @@
 {
+    "localeTag": {
+        "message": "en",
+        "description": "BCP 47 tag of this translation (e.g. de, pt-BR, zh-TW), used for date, number and list formatting and the page's lang attribute. Set it to this catalog's own locale, not a translated word."
+    },
+    "textDirection": {
+        "message": "ltr",
+        "description": "Writing direction of this translation: ltr or rtl. Not a translated word."
+    },
     "extName": { "message": "XBookSync", "description": "Extension name. Product name; normally left untranslated." },
     "extDescription": {
         "message": "Bookmark sync utility for Chrome and Firefox",

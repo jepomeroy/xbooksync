@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "pt-PT"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Utilitário de sincronização de favoritos para Chrome e Firefox"
     },

@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "zh-CN"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "适用于 Chrome 和 Firefox 的书签同步工具"
     },

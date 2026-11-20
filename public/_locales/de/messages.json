@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "de"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Lesezeichen-Synchronisierung für Chrome und Firefox"
     },
@@ -90,7 +96,7 @@
         "message": "$1 erhöhen"
     },
     "durationSummary": {
-        "message": "Alle $1"
+        "message": "Intervall: $1"
     },
     "storageType": {
         "message": "Speichertyp"

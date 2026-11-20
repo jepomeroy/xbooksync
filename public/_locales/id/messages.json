@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "id"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Utilitas sinkronisasi bookmark untuk Chrome dan Firefox"
     },

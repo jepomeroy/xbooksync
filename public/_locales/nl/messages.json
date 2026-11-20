@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "nl"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Hulpprogramma voor het synchroniseren van bladwijzers in Chrome en Firefox"
     },

@@ -337,6 +337,9 @@ pt_PT, ru, tr, uk, vi, zh_CN, zh_TW.
   use `tParts` so each translation can put it where its grammar needs it.
 - Don't put counts in catalog strings: `browser.i18n` has no plural rules. Use `Intl`
   instead, as `formatDuration` does.
+- Every catalog sets `localeTag` (its own BCP 47 tag, e.g. `pt-BR`) and `textDirection`
+  (`ltr` or `rtl`). `Intl` formatting, the page's `lang` and its `dir` come from these,
+  not from the browser's language, so they always match the text on screen.
 - `tests/i18n.test.ts` fails if a translation uses an unknown key or drops a placeholder.
 
 ## Help & issues

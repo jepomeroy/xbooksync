@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "pl"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Narzędzie do synchronizacji zakładek dla Chrome i Firefoksa"
     },

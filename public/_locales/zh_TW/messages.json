@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "zh-TW"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "適用於 Chrome 與 Firefox 的書籤同步工具"
     },

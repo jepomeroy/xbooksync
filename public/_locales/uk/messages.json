@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "uk"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Синхронізація закладок для Chrome і Firefox"
     },

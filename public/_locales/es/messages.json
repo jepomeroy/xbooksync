@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "es"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Utilidad de sincronización de marcadores para Chrome y Firefox"
     },

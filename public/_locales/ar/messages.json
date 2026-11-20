@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "ar"
+    },
+    "textDirection": {
+        "message": "rtl"
+    },
     "extDescription": {
         "message": "أداة مزامنة الإشارات المرجعية لمتصفحي Chrome وFirefox"
     },

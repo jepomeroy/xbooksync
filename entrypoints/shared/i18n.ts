@@ -25,8 +25,16 @@ export type MessageKey = keyof typeof en
 export const t = (key: MessageKey, ...substitutions: (string | number)[]): string =>
     browser.i18n.getMessage(key, substitutions.map(String)) || key
 
-/** BCP 47 tag for the browser UI, for `Intl` formatting. */
-export const uiLocale = (): string => browser.i18n.getUILanguage()
+/**
+ * BCP 47 tag of the catalog actually being served, for `Intl` formatting and
+ * the page's `lang`.
+ *
+ * Not `getUILanguage()`: when the browser's language has no catalog, the text
+ * falls back to English, and formatting dates or units in the browser's
+ * language would mix two languages in one sentence. Each catalog names its own
+ * locale in `localeTag`, so this always matches the strings on screen.
+ */
+export const uiLocale = (): string => t('localeTag')
 
 /**
  * Splits a message around its placeholders so non-string values (links,
@@ -69,10 +77,14 @@ export const formatDuration = (parts: [number, DurationUnit][]): string => {
 }
 
 /**
- * Points the document at the UI language and its text direction, so
- * right-to-left locales lay out correctly. Called once per page at startup.
+ * Points the document at the served catalog's language and text direction, so
+ * right-to-left translations lay out correctly. Called once per page at startup.
+ *
+ * The direction comes from the catalog's `textDirection`, not `@@bidi_dir`:
+ * the latter follows the browser's language, so an RTL browser language with
+ * no catalog would lay the English fallback out right to left.
  */
 export const applyDocumentLocale = (): void => {
     document.documentElement.lang = uiLocale()
-    document.documentElement.dir = browser.i18n.getMessage('@@bidi_dir') || 'ltr'
+    document.documentElement.dir = t('textDirection') === 'rtl' ? 'rtl' : 'ltr'
 }

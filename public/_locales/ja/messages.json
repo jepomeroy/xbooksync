@@ -1,4 +1,10 @@
 {
+    "localeTag": {
+        "message": "ja"
+    },
+    "textDirection": {
+        "message": "ltr"
+    },
     "extDescription": {
         "message": "Chrome と Firefox 向けのブックマーク同期ツール"
     },
