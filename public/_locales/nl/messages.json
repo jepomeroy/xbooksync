@@ -5,6 +5,9 @@
     "textDirection": {
         "message": "ltr"
     },
+    "extName": {
+        "message": "XBookSync"
+    },
     "extDescription": {
         "message": "Hulpprogramma voor het synchroniseren van bladwijzers in Chrome en Firefox"
     },
